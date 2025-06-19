@@ -31,6 +31,12 @@ function EconomicExpenseManagement() {
         searchType,
         searchTerm,
         filterByStatus,
+        filterByAmountRangeMax, 
+        filterByAmountRangeMin,
+        filterByMeanOfPayment,
+        filterByDateRangeMax,
+        filterByDateRangeMin,
+        filterByCategory,
         fetchEconomicExpenses,
         getEconomicExpenseById,
         changePage,
@@ -61,7 +67,7 @@ function EconomicExpenseManagement() {
         }
         
         fetchData()
-    }, [page, size, searchType, searchTerm, orderBy, directionOrderBy, filterByStatus])
+    }, [page, size, searchType, searchTerm, orderBy, directionOrderBy, filterByStatus, filterByAmountRangeMax, filterByAmountRangeMin, filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin, filterByCategory])
 
     return ( 
         <div className="bg-black min-h-screen">
