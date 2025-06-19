@@ -19,26 +19,28 @@ Con la firma del presente contrato, se aceptan los términos y condiciones estip
 `;
 
 export const StepContract = () => {
-  const { 
-    setValue, 
-    formState: { errors } 
+  const {
+    setValue,
+    formState: { errors }
   } = useFormContext();
-  
+
   const sigCanvasRef = useRef<SignatureCanvas>(null);
 
   const handleClear = () => {
     sigCanvasRef.current?.clear();
-    setValue('signatureImage', '');
+    setValue('signatureImage', '', { shouldValidate: true });
   };
 
   const handleSignatureEnd = () => {
     if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-      const signatureData = sigCanvasRef.current
-        .getTrimmedCanvas()
-        .toDataURL('image/png');
-      setValue('signatureImage', signatureData);
+      try {
+        const signatureData = sigCanvasRef.current.getCanvas().toDataURL('image/png');
+        setValue('signatureImage', signatureData, { shouldValidate: true });
+      } catch (error) {
+        setValue('signatureImage', '', { shouldValidate: true });
+      }
     } else {
-      setValue('signatureImage', '');
+      setValue('signatureImage', '', { shouldValidate: true });
     }
   };
 
@@ -58,12 +60,12 @@ export const StepContract = () => {
             canvasProps={{
               width: 500,
               height: 200,
-              className: 'sig-canvas w-full bg-white'
+              className: 'sig-canvas w-full bg-gray-100'
             }}
             onEnd={handleSignatureEnd}
           />
         </div>
-        
+
         {errors.signatureImage && (
           <ErrorForm>{errors.signatureImage.message?.toString()}</ErrorForm>
         )}
