@@ -6,7 +6,7 @@ import useMeasurementStore from "./Store";
 import { useNavigate } from "react-router";
 import { formatDate } from "../shared/utils/format";
 
-export const useMeasurement = () => {
+export const useMeasurement = (idClient: number) => {
     const navigate = useNavigate();
     const { measurements, fetchMeasurements, deleteMeasurement, updateMeasurement, changeSearchTerm, changeOrderBy, changeDirectionOrderBy, directionOrderBy } = useMeasurementStore();
 
@@ -67,6 +67,7 @@ export const useMeasurement = () => {
         const reqMeasurement = {
             ...measurement, 
             isDeleted: 0,
+            idClient: idClient,
             paramLoggedIdUser: loggedUser?.idUser
         };
         
