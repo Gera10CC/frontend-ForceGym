@@ -1,17 +1,17 @@
 import { IoFilterOutline } from "react-icons/io5";
-import useAssetStore from "./Store";
 import { MdOutlineCancel } from "react-icons/md";
+import useAssetStore from "./Store";
 
 export function FilterButton() {
-    const { filterByStatus, filterByCostRangeMin, filterByCostRangeMax, filterByQuantityRangeMin, filterByQuantityRangeMax, showModalFilter } = useAssetStore()
+    const { filterByStatus, filterByCostRangeMin, filterByCostRangeMax, filterByQuantityRangeMin, filterByQuantityRangeMax, showModalFilter } = useAssetStore();
     const filteringStyles = (
-        filterByStatus!='' || filterByCostRangeMin!=0 || filterByCostRangeMax!=0 || filterByQuantityRangeMin!=0 || filterByQuantityRangeMax!=0
-    ) && ' bg-white outline-none'
+        filterByStatus !== '' || filterByCostRangeMin !== 0 || filterByCostRangeMax !== 0 || filterByQuantityRangeMin !== 0 || filterByQuantityRangeMax !== 0
+    ) ? ' bg-white outline-none' : '';
 
     return (
         <button
             className={"flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300" + filteringStyles}
-            onClick={()=>{ showModalFilter() }}
+            onClick={() => showModalFilter()}
         >
             <IoFilterOutline />
             <span>Filtrar</span>
@@ -20,26 +20,25 @@ export function FilterButton() {
 }
 
 export function FilterSelect() {
-    const { 
-        filterByStatus, 
-        filterByCostRangeMin, 
-        filterByCostRangeMax, 
-        filterByQuantityRangeMin, 
-        filterByQuantityRangeMax, 
-        changeFilterByStatus, 
+    const {
+        filterByStatus,
+        filterByCostRangeMin,
+        filterByCostRangeMax,
+        filterByQuantityRangeMin,
+        filterByQuantityRangeMax,
+        changeFilterByStatus,
         changeFilterByCostRangeMin,
         changeFilterByCostRangeMax,
         changeFilterByQuantityRangeMin,
         changeFilterByQuantityRangeMax,
         clearAllFilters
-    } = useAssetStore()
-    const filteredStatusSelectStyles = filterByStatus!='' && ' px-0.5 rounded-md border-2 border-yellow text-yellow'
-    const filteredCostRangeStyles = (filterByCostRangeMin!=0 && filterByCostRangeMax!=0)  && ' px-0.5 border-2 border-yellow text-yellow'
-    const filteredQuantityRangeStyles = (filterByQuantityRangeMin !=0 && filterByQuantityRangeMax!=0)  && ' px-0.5 border-2 border-yellow text-yellow'
+    } = useAssetStore();
+    const filteredStatusSelectStyles = filterByStatus !== '' ? ' px-0.5 rounded-md border-2 border-yellow text-yellow' : '';
+    const filteredCostRangeStyles = (filterByCostRangeMin !== 0 || filterByCostRangeMax !== 0) ? ' px-0.5 border-2 border-yellow text-yellow' : '';
+    const filteredQuantityRangeStyles = (filterByQuantityRangeMin !== 0 || filterByQuantityRangeMax !== 0) ? ' px-0.5 border-2 border-yellow text-yellow' : '';
 
     return (
         <div className="flex flex-col gap-4">
-            
             {/* Botón de limpiar todos */}
             <div className="flex justify-end pr-4">
                 <button
@@ -57,29 +56,29 @@ export function FilterSelect() {
                     className={'border rounded-md p-2 w-52 text-center' + filteredStatusSelectStyles}
                     name="status"
                     id="status"
-                    value={filterByStatus} 
+                    value={filterByStatus}
                     onChange={(e) => {
-                        if(Number(e.target.value) === 0){
-                            changeFilterByStatus('')
-                        }else{
-                            changeFilterByStatus(e.target.value)
+                        if (e.target.value === '0') {
+                            changeFilterByStatus('');
+                        } else {
+                            changeFilterByStatus(e.target.value);
                         }
                     }}
                 >
-                    <option value={0}> Activos </option>
-                    <option value={'Inactivos'}> Inactivos </option>
-                    <option value={'Todos'}> Todos </option>
+                    <option value="0">Activos</option>
+                    <option value="Inactivos">Inactivos</option>
+                    <option value="Todos">Todos</option>
                 </select>
-                {filterByStatus && 
+                {filterByStatus && (
                     <button
                         className="text-2xl text-yellow"
                         onClick={() => changeFilterByStatus('')}
                     >
                         <MdOutlineCancel className="hover:cursor-pointer" />
                     </button>
-                }
+                )}
             </div>
-    
+
             {/* Filtro por Costo */}
             <div className="flex items-center gap-4">
                 <label className="w-20">Costo</label>
@@ -91,9 +90,12 @@ export function FilterSelect() {
                             name="costMin"
                             id="costMin"
                             type="number"
-                            min={1}
-                            value={filterByCostRangeMin}
-                            onChange={(e) => changeFilterByCostRangeMin(+e.target.value)}
+                            min={0}
+                            value={filterByCostRangeMin === 0 ? '' : filterByCostRangeMin}
+                            onChange={(e) => {
+                                const value = e.target.value === '' ? 0 : +e.target.value;
+                                changeFilterByCostRangeMin(value);
+                            }}
                         />
                     </div>
                     <span>-</span>
@@ -104,24 +106,28 @@ export function FilterSelect() {
                             name="costMax"
                             id="costMax"
                             type="number"
-                            value={filterByCostRangeMax}
-                            onChange={(e) => changeFilterByCostRangeMax(+e.target.value)}
+                            min={0}
+                            value={filterByCostRangeMax === 0 ? '' : filterByCostRangeMax}
+                            onChange={(e) => {
+                                const value = e.target.value === '' ? 0 : +e.target.value;
+                                changeFilterByCostRangeMax(value);
+                            }}
                         />
                     </div>
-                    {(filterByCostRangeMin !== 0 || filterByCostRangeMax !== 0) && 
+                    {(filterByCostRangeMin !== 0 || filterByCostRangeMax !== 0) && (
                         <button
                             className="text-2xl text-yellow"
-                            onClick={() => { 
+                            onClick={() => {
                                 changeFilterByCostRangeMin(0);
                                 changeFilterByCostRangeMax(0);
                             }}
                         >
                             <MdOutlineCancel className="hover:cursor-pointer" />
                         </button>
-                    }
+                    )}
                 </div>
             </div>
-    
+
             {/* Filtro por Cantidad */}
             <div className="flex items-center gap-4">
                 <label className="w-20">Cantidad</label>
@@ -133,9 +139,12 @@ export function FilterSelect() {
                             name="quantityMin"
                             id="quantityMin"
                             type="number"
-                            min={1}
-                            value={filterByQuantityRangeMin}
-                            onChange={(e) => changeFilterByQuantityRangeMin(+e.target.value)}
+                            min={0}
+                            value={filterByQuantityRangeMin === 0 ? '' : filterByQuantityRangeMin}
+                            onChange={(e) => {
+                                const value = e.target.value === '' ? 0 : +e.target.value;
+                                changeFilterByQuantityRangeMin(value);
+                            }}
                         />
                     </div>
                     <span>-</span>
@@ -146,23 +155,27 @@ export function FilterSelect() {
                             name="quantityMax"
                             id="quantityMax"
                             type="number"
-                            value={filterByQuantityRangeMax}
-                            onChange={(e) => changeFilterByQuantityRangeMax(+e.target.value)}
+                            min={0}
+                            value={filterByQuantityRangeMax === 0 ? '' : filterByQuantityRangeMax}
+                            onChange={(e) => {
+                                const value = e.target.value === '' ? 0 : +e.target.value;
+                                changeFilterByQuantityRangeMax(value);
+                            }}
                         />
                     </div>
-                    {(filterByQuantityRangeMin !== 0 || filterByQuantityRangeMax !== 0) && 
+                    {(filterByQuantityRangeMin !== 0 || filterByQuantityRangeMax !== 0) && (
                         <button
                             className="text-2xl text-yellow"
-                            onClick={() => { 
+                            onClick={() => {
                                 changeFilterByQuantityRangeMin(0);
                                 changeFilterByQuantityRangeMax(0);
                             }}
                         >
                             <MdOutlineCancel className="hover:cursor-pointer" />
                         </button>
-                    }
+                    )}
                 </div>
             </div>
         </div>
-    );      
+    );
 }
