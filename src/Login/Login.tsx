@@ -33,16 +33,7 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
             <main className="flex flex-col lg:flex-row justify-between w-full max-w-6xl bg-white rounded-lg overflow-hidden">
                 {/* Sección del formulario */}
                 <section className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col">
-                    <div className="w-8 sm:w-10 md:w-12 flex justify-start">
-                        <a
-                            href="/"
-                            className="flex items-center text-gray-400 hover:text-yellow transition-colors duration-300"
-                            title="Regresar"
-                        >
-                            <FaArrowLeft className="text-xl sm:text-2xl" />
-                        </a>
-                    </div>
-                    
+
                     <header className="flex justify-center my-4 sm:my-6">
                         <img 
                             src="Logo.webp" 
