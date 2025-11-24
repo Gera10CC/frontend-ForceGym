@@ -100,6 +100,8 @@ function Form() {
                 setValue('weight', selectedMeasurement.weight);
                 setValue('height', selectedMeasurement.height);
                 setValue('muscleMass', selectedMeasurement.muscleMass);
+                setValue('backSize', selectedMeasurement.backSize);
+                setValue('hipSize', selectedMeasurement.hipSize);
                 setValue('bodyFatPercentage', selectedMeasurement.bodyFatPercentage);
                 setValue('visceralFatPercentage', selectedMeasurement.visceralFatPercentage);
                 setValue('chestSize', selectedMeasurement.chestSize);

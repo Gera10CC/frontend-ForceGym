@@ -23,7 +23,7 @@ export const StepContract = () => {
     setValue, 
     formState: { errors } 
   } = useFormContext();
-  
+
   const sigCanvasRef = useRef<SignatureCanvas>(null);
 
   const handleClear = () => {
@@ -58,12 +58,12 @@ export const StepContract = () => {
             canvasProps={{
               width: 500,
               height: 200,
-              className: 'sig-canvas w-full bg-white'
+              className: 'sig-canvas w-full bg-gray-100'
             }}
             onEnd={handleSignatureEnd}
           />
         </div>
-        
+
         {errors.signatureImage && (
           <ErrorForm>{errors.signatureImage.message?.toString()}</ErrorForm>
         )}

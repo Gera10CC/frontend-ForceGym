@@ -21,9 +21,9 @@ function Form() {
     const navigate = useNavigate();
     const { register, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm<EconomicIncomeDataForm>();
     const { } = register('idClient');
-    const { meansOfPayment, activityTypes, allClients, fetchAllClients} = useCommonDataStore();
+    const { meansOfPayment, activityTypes, allClients, fetchAllClients } = useCommonDataStore();
     const { economicIncomes, activeEditingId, fetchEconomicIncomes, addEconomicIncome, updateEconomicIncome, closeModalForm } = useEconomicIncomeStore();
-    
+
     // Observamos los valores relevantes
     const idMeanOfPayment = watch("idMeanOfPayment") ? Number(watch("idMeanOfPayment")) : null;
     const voucherNumber = watch("voucherNumber");
@@ -70,11 +70,11 @@ function Form() {
         let action = '', result;
         const loggedUser = getAuthUser();
         const reqUser = {
-            ...data, 
+            ...data,
             paramLoggedIdUser: loggedUser?.idUser,
             delayDays: data.hasDelay ? data.delayDays : null
         };
-        
+
         if (activeEditingId === 0) {
             result = await addEconomicIncome(reqUser);
             action = 'agregado';
@@ -82,18 +82,17 @@ function Form() {
             result = await updateEconomicIncome(reqUser);
             action = 'editado';
         }
-        
+
         if (result.ok) {
             const result2 = await fetchEconomicIncomes();
-            
-            if(result2.logout){
+
+            if (result2.logout) {
                 setAuthHeader(null);
                 setAuthUser(null);
-                navigate('/login', {replace: true});
-
+                navigate('/login', { replace: true });
             } else {
                 closeModalForm();
-                reset();    
+                reset();
 
                 await Swal.fire({
                     title: `Ingreso económico ${action}`,
@@ -106,7 +105,7 @@ function Form() {
                     confirmButtonColor: '#CFAD04'
                 });
             }
-        } else if(result.logout) {
+        } else if (result.logout) {
             setAuthHeader(null);
             setAuthUser(null);
             navigate('/login');
@@ -130,35 +129,35 @@ function Form() {
                 setValue('voucherNumber', activeIncome.voucherNumber);
                 setValue('idMeanOfPayment', activeIncome.meanOfPayment.idMeanOfPayment);
                 setValue('idActivityType', activeIncome.activityType.idActivityType);
-                setValue('hasDelay', activeIncome.delayDays!=null || false);
+                setValue('hasDelay', activeIncome.delayDays != null || false);
                 setValue('delayDays', activeIncome.delayDays || null);
             }
-        }else{
+        } else {
             setValue('hasDelay', false);
             setValue('delayDays', null);
         }
     }, [activeEditingId]);
 
     useEffect(() => {
-        if (idClient && idActivityType) {
+        if (idClient && idActivityType && activeEditingId==0) {
             // 1. Obtener el tipo de cliente seleccionado
             const selectedClient = allClients.find(client => client.value === idClient);
             const clientTypeId = selectedClient?.idClientType;
-    
+
             // 2. Obtener la actividad seleccionada
             const selectedActivity = activityTypes.find(activity => activity.idActivityType === Number(idActivityType));
-    
+
             if (clientTypeId && selectedActivity) {
                 // 3. Buscar la tarifa correspondiente
-                const matchingFee = selectedActivity.fees.find(fee => 
+                const matchingFee = selectedActivity.fees.find(fee =>
                     fee.idClientType.includes(clientTypeId)
                 );
-    
+
                 // 4. Actualizar el monto si se encontró una tarifa
                 if (matchingFee) {
                     setValue('amount', matchingFee.amount);
                 } else {
-                    //Resetear el monto si no hay tarifa definida
+                    // Resetear el monto si no hay tarifa definida
                     setValue('amount', 0);
                 }
             }
@@ -180,7 +179,7 @@ function Form() {
     }, [amount]);
 
     return (
-        <form 
+        <form
             className="bg-white rounded-lg px-5 mb-10 overflow-scroll"
             noValidate
             onSubmit={handleSubmit(submitForm)}
@@ -190,14 +189,14 @@ function Form() {
             </legend>
 
             {/* inputs ocultos para la funcionalidad de actualizar */}
-            <input  
-                id="idEconomicIncome" 
-                type="hidden" 
+            <input
+                id="idEconomicIncome"
+                type="hidden"
                 {...register('idEconomicIncome')}
             />
-            <input  
-                id="isDeleted" 
-                type="hidden" 
+            <input
+                id="isDeleted"
+                type="hidden"
                 {...register('isDeleted')}
             />
 
@@ -205,34 +204,35 @@ function Form() {
                 <label htmlFor="idClient" className="text-sm uppercase font-bold">
                     Cliente
                 </label>
-                <Select
-                    id="idClient"
-                    className="w-full"
-                    onChange={(selectedOption) => {
-                        if (selectedOption) {
-                            setValue("idClient", selectedOption.value, { shouldValidate: true });
-                        }
-                    }}
-                    options={allClients}
-                    required
-                />
-                {errors.idClient && 
-                    <ErrorForm>
-                        {errors.idClient.message}
-                    </ErrorForm>
-                }
+                {allClients.length > 0 ? (
+                    <Select
+                        id="idClient"
+                        className="w-full"
+                        onChange={(selectedOption) => {
+                            if (selectedOption) {
+                                setValue("idClient", selectedOption.value, { shouldValidate: true });
+                            }
+                        }}
+                        options={allClients}
+                        value={allClients.find((client) => client.value === idClient) || null}
+                        required
+                    />
+                ) : (
+                    <p>Cargando clientes...</p>
+                )}
+                {errors.idClient && <ErrorForm>{errors.idClient.message}</ErrorForm>}
             </div>
 
             <div className="my-5">
                 <label htmlFor="idActivityType" className="text-sm uppercase font-bold">
-                    Actividad 
+                    Actividad
                 </label>
                 <select
                     id="idActivityType"
-                    className="w-full p-3 border border-gray-100" 
+                    className="w-full p-3 border border-gray-100"
                     {...register("idActivityType", {
                         required: 'La actividad es obligatoria'
-                    })}  
+                    })}
                 >
                     <option value="">Seleccione una actividad</option>
                     {activityTypes.map((activity) => (
@@ -241,7 +241,7 @@ function Form() {
                         </option>
                     ))}
                 </select>
-                {errors.idActivityType && 
+                {errors.idActivityType &&
                     <ErrorForm>
                         {errors.idActivityType.message}
                     </ErrorForm>
@@ -252,27 +252,26 @@ function Form() {
                 <label htmlFor="registrationDate" className="text-sm uppercase font-bold">
                     Fecha
                 </label>
-                <input  
+                <input
                     id="registrationDate"
-                    className="w-full p-3 border border-gray-100"  
-                    type="date" 
+                    className="w-full p-3 border border-gray-100"
+                    type="date"
                     {...register('registrationDate', {
                         required: 'La fecha de registro es obligatoria',
                         max: {
-                        value: MAXDATE,
-                        message: `Debe ingresar una fecha de registro de máximo ${formatDate(new Date())}`
+                            value: MAXDATE,
+                            message: `Debe ingresar una fecha de registro de máximo ${formatDate(new Date())}`
                         }
                     })}
-                    />
+                />
                 {errors.registrationDate && <ErrorForm>{errors.registrationDate.message?.toString()}</ErrorForm>}
             </div>
 
-            
             <div className="my-4">
                 <label htmlFor="delayDays" className="text-sm uppercase font-bold">
                     Días de atraso
                 </label>
-                <br/>
+                <br />
                 <label className="flex items-center mt-2">
                     ¿Hubo días de atraso?
                     <input
@@ -297,30 +296,30 @@ function Form() {
                         {...register('delayDays', {
                             required: 'Debe especificar el número de días de atraso',
                             min: {
-                            value: 1,
-                            message: 'El número de días debe ser positivo'
+                                value: 1,
+                                message: 'El número de días debe ser positivo'
                             },
                             valueAsNumber: true
                         })}
                     />
-                    {errors.delayDays && 
-                    <ErrorForm>
-                        {errors.delayDays.message}
-                    </ErrorForm>
+                    {errors.delayDays &&
+                        <ErrorForm>
+                            {errors.delayDays.message}
+                        </ErrorForm>
                     }
                 </div>
             )}
 
             <div className="my-5">
                 <label htmlFor="idMeanOfPayment" className="text-sm uppercase font-bold">
-                    Medio de Pago 
+                    Medio de Pago
                 </label>
                 <select
                     id="idMeanOfPayment"
-                    className="w-full p-3 border border-gray-100" 
+                    className="w-full p-3 border border-gray-100"
                     {...register("idMeanOfPayment", {
                         required: 'El medio de pago es obligatorio'
-                    })}  
+                    })}
                 >
                     <option value="">Seleccione un medio de pago</option>
                     {meansOfPayment.map((meanOfPayment) => (
@@ -329,7 +328,7 @@ function Form() {
                         </option>
                     ))}
                 </select>
-                {errors.idMeanOfPayment && 
+                {errors.idMeanOfPayment &&
                     <ErrorForm>
                         {errors.idMeanOfPayment.message}
                     </ErrorForm>
@@ -340,11 +339,11 @@ function Form() {
                 <label htmlFor="voucherNumber" className="text-sm uppercase font-bold">
                     Voucher
                 </label>
-                <input  
+                <input
                     id="voucherNumber"
-                    className={`w-full p-3 border ${isCashPayment ? 'bg-gray-100' : 'border-gray-100'}`}  
-                    type="text" 
-                    placeholder={isCashPayment ? 'No aplica para efectivo' : 'Ingrese el voucher'} 
+                    className={`w-full p-3 border ${isCashPayment ? 'bg-gray-100' : 'border-gray-100'}`}
+                    type="text"
+                    placeholder={isCashPayment ? 'No aplica para efectivo' : 'Ingrese el voucher'}
                     disabled={isCashPayment}
                     {...register('voucherNumber', {
                         required: idMeanOfPayment === 1 ? 'El voucher es obligatorio' : false,
@@ -364,7 +363,7 @@ function Form() {
                         }
                     })}
                 />
-                {errors.voucherNumber && 
+                {errors.voucherNumber &&
                     <ErrorForm>
                         {errors.voucherNumber.message}
                     </ErrorForm>
@@ -375,16 +374,16 @@ function Form() {
                 <label htmlFor="detail" className="text-sm uppercase font-bold">
                     Detalle
                 </label>
-                <input  
+                <input
                     id="detail"
-                    className="w-full p-3 border border-gray-100"  
-                    type="text" 
-                    placeholder="Ingrese el detalle" 
+                    className="w-full p-3 border border-gray-100"
+                    type="text"
+                    placeholder="Ingrese el detalle"
                     {...register('detail', {
                         required: 'El detalle es obligatorio',
                         minLength: {
                             value: MINLENGTH_DETAIL,
-                            message: `Debe ingresar un voucher de mínimo ${MINLENGTH_DETAIL} carácteres`
+                            message: `Debe ingresar un detalle de mínimo ${MINLENGTH_DETAIL} carácteres`
                         },
                         maxLength: {
                             value: MAXLENGTH_DETAIL,
@@ -392,7 +391,7 @@ function Form() {
                         }
                     })}
                 />
-                {errors.detail && 
+                {errors.detail &&
                     <ErrorForm>
                         {errors.detail.message}
                     </ErrorForm>
@@ -403,13 +402,13 @@ function Form() {
                 <label htmlFor="amount" className="text-sm uppercase font-bold">
                     Monto
                 </label>
-                <input  
+                <input
                     id="amount"
-                    className="w-full p-3 border border-gray-100"  
-                    type="number" 
+                    className="w-full p-3 border border-gray-100"
+                    type="number"
                     min="0"
                     step="1"
-                    placeholder="Ingrese el monto" 
+                    placeholder="Ingrese el monto"
                     onWheel={(e) => {
                         // Prevenir el cambio de valor con la rueda del mouse
                         e.preventDefault();
@@ -430,19 +429,19 @@ function Form() {
                         valueAsNumber: true
                     })}
                 />
-                {errors.amount && 
+                {errors.amount &&
                     <ErrorForm>
                         {errors.amount.message}
                     </ErrorForm>
                 }
             </div>
 
-            <input 
-                type="submit" 
-                className="bg-yellow w-full p-3 text-white uppercase font-bold hover:bg-amber-600 cursor-pointer transition-colors" 
-                value={activeEditingId ? 'Actualizar' : 'Registrar'} 
+            <input
+                type="submit"
+                className="bg-yellow w-full p-3 text-white uppercase font-bold hover:bg-amber-600 cursor-pointer transition-colors"
+                value={activeEditingId ? 'Actualizar' : 'Registrar'}
             />
-        </form> 
+        </form>
     );
 }
 

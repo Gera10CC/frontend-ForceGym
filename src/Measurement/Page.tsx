@@ -59,7 +59,7 @@ function MeasurementManagement() {
         }
     }, [idClient]);
 
-    const { handleDelete, handleOrderByChange, handleRestore, tableColumn, tableRows, clientData} = useMeasurement();
+    const { handleDelete, handleOrderByChange, handleRestore, tableColumn, tableRows, clientData} = useMeasurement(idClient);
     
     useEffect(() => {}, [measurements]);
     

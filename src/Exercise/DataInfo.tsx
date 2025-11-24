@@ -27,7 +27,7 @@ function DataInfo() {
 
                 <div className="flex flex-col gap-2 text-lg">
                     <p><strong>Dificultad</strong></p>
-                    <p>{exercise.difficulty}</p>
+                    <p>{exercise.exerciseDifficulty.difficulty}</p>
 
                     <p><strong>Categoria</strong></p>
                     <p>{exercise.exerciseCategory.name}</p>
