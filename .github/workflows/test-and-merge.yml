@@ -1,0 +1,94 @@
+name: Test and Merge to Master
+
+on:
+  push:
+    branches:
+      - Develop-QA
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run tests
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+          
+      # Set Git identity
+      - name: Set Git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Merge to master if tests pass
+      - name: Merge to master
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch origin
+          git checkout master
+          git merge --no-ff origin/Develop-QA -m "Automated merge from Develop-QA to master after passing tests"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} master
+
+
+      # Send success email
+      - name: Send success email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: '✅ Tests Passed and Merged to Main'
+          body: |
+            The tests for the DevelopQA branch have passed successfully.
+            Changes have been merged to the main branch.
+            
+            Commit: ${{ github.sha }}
+            Repository: ${{ github.repository }}
+            Run ID: ${{ github.run_id }}
+          to: ${{ secrets.RECIPIENT_EMAIL }}
+          from: GitHub Actions <no-reply@github.com>
+
+      # Send failure email
+      - name: Send failure email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: '❌ Test Failure on DevelopQA'
+          body: |
+            The tests for the DevelopQA branch have failed.
+            No merge to main was performed.
+            
+            Commit: ${{ github.sha }}
+            Repository: ${{ github.repository }}
+            Run ID: ${{ github.run_id }}
+            
+            Please check the GitHub Actions logs for details.
+          to: ${{ secrets.RECIPIENT_EMAIL }}
+          from: GitHub Actions <no-reply@github.com>

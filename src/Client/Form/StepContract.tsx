@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import SignatureCanvas from 'react-signature-canvas';
 import ErrorForm from '../../shared/components/ErrorForm';
@@ -19,50 +19,26 @@ Con la firma del presente contrato, se aceptan los términos y condiciones estip
 `;
 
 export const StepContract = () => {
-  const {
-    setValue,
-    getValues,
-    formState: { errors },
-    register,
-    trigger
+  const { 
+    setValue, 
+    formState: { errors } 
   } = useFormContext();
 
   const sigCanvasRef = useRef<SignatureCanvas>(null);
 
-  // Registrar el campo signatureImage con validación required
-  useEffect(() => {
-    register('signatureImage', {
-      required: 'La firma es obligatoria'
-    });
-
-    // Restaurar la firma previa si existe
-    const signatureImage = getValues('signatureImage');
-    if (signatureImage && sigCanvasRef.current) {
-      sigCanvasRef.current.fromDataURL(signatureImage);
-    } else {
-      sigCanvasRef.current?.clear();
-      setValue('signatureImage', '', { shouldValidate: true });
-    }
-
-    // Forzar validación al montar el componente
-    trigger('signatureImage');
-  }, [register, getValues, setValue, trigger]);
-
   const handleClear = () => {
     sigCanvasRef.current?.clear();
-    setValue('signatureImage', '', { shouldValidate: true });
+    setValue('signatureImage', '');
   };
 
   const handleSignatureEnd = () => {
     if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-      try {
-        const signatureData = sigCanvasRef.current.getCanvas().toDataURL('image/png');
-        setValue('signatureImage', signatureData, { shouldValidate: true });
-      } catch (error) {
-        setValue('signatureImage', '', { shouldValidate: true });
-      }
+      const signatureData = sigCanvasRef.current
+        .getTrimmedCanvas()
+        .toDataURL('image/png');
+      setValue('signatureImage', signatureData);
     } else {
-      setValue('signatureImage', '', { shouldValidate: true });
+      setValue('signatureImage', '');
     }
   };
 

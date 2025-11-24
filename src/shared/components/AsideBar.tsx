@@ -1,179 +1,312 @@
-import { useState, useEffect, useRef } from 'react';
-import { IoMdMenu } from 'react-icons/io';
-import { FaRegUser, FaSignOutAlt, FaBalanceScale, FaSlidersH } from 'react-icons/fa';
-import { FaRegCircleUser } from "react-icons/fa6";
-import { GiWeightLiftingUp } from "react-icons/gi";
-import { MdOutlineInventory, MdOutlineTrendingUp, MdTrendingDown, MdOutlineGroups, MdOutlineCategory } from 'react-icons/md';
-import { PiHouseSimpleFill } from "react-icons/pi";
-import { TbBellCog } from "react-icons/tb";
-import { CgGym } from "react-icons/cg";
-import { FaRegCalendarAlt } from 'react-icons/fa';
-import { TfiWrite } from "react-icons/tfi";
-import { BiBody } from "react-icons/bi";
-import { getAuthUser } from '../utils/authentication';
-import { LogoutModal } from './LogoutModal';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef, memo } from "react";
+import {
+  Menu,
+  User,
+  Dumbbell,
+  TrendingUp,
+  TrendingDown,
+  Scale,
+  LayoutDashboard,
+  Calendar,
+  BellDot,
+  Settings2,
+  Users,
+  Layers,
+  LogOut,
+  ClipboardList,
+  NotebookText
+} from "lucide-react";
 
-function AsideBar() {
-  const loggedUser = getAuthUser();
-  const userRole = loggedUser?.role?.name;
-  const [isOpen, setIsOpen] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showFloatingMenu, setShowFloatingMenu] = useState(false);
-  const submenuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { getAuthUser } from "../utils/authentication";
+import { LogoutModal } from "./LogoutModal";
 
-  useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      const aside = document.getElementById('sidebar');
-      if (
-        submenuRef.current &&
-        !submenuRef.current.contains(event.target as Node) &&
-        !buttonRef.current?.contains(event.target as Node)
-      ) {
-        setShowFloatingMenu(false);
-      } 
-    
-      if (aside && !aside.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  const NavItem = ({
+// =====================================================================
+// NavItem optimizado con memo (para evitar renders innecesarios)
+// =====================================================================
+const NavItem = memo(
+  ({
     to,
     icon,
-    title,
-    text,
-    allowedRoles
-  }: {
-    to: string;
-    icon: React.ReactNode;
-    title: string;
-    text: string;
-    allowedRoles?: string[];
-  }) => {
-    if (allowedRoles && !allowedRoles.includes(userRole || '')) return null;
-    const isActive = location.pathname === to;
+    label,
+    isActive,
+    expanded,
+    onClick,
+    allowedRoles,
+    userRole
+  }: any) => {
+    if (allowedRoles && !allowedRoles.includes(userRole)) return null;
 
     return (
       <Link
         to={to}
-        className={`flex text-center items-center gap-3 px-4 py-2 w-full transition-colors duration-200 rounded-md ${
-          isActive
-            ? 'bg-yellow text-black font-semibold shadow-sm rounded-md'
-            : 'hover:bg-yellow hover:text-black'
-        }`}
-        title={title}
-        onClick={() => setShowFloatingMenu(false)}
+        onClick={onClick}
+        className={`flex items-center gap-3 px-4 py-2 rounded-md transition
+          ${isActive ? "bg-yellow text-black font-semibold" : "hover:bg-yellow hover:text-black"}
+        `}
       >
-        <span className={`text-md ${isOpen && "pl-6"}`}>{icon}</span>
-        <span className="truncate">{text}</span>
+        <span className={`${expanded && "pl-2"}`}>{icon}</span>
+        {expanded && <span className="truncate">{label}</span>}
       </Link>
     );
-  };
+  }
+);
 
-  const handleLogout = () => setShowLogoutModal(true);
-  const confirmLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/login');
+// =====================================================================
+// ASIDEBAR PRINCIPAL
+// =====================================================================
+export default function AsideBar() {
+  const loggedUser = getAuthUser();
+  const userRole = loggedUser?.role?.name ?? "";
+
+  const [expanded, setExpanded] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const submenuRef = useRef<HTMLDivElement>(null);
+  const optionsBtnRef = useRef<HTMLDivElement>(null);
+
+  // Emitimos el estado del sidebar al layout global
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("sidebar-toggle", { detail: expanded })
+    );
+  }, [expanded]);
+
+  // Cerrar submenús al hacer click afuera
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        submenuRef.current &&
+        !submenuRef.current.contains(e.target as Node) &&
+        !optionsBtnRef.current?.contains(e.target as Node)
+      ) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   return (
     <>
       <aside
         id="sidebar"
-        className={`md:flex text-md flex-col fixed items-center justify-between pt-6 pb-6 bg-black text-white h-full transition-all duration-300 z-50 ${
-          isOpen ? 'w-56 px-2' : 'w-14'
-        }`}
+        className={`
+          fixed bg-black text-white h-full flex flex-col justify-between 
+          transition-all duration-300 z-40 shadow-xl
+          ${expanded ? "w-56 px-2" : "w-14"}
+        `}
       >
-        {/* Botón Menú */}
+        {/* BOTÓN MENÚ */}
         <div
-          className="flex items-center gap-2 p-2 text-lg hover:bg-yellow hover:rounded-b-sm hover:text-black hover:cursor-pointer"
-          title="Menú"
-          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-3 p-3 hover:bg-yellow hover:text-black cursor-pointer rounded-b-md"
+          onClick={() => setExpanded(!expanded)}
         >
-          <IoMdMenu className="text-xl" />
-          {isOpen && <span className="">Menú</span>}
+          <Menu />
+          {expanded && <span className="text-sm font-medium">Menú</span>}
         </div>
 
-        <div className={`flex flex-col items-center gap-1 w-full mt-4 ${isOpen && "border-y-2 py-4 border-gray-500"}`}>
-          <NavItem to="/gestion/dashboard" icon={<PiHouseSimpleFill />} title="Dashboard" text="Dashboard" />
-          <NavItem to="/gestion/usuariocolaborador" icon={<FaRegUser />} title="Usuarios" text="Usuarios" allowedRoles={['Colaborador']} />
-          <NavItem to="/gestion/usuarios" icon={<FaRegUser />} title="Usuarios" text="Usuarios" allowedRoles={['Administrador']} />
-          <NavItem to="/gestion/clientes" icon={<GiWeightLiftingUp />} title="Clientes" text="Clientes" />
-          <NavItem to="/gestion/ingresos" icon={<MdOutlineTrendingUp />} title="Ingresos" text="Ingresos"  />
-          <NavItem to="/gestion/gastos" icon={<MdTrendingDown />} title="Gastos" text="Gastos" allowedRoles={['Administrador']}/>
-          <NavItem to="/gestion/balance" icon={<FaBalanceScale />} title="Balance Económico" text="Balance" />
-          <NavItem to="/gestion/activos" icon={<MdOutlineInventory />} title="Activos" text="Activos"/>
-          <NavItem to="/gestion/rutinas" icon={<TfiWrite  />} title="Rutinas" text="Rutinas" />
-          <NavItem to="/gestion/ejercicios" icon={<CgGym />} title="Ejercicios" text="Ejercicios" />
+        {/* NAV ITEMS */}
+        <nav className="flex flex-col gap-1 mt-4 border-y border-gray-700 py-4">
+          <NavItem
+            to="/gestion/dashboard"
+            icon={<LayoutDashboard size={18} />}
+            label="Dashboard"
+            isActive={location.pathname === "/gestion/dashboard"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
 
-          {/* Botón más opciones */}
+          <NavItem
+            to="/gestion/usuarios"
+            icon={<User size={18} />}
+            label="Usuarios"
+            allowedRoles={["Administrador"]}
+            isActive={location.pathname === "/gestion/usuarios"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/clientes"
+            icon={<Dumbbell size={18} />}
+            label="Clientes"
+            isActive={location.pathname === "/gestion/clientes"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/ingresos"
+            icon={<TrendingUp size={18} />}
+            label="Ingresos"
+            isActive={location.pathname === "/gestion/ingresos"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/gastos"
+            icon={<TrendingDown size={18} />}
+            label="Gastos"
+            allowedRoles={["Administrador"]}
+            isActive={location.pathname === "/gestion/gastos"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/balance"
+            icon={<Scale size={18} />}
+            label="Balance"
+            isActive={location.pathname === "/gestion/balance"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/activos"
+            icon={<Layers size={18} />}
+            label="Activos"
+            isActive={location.pathname === "/gestion/activos"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/rutinas"
+            icon={<NotebookText size={18} />}
+            label="Rutinas"
+            isActive={location.pathname === "/gestion/rutinas"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          <NavItem
+            to="/gestion/ejercicios"
+            icon={<ClipboardList size={18} />}
+            label="Ejercicios"
+            isActive={location.pathname === "/gestion/ejercicios"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
+
+          {/* MORE OPTIONS */}
           <div
-            ref={buttonRef}
-            className="flex text-center items-center gap-3 px-4 py-2 w-full transition-colors duration-200 rounded-md cursor-pointer hover:bg-yellow hover:text-black"
-            title="Más opciones"
+            ref={optionsBtnRef}
             onClick={(e) => {
               e.stopPropagation();
-              setShowFloatingMenu(!showFloatingMenu);
+              setShowOptions(!showOptions);
             }}
+            className="flex items-center gap-3 px-4 py-2 hover:bg-yellow hover:text-black cursor-pointer rounded-md"
           >
-            <span className={`${isOpen && "pl-6"}`}><FaSlidersH/></span>
-            {isOpen && <span>Más opciones</span>}
+            <Settings2 size={18} />
+            {expanded && <span>Más opciones</span>}
           </div>
-        </div>
+        </nav>
 
-        <div className="w-full">
-          {isOpen && (
-            <div className="flex items-center justify-center gap-2">
-              <FaRegCircleUser className="text-base" />
-              <p className="font-medium truncate">{loggedUser?.username}</p>
-            </div>
+        {/* USER + LOGOUT */}
+        <div className="mb-4">
+          {expanded && (
+            <p className="px-4 truncate opacity-80 text-sm">{loggedUser?.username}</p>
           )}
 
           <div
-            onClick={handleLogout}
-            className="flex items-center justify-center text-lg gap-2 mt-6 px-4 py-2 hover:bg-yellow hover:rounded-md hover:text-black hover:cursor-pointer"
-            title="Cerrar sesión"
+            onClick={() => setShowLogoutModal(true)}
+            className="flex items-center gap-3 px-4 py-2 mt-4 hover:bg-yellow hover:text-black cursor-pointer rounded-md"
           >
-            <FaSignOutAlt className="text-xl" />
-            {isOpen && <span className="text-xl">Cerrar sesión</span>}
+            <LogOut size={20} />
+            {expanded && <span>Cerrar sesión</span>}
           </div>
         </div>
       </aside>
 
-    {/* Submenú flotante */}
-    {showFloatingMenu && (
-      <div
-        ref={submenuRef}
-        className="fixed bg-black border border-gray-600 text-white rounded-md shadow-md p-2 w-64 z-50 flex flex-col gap-2 text-sm max-h-[400px] overflow-y-auto"
-        style={{
-          top: `${(buttonRef.current?.getBoundingClientRect().top ?? 0) - 40}px`,
-          left: `${(buttonRef.current?.getBoundingClientRect().right ?? 0) + 12}px`,
-        }}
-      >
-        <NavItem to="/gestion/categorias" icon={<MdOutlineCategory />} title="Categorías de Gastos" text="Categorías de Gastos" />
-        <NavItem to="/gestion/tipos-cliente" icon={<MdOutlineGroups />} title="Tipos de Cliente" text="Tipos de Cliente" />
-        <NavItem to="/gestion/tipos-actividad" icon={<FaRegCalendarAlt />} title="Tipos de Actividad" text="Tipos de Actividad"/>
-        <NavItem to="/gestion/plantillas-notificacion" icon={<TbBellCog />} title="Plantillas de Notificación" text="Plantillas de Notificación" />
-        <NavItem to="/gestion/categorias-ejercicios" icon={<BiBody />} title="Categorías de Ejercicios" text="Categorías de Ejercicios" />
-      </div>
-    )}
+      {/* SUBMENÚ FLOTANTE */}
+      {showOptions && (
+        <div
+          ref={submenuRef}
+          className="fixed bg-black border border-gray-700 rounded-md shadow-lg text-white p-2 w-64 z-50 flex flex-col gap-2"
+          style={{
+            top: (optionsBtnRef.current?.getBoundingClientRect().top ?? 0) - 20,
+            left: (optionsBtnRef.current?.getBoundingClientRect().right ?? 0) + 8
+          }}
+        >
+          <NavItem
+            to="/gestion/categorias"
+            icon={<Layers size={18} />}
+            label="Categorías de Gastos"
+            expanded
+            userRole={userRole}
+            isActive={location.pathname === "/gestion/categorias"}
+            onClick={() => setShowOptions(false)}
+          />
 
+          <NavItem
+            to="/gestion/tipos-cliente"
+            icon={<Users size={18} />}
+            label="Tipos de Cliente"
+            expanded
+            userRole={userRole}
+            isActive={location.pathname === "/gestion/tipos-cliente"}
+            onClick={() => setShowOptions(false)}
+          />
+
+          <NavItem
+            to="/gestion/tipos-actividad"
+            icon={<Calendar size={18} />}
+            label="Tipos de Actividad"
+            expanded
+            userRole={userRole}
+            isActive={location.pathname === "/gestion/tipos-actividad"}
+            onClick={() => setShowOptions(false)}
+          />
+
+          <NavItem
+            to="/gestion/plantillas-notificacion"
+            icon={<BellDot size={18} />}
+            label="Plantillas de Notificación"
+            expanded
+            userRole={userRole}
+            isActive={location.pathname === "/gestion/plantillas-notificacion"}
+            onClick={() => setShowOptions(false)}
+          />
+
+          <NavItem
+            to="/gestion/categorias-ejercicios"
+            icon={<Dumbbell size={18} />}
+            label="Categorías de Ejercicios"
+            expanded
+            userRole={userRole}
+            isActive={location.pathname === "/gestion/categorias-ejercicios"}
+            onClick={() => setShowOptions(false)}
+          />
+        </div>
+      )}
 
       <LogoutModal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
-        onConfirm={confirmLogout}
+        onConfirm={logout}
       />
     </>
   );
 }
-
-export default AsideBar;

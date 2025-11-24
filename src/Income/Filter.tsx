@@ -37,13 +37,13 @@ export function FilterSelect() {
         changeFilterByMeanOfPayment,
         changeFilterByClientType,
         clearAllFilters
-    } = useEconomicIncomeStore();
-    const filteredStatusSelectStyles = filterByStatus !== '' ? ' px-0.5 border-yellow text-yellow' : '';
-    const filteredMeanOfPaymentStyles = filterByMeanOfPayment !== 0 ? ' px-0.5 border-yellow text-yellow' : '';
-    const filteredAmountRangeStyles = (filterByAmountRangeMin !== 0 || filterByAmountRangeMax !== 0) ? ' px-0.5 border-yellow text-yellow' : '';
-    const filteredDateRangeStyles = (filterByDateRangeMin !== null || filterByDateRangeMax !== null) ? ' px-0.5 border-yellow text-yellow' : '';
-    const filteredClientTypeSelectStyles = filterByClientType !== -1 ? ' px-0.5 border-yellow text-yellow' : '';
-    const { meansOfPayment, clientTypes } = useCommonDataStore();
+    } = useEconomicIncomeStore()
+    const filteredStatusSelectStyles = filterByStatus!='' && ' px-0.5 border-yellow text-yellow'
+    const filteredMeanOfPaymentStyles = filterByMeanOfPayment!=0 && ' px-0.5 border-yellow text-yellow'
+    const filteredAmountRangeStyles = (filterByAmountRangeMin!=0 && filterByAmountRangeMax!=0)  && ' px-0.5 border-yellow text-yellow'
+    const filteredDateRangeStyles = (filterByDateRangeMin !=null && filterByDateRangeMax!=null)  && ' px-0.5 border-yellow text-yellow'
+    const filteredClientTypeSelectStyles = filterByClientType !== -1 && ' px-0.5 border-yellow text-yellow';
+    const { meansOfPayment, clientTypes } = useCommonDataStore()
 
     return (
         <div className="flex flex-col gap-4">
@@ -120,12 +120,13 @@ export function FilterSelect() {
                 <label htmlFor="idClientType" className="w-20">Tipo de Cliente</label>
                 <select
                     id="idClientType"
-                    className={'border rounded-md p-2 w-78 text-center' + filteredClientTypeSelectStyles}
+                    className={"border rounded-md p-2 w-78 text-center" + filteredClientTypeSelectStyles}
                     value={filterByClientType}
                     onChange={(e) => changeFilterByClientType(+e.target.value)}
                 >
                     <option value={-1}>Todos</option>
-                    {clientTypes.map((type) => (
+
+                    {clientTypes.map((type)=> (
                         <option key={type.idClientType} value={type.idClientType}>
                             {type.name}
                         </option>

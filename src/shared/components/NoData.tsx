@@ -1,17 +1,38 @@
-import { CiWarning } from "react-icons/ci";
+import { ReactNode } from "react";
+import { AlertCircle } from "lucide-react"; // Ícono moderno y ligero
 
 type NoDataProps = {
-    module: string
-}
+  module?: string;
+  children?: ReactNode;
+  description?: string;
+};
 
-function NoData({ module } : NoDataProps) {
-    return (
-        <div className="self-center flex flex-col text-center flex-center gap-2 my-8 m-4">
-            <CiWarning className="text-red-500 text-8xl self-center"/>
-            <span className="text-2xl">No hay {module} para mostrar</span>
-            <span className="text-1xl font-bold">Intenta agregando</span>
+export default function NoData({
+  module = "datos",
+  children,
+  description = "Intenta agregando nuevos registros.",
+}: NoDataProps) {
+  const mod = module.trim() || "datos";
+
+  return (
+    <div
+      role="status"
+      className="flex flex-col items-center text-center gap-3 my-10 mx-4"
+    >
+      <AlertCircle className="text-red-500 w-20 h-20" />
+
+      <h2 className="text-2xl font-semibold">
+        No hay {mod} para mostrar
+      </h2>
+
+      <p className="text-gray-600">{description}</p>
+
+      {/* Optional Action Slot */}
+      {children && (
+        <div className="mt-3" data-testid="custom-children">
+          {children}
         </div>
-    );
+      )}
+    </div>
+  );
 }
-
-export default NoData;
