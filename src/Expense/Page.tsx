@@ -17,7 +17,7 @@ import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import Layout from "../shared/components/Layout";
 import { Plus, Download } from "lucide-react";
 
-export default function EconomicExpenseManagement() {
+export function EconomicExpenseManagement() {
   const {
     economicExpenses,
     modalForm,
@@ -32,6 +32,12 @@ export default function EconomicExpenseManagement() {
     searchType,
     searchTerm,
     filterByStatus,
+    filterByAmountRangeMax, 
+    filterByAmountRangeMin,
+    filterByMeanOfPayment,
+    filterByDateRangeMax,
+    filterByDateRangeMin,
+    filterByCategory,
     fetchEconomicExpenses,
     getEconomicExpenseById,
     changePage,
@@ -79,6 +85,12 @@ export default function EconomicExpenseManagement() {
     orderBy,
     directionOrderBy,
     filterByStatus,
+    filterByAmountRangeMax, 
+    filterByAmountRangeMin, 
+    filterByMeanOfPayment, 
+    filterByDateRangeMax, 
+    filterByDateRangeMin, 
+    filterByCategory
   ]);
 
   return (
