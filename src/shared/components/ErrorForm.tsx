@@ -1,15 +1,20 @@
 import { ReactNode } from "react";
 
 interface ErrorFormProps {
-    children?: ReactNode;
+  children?: ReactNode;
+  className?: string;
 }
 
-function ErrorForm({ children }: ErrorFormProps) {
-    return ( 
-        <p className="text-red-600 text-sm">
-            {children}
-        </p>
-    );
-}
+export default function ErrorForm({ children, className = "" }: ErrorFormProps) {
+  if (!children) return null; 
 
-export default ErrorForm;
+  return (
+    <p
+      role="alert"
+      aria-live="assertive"
+      className={`text-red-600 text-sm mt-1 animate-fadeIn ${className}`}
+    >
+      {children}
+    </p>
+  );
+}

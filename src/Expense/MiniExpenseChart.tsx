@@ -1,5 +1,15 @@
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Cell
+} from "recharts";
+
 import { formatAmountToCRC } from "../shared/utils/format";
 import { EconomicExpense } from "../shared/types";
 
@@ -8,29 +18,35 @@ interface MiniExpenseChartProps {
 }
 
 const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses }) => {
-  // Cálculo de totales
+  
   const calculateTotals = () => {
-    let dailyTotal = 0, weeklyTotal = 0, biweeklyTotal = 0, monthlyTotal = 0;
-    
-    economicExpenses.forEach(expense => {
+    let dailyTotal = 0;
+    let weeklyTotal = 0;
+    let biweeklyTotal = 0;
+    let monthlyTotal = 0;
+
+    const today = new Date();
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(today.getDate() - 7);
+
+    economicExpenses.forEach((expense) => {
       const expenseDate = new Date(expense.registrationDate);
-      const today = new Date();
-      
+
       // Diario
       if (expenseDate.toDateString() === today.toDateString()) {
         dailyTotal += expense.amount;
       }
-      
+
       // Semanal
-      if (expenseDate >= new Date(today.setDate(today.getDate() - 7))) {
+      if (expenseDate >= oneWeekAgo) {
         weeklyTotal += expense.amount;
       }
-      
+
       // Quincenal
       if (expenseDate.getMonth() === today.getMonth() && expenseDate.getDate() <= 15) {
         biweeklyTotal += expense.amount;
       }
-      
+
       // Mensual
       if (expenseDate.getMonth() === today.getMonth()) {
         monthlyTotal += expense.amount;
@@ -42,7 +58,6 @@ const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses })
 
   const { dailyTotal, weeklyTotal, biweeklyTotal, monthlyTotal } = calculateTotals();
 
-  // Datos para el gráfico de barras
   const chartData = [
     { name: "Diario", value: dailyTotal, fill: "#e63946" },
     { name: "Semanal", value: weeklyTotal, fill: "#f4a261" },
@@ -51,16 +66,28 @@ const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses })
   ];
 
   return (
-    <div className="h-36">
+    <div className="w-full h-40 sm:h-48 lg:h-56 px-2">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${formatAmountToCRC(Number(value))}`, "Gastos"]} />
+
+          <XAxis 
+            dataKey="name" 
+            tick={{ fontSize: 10, fill: "#444" }}
+          />
+          
+          <YAxis 
+            tick={{ fontSize: 10, fill: "#444" }} 
+          />
+
+          <Tooltip
+            formatter={(value) => [`${formatAmountToCRC(Number(value))}`, "Gastos"]}
+            labelStyle={{ fontSize: 12 }}
+          />
+
           <Bar dataKey="value" name="Gastos">
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
+              <Cell key={index} fill={entry.fill} />
             ))}
           </Bar>
         </BarChart>
