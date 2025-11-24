@@ -55,7 +55,7 @@ type EconomicExpenseStore = {
     closeModalInfo: () => void;
     showModalFileType: () => void;
     closeModalFileType: () => void;
-    
+    resetEditing: () => void;
     clearAllFilters: () => void;
 };
 
@@ -92,6 +92,7 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
             filterByMeanOfPayment: 0,
             filterByCategory: -1,
         })),
+        
 
 
         fetchEconomicExpenses: async () => {
@@ -145,6 +146,7 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
         getEconomicExpenseById: (id) => {
             set(() => ({ activeEditingId: id }));
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
 
         addEconomicExpense: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}economicExpense/add`, data);

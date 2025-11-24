@@ -2,159 +2,228 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import Modal from "../shared/components/Modal";
 import ModalFilter from "../shared/components/ModalFilter";
 import SearchInput from "../shared/components/SearchInput";
-import NoData from "../shared/components/NoData";
-import { useEconomicExpenseStore } from './Store'
+import { useEconomicExpenseStore } from "./Store";
 import { useNavigate } from "react-router";
 import { useEconomicExpense } from "./useExpense";
 import Form from "./Form";
 import FileTypeDecision from "../shared/components/ModalFileType";
-import ExpenseDashboard from './ExpenseDashboard';
+import ExpenseDashboard from "./ExpenseDashboard";
 import { exportToPDF } from "../shared/utils/pdf";
 import { exportToExcel } from "../shared/utils/excel";
-import ExpenseTable from './ExpenseTable';
+import ExpenseTable from "./ExpenseTable";
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
+import Layout from "../shared/components/Layout";
+import { Plus, Download } from "lucide-react";
 
-function EconomicExpenseManagement() {
-    const {
-        economicExpenses,
-        modalForm,
-        modalFilter,
-        modalInfo,
-        modalFileTypeDecision,
-        page,
-        size,
-        totalRecords,
-        orderBy,
-        directionOrderBy,
-        searchType,
-        searchTerm,
-        filterByStatus,
-        fetchEconomicExpenses,
-        getEconomicExpenseById,
-        changePage,
-        changeSize,
-        changeSearchType,
-        showModalForm,
-        showModalInfo,
-        closeModalForm,
-        closeModalFilter,
-        closeModalInfo,
-        showModalFileType, 
-        closeModalFileType
-    } = useEconomicExpenseStore()
+export default function EconomicExpenseManagement() {
+  const {
+    economicExpenses,
+    modalForm,
+    modalFilter,
+    modalInfo,
+    modalFileTypeDecision,
+    page,
+    size,
+    totalRecords,
+    orderBy,
+    directionOrderBy,
+    searchType,
+    searchTerm,
+    filterByStatus,
+    fetchEconomicExpenses,
+    getEconomicExpenseById,
+    changePage,
+    changeSize,
+    changeSearchType,
+    showModalForm,
+    showModalInfo,
+    closeModalForm,
+    closeModalFilter,
+    closeModalInfo,
+    showModalFileType,
+    closeModalFileType,
+    resetEditing, 
+  } = useEconomicExpenseStore();
 
-    const { handleDelete, handleSearch, handleOrderByChange, handleRestore, pdfTableHeaders, pdfTableRows } = useEconomicExpense()
-    const navigate = useNavigate()
-    const [showDashboard, setShowDashboard] = useState(false);
+  const {
+    handleDelete,
+    handleSearch,
+    handleOrderByChange,
+    handleRestore,
+    pdfTableHeaders,
+    pdfTableRows,
+  } = useEconomicExpense();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const { logout } = await fetchEconomicExpenses()
+  const navigate = useNavigate();
+  const [showDashboard, setShowDashboard] = useState(false);
 
-            if(logout){
-                setAuthHeader(null)
-                setAuthUser(null)
-                navigate('/login', {replace: true})
-            }    
-        }
-        
-        fetchData()
-    }, [page, size, searchType, searchTerm, orderBy, directionOrderBy, filterByStatus])
+  // Fetch data when filters or pagination change
+  useEffect(() => {
+    const fetchData = async () => {
+      const { logout } = await fetchEconomicExpenses();
+      if (logout) {
+        setAuthHeader(null);
+        setAuthUser(null);
+        navigate("/login", { replace: true });
+      }
+    };
 
-    return ( 
-        <div className="bg-black min-h-screen">
-            <header className="flex ml-12 h-20 w-0.90 items-center text-black bg-yellow justify-between px-4">
-                <h1 className="text-4xl uppercase">GASTOS</h1>
-                <SearchInput searchTerm={searchTerm} handleSearch={handleSearch} changeSearchType={changeSearchType} >
-                    <option className="checked:bg-yellow hover:cursor-pointer hover:bg-slate-400" value={1} defaultChecked={searchType===1}>Voucher</option>
-                    <option className="checked:bg-yellow hover:cursor-pointer hover:bg-slate-400" value={2} defaultChecked={searchType===2}>Detalle</option>
-                </SearchInput>
-                <div className="flex gap-4">
-                    <button 
-                        onClick={() => setShowDashboard(!showDashboard)}
-                        className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 hover:cursor-pointer"
-                    >
-                        {showDashboard ? 'Ver Tabla' : 'Ver Dashboard'}
-                    </button>
-                    <ModalFilter modalFilter={modalFilter} closeModalFilter={closeModalFilter} FilterButton={FilterButton} FilterSelect={FilterSelect} />
-                </div>
-            </header>
+    fetchData();
+  }, [
+    page,
+    size,
+    searchType,
+    searchTerm,
+    orderBy,
+    directionOrderBy,
+    filterByStatus,
+  ]);
 
-            <main className="justify-items-center ml-12 p-4">
-                <div className="flex flex-col mx-12 mt-4 bg-white text-lg w-full max-h-full overflow-scroll">
-                    <div className="flex justify-between">
-                        <Modal
-                            Button={() => (
-                                <button
-                                    className="mt-4 ml-2 px-2 py-1 hover:bg-gray-300 hover:rounded-full hover:cursor-pointer"
-                                    type="button"
-                                    onClick={showModalForm}
-                                >
-                                    + Añadir
-                                </button>
-                            )}
-                            modal={modalForm}
-                            getDataById={getEconomicExpenseById}
-                            closeModal={closeModalForm}
-                            Content={Form}
-                        />
-                        
-                        {economicExpenses?.length > 0 && (
-                            <div className="flex gap-2">
-                                <Modal
-                                    Button={() => (
-                                        <button 
-                                            onClick={showModalFileType}
-                                            className="flex gap-2 items-center text-end mt-4 mr-2 px-2 py-1 hover:bg-gray-300 hover:rounded-full hover:cursor-pointer">
-                                            <MdOutlineFileDownload /> Descargar
-                                        </button>
-                                    )}
-                                    modal={modalFileTypeDecision}
-                                    getDataById={getEconomicExpenseById}
-                                    closeModal={closeModalFileType}
-                                    Content={() => 
-                                        <FileTypeDecision 
-                                            modulo="Gastos económicos" 
-                                            closeModal={closeModalFileType} 
-                                            exportToPDF={() => exportToPDF('Gastos', pdfTableHeaders, pdfTableRows)}
-                                            exportToExcel={() => exportToExcel('Gastos', pdfTableHeaders, pdfTableRows)}
-                                        />
-                                    }
-                                />  
-                            </div>
-                        )}
-                    </div>
+  return (
+    <Layout>
+      {/* HEADER */}
+      <header
+        className="
+          flex flex-col md:flex-row items-center justify-between
+          bg-yellow text-black px-4 py-4 rounded-md shadow-md
+        "
+      >
+        <h1 className="text-3xl md:text-4xl  uppercase tracking-wide">
+          Gastos
+        </h1>
 
-                    {showDashboard ? (
-                        <ExpenseDashboard economicExpenses={economicExpenses} />
-                    ) : (
-                        <ExpenseTable 
-                            economicExpenses={economicExpenses}
-                            modalInfo={modalInfo}
-                            modalForm={modalForm}
-                            orderBy={orderBy}
-                            directionOrderBy={directionOrderBy}
-                            filterByStatus={Boolean(filterByStatus)}
-                            page={page}
-                            size={size}
-                            totalRecords={totalRecords}
-                            handleOrderByChange={handleOrderByChange}
-                            getEconomicExpenseById={getEconomicExpenseById}
-                            showModalInfo={showModalInfo}
-                            closeModalInfo={closeModalInfo}
-                            showModalForm={showModalForm}
-                            handleDelete={handleDelete}
-                            handleRestore={handleRestore}
-                            changePage={changePage}
-                            changeSize={changeSize}
-                        />
-                    )}
-                </div>
-            </main>
+        {/* BUSCADOR */}
+        <SearchInput
+          searchTerm={searchTerm}
+          handleSearch={handleSearch}
+          changeSearchType={changeSearchType}
+        >
+          <option value={1}>Voucher</option>
+          <option value={2}>Detalle</option>
+        </SearchInput>
+
+        {/* BOTONES */}
+        <div className="flex gap-3 mt-4 md:mt-0">
+          {/* DASHBOARD / TABLE TOGGLE */}
+          <button
+            onClick={() => setShowDashboard(!showDashboard)}
+            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+          >
+            {showDashboard ? "Ver Tabla" : "Ver Dashboard"}
+          </button>
+
+          {/* FILTRO */}
+          <ModalFilter
+            modalFilter={modalFilter}
+            closeModalFilter={closeModalFilter}
+            FilterButton={FilterButton}
+            FilterSelect={FilterSelect}
+          />
         </div>
-    );
-}
+      </header>
 
-export default EconomicExpenseManagement;
+      {/* CONTENIDO */}
+      <main className="mt-6">
+        <div
+          className="
+            bg-white rounded-lg shadow-md p-4 sm:p-6
+            overflow-hidden
+          "
+        >
+          {/* TOP BUTTONS */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+
+            {/* AÑADIR */}
+            <Modal
+              Button={() => (
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetEditing();   
+                    showModalForm();
+                  }}
+                  className="
+                    w-full sm:w-auto
+                    px-4 py-2 bg-gray-100 hover:bg-gray-300
+                    rounded-full transition flex items-center gap-2
+                    justify-center sm:justify-start
+                  "
+                >
+                  <Plus size={18} />
+                  Añadir
+                </button>
+              )}
+              modal={modalForm}
+              closeModal={closeModalForm}
+              getDataById={getEconomicExpenseById}
+              Content={Form}
+            />
+
+            {/* DESCARGAR */}
+            {economicExpenses?.length > 0 && (
+              <Modal
+                Button={() => (
+                  <button
+                    className="
+                      w-full sm:w-auto
+                      px-4 py-2 bg-gray-100 hover:bg-gray-300
+                      rounded-full transition flex items-center gap-2
+                      justify-center sm:justify-start
+                    "
+                    onClick={showModalFileType}
+                  >
+                    <Download size={18} />
+                    Descargar
+                  </button>
+                )}
+                modal={modalFileTypeDecision}
+                closeModal={closeModalFileType}
+                getDataById={getEconomicExpenseById}
+                Content={() => (
+                  <FileTypeDecision
+                    modulo="Gastos económicos"
+                    closeModal={closeModalFileType}
+                    exportToPDF={() =>
+                      exportToPDF("Gastos", pdfTableHeaders, pdfTableRows)
+                    }
+                    exportToExcel={() =>
+                      exportToExcel("Gastos", pdfTableHeaders, pdfTableRows)
+                    }
+                  />
+                )}
+              />
+            )}
+          </div>
+
+          {/* TABLA O DASHBOARD */}
+          {showDashboard ? (
+            <ExpenseDashboard economicExpenses={economicExpenses} />
+          ) : (
+            <ExpenseTable
+              economicExpenses={economicExpenses}
+              modalInfo={modalInfo}
+              modalForm={modalForm}
+              orderBy={orderBy}
+              directionOrderBy={directionOrderBy}
+              filterByStatus={Boolean(filterByStatus)}
+              page={page}
+              size={size}
+              totalRecords={totalRecords}
+              handleOrderByChange={handleOrderByChange}
+              getEconomicExpenseById={getEconomicExpenseById}
+              showModalInfo={showModalInfo}
+              closeModalInfo={closeModalInfo}
+              showModalForm={showModalForm}
+              handleDelete={handleDelete}
+              handleRestore={handleRestore}
+              changePage={changePage}
+              changeSize={changeSize}
+            />
+          )}
+        </div>
+      </main>
+    </Layout>
+  );
+}
