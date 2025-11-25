@@ -182,12 +182,30 @@ export function FilterSelect() {
             <label className="text-xs mb-1">Mínimo</label>
             <input
               type="number"
+              inputMode="numeric"
               className={`border rounded-md p-2 text-center w-full ${(filterByAmountRangeMin || filterByAmountRangeMax)
                   ? "border-yellow text-yellow"
                   : ""
                 }`}
-              value={filterByAmountRangeMin}
-              onChange={(e) => changeFilterByAmountRangeMin(+e.target.value)}
+              value={filterByAmountRangeMin === 0 ? "" : filterByAmountRangeMin}
+             
+              min={0}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value === "") {
+                  changeFilterByAmountRangeMin(0);
+                  return;
+                }
+
+                if (+value < 0) return;
+
+                changeFilterByAmountRangeMin(+value);
+              }}
+              style={{
+                MozAppearance: "textfield",
+              }}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
 
@@ -195,12 +213,30 @@ export function FilterSelect() {
             <label className="text-xs mb-1">Máximo</label>
             <input
               type="number"
+              inputMode="numeric"
               className={`border rounded-md p-2 text-center w-full ${(filterByAmountRangeMin || filterByAmountRangeMax)
                   ? "border-yellow text-yellow"
                   : ""
                 }`}
-              value={filterByAmountRangeMax}
-              onChange={(e) => changeFilterByAmountRangeMax(+e.target.value)}
+              value={filterByAmountRangeMax === 0 ? "" : filterByAmountRangeMax}
+           
+              min={0}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value === "") {
+                  changeFilterByAmountRangeMax(0);
+                  return;
+                }
+
+                if (+value < 0) return;
+
+                changeFilterByAmountRangeMax(+value);
+              }}
+              style={{
+                MozAppearance: "textfield",
+              }}
+              onWheel={(e) => e.currentTarget.blur()}
             />
           </div>
         </div>
@@ -229,8 +265,8 @@ export function FilterSelect() {
             <input
               type="date"
               className={`border rounded-md p-2 text-center w-full ${(filterByDateRangeMin || filterByDateRangeMax)
-                  ? "border-yellow text-yellow"
-                  : ""
+                ? "border-yellow text-yellow"
+                : ""
                 }`}
               value={
                 filterByDateRangeMin
@@ -248,8 +284,8 @@ export function FilterSelect() {
             <input
               type="date"
               className={`border rounded-md p-2 text-center w-full ${(filterByDateRangeMin || filterByDateRangeMax)
-                  ? "border-yellow text-yellow"
-                  : ""
+                ? "border-yellow text-yellow"
+                : ""
                 }`}
               value={
                 filterByDateRangeMax

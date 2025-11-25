@@ -17,7 +17,7 @@ import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import Layout from "../shared/components/Layout";
 import { Plus, Download } from "lucide-react";
 
-export function EconomicExpenseManagement() {
+export default function EconomicExpenseManagement() {
   const {
     economicExpenses,
     modalForm,
