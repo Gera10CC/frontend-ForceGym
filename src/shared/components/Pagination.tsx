@@ -7,9 +7,9 @@ type PaginationProps = {
     totalRecords: number
     onSizeChange: (newSize: number) => void
     onPageChange: (newPage: number) => void
+    isLoading?: boolean
 }
-
-function Pagination({ page, size, totalRecords, onSizeChange, onPageChange } : PaginationProps) {
+function Pagination({ page, size, totalRecords, onSizeChange, onPageChange, isLoading = false } : PaginationProps) {
     const totalPages = useMemo(() => Math.ceil(totalRecords/size) , [totalRecords, size])
 
     return ( 
@@ -34,8 +34,9 @@ function Pagination({ page, size, totalRecords, onSizeChange, onPageChange } : P
                         value={size}
                         onChange={(e) => {
                             onSizeChange(Number(e.target.value))
-                            onPageChange(1) 
+                            onPageChange(1)
                         }}
+                        disabled={isLoading}
                     >
                         <option value={5}>5</option>
                         <option value={10}>10</option>
@@ -49,20 +50,20 @@ function Pagination({ page, size, totalRecords, onSizeChange, onPageChange } : P
                     <button
                         className="rounded-md shadow hover:bg-slate-400 hover:cursor-pointer hover:text-black disabled:opacity-40"
                         onClick={() => { onPageChange(page-1) }}
-                        disabled={page - 1 <= 0}
+                        disabled={isLoading || page - 1 <= 0}
                         aria-label="Anterior"
                     >
                         <MdOutlineArrowBackIos />
                     </button>
 
                     <span>
-                        {page} / {totalPages}
+                        {isLoading ? "..." : `${page} / ${totalPages}`}
                     </span>
 
                     <button
                         className="rounded-md shadow hover:bg-slate-400 hover:cursor-pointer hover:text-black disabled:opacity-40"
                         onClick={() => { onPageChange(page+1) }}
-                        disabled={page === totalPages}
+                        disabled={isLoading || page === totalPages}
                         aria-label="Siguiente"
                     >
                         <MdArrowForwardIos />
