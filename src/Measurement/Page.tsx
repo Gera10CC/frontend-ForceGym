@@ -91,7 +91,7 @@ export default function MeasurementManagement() {
   ]);
 
   return (
-    <Layout>
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -203,6 +203,6 @@ export default function MeasurementManagement() {
           />
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

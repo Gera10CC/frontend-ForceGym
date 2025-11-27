@@ -126,86 +126,92 @@ function UserTable({
               </thead>
 
               <tbody className="text-sm">
-                {users.map((user, index) => (
-                  <tr
-                    key={user.idUser}
-                    className="border-b hover:bg-gray-50 transition"
-                  >
-                    <td className="py-3">{index + 1}</td>
+  {users
+    ?.filter((user) => user && user.person) // ✅ BLINDAJE TOTAL
+    .map((user, index) => (
+      <tr
+        key={user.idUser}
+        className="border-b hover:bg-gray-50 transition"
+      >
+        <td className="py-3">{index + 1}</td>
 
-                    <td className="py-3">
-                      {user.person.identificationNumber}
-                    </td>
+        <td className="py-3">
+          {user.person?.identificationNumber ?? "—"}
+        </td>
 
-                    <td className="py-3">
-                      {`${user.person.name} ${user.person.firstLastName} ${user.person.secondLastName}`}
-                    </td>
+        <td className="py-3">
+          {`${user.person?.name ?? ""} ${user.person?.firstLastName ?? ""} ${user.person?.secondLastName ?? ""}`}
+        </td>
 
-                    <td className="py-3">{user.username}</td>
+        <td className="py-3">
+          {user.username ?? "—"}
+        </td>
 
-                    <td className="py-3">{user.role.name}</td>
+        <td className="py-3">
+          {user.role?.name ?? "—"}
+        </td>
 
-                    {filterByStatus && (
-                      <td className="py-3">
-                        {user.isDeleted ? (
-                          <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
-                            Inactivo
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
-                            Activo
-                          </span>
-                        )}
-                      </td>
-                    )}
+        {filterByStatus && (
+          <td className="py-3">
+            {user.isDeleted ? (
+              <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                Inactivo
+              </span>
+            ) : (
+              <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                Activo
+              </span>
+            )}
+          </td>
+        )}
 
-                    <td className="py-3">
-                      <div className="flex justify-center gap-3">
-                        <button
-                          onClick={() => {
-                            getUserById(user.idUser);
-                            showModalInfo();
-                          }}
-                          className="p-2 bg-black rounded hover:bg-gray-800"
-                        >
-                          <IoIosMore className="text-white" />
-                        </button>
+        <td className="py-3">
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={() => {
+                getUserById(user.idUser);
+                showModalInfo();
+              }}
+              className="p-2 bg-black rounded hover:bg-gray-800"
+            >
+              <IoIosMore className="text-white" />
+            </button>
 
-                        <button
-                          onClick={() => {
-                            getUserById(user.idUser);
-                            showModalForm();
-                          }}
-                          className="p-2 bg-black rounded hover:bg-gray-800"
-                        >
-                          <MdModeEdit className="text-white" />
-                        </button>
+            <button
+              onClick={() => {
+                getUserById(user.idUser);
+                showModalForm();
+              }}
+              className="p-2 bg-black rounded hover:bg-gray-800"
+            >
+              <MdModeEdit className="text-white" />
+            </button>
 
-                        {user.isDeleted ? (
-                          <button
-                            onClick={() => handleRestore(mapUserToDataForm(user))}
-                            className="p-2 bg-black rounded hover:bg-gray-800"
-                          >
-                            <MdOutlineSettingsBackupRestore className="text-white" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleDelete(user)}
-                            disabled={user.idUser === authUser?.idUser}
-                            className={`p-2 bg-black rounded ${
-                              user.idUser === authUser?.idUser
-                                ? "opacity-40 cursor-not-allowed"
-                                : "hover:bg-gray-800"
-                            }`}
-                          >
-                            <MdOutlineDelete className="text-white" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+            {user.isDeleted ? (
+              <button
+                onClick={() => handleRestore(mapUserToDataForm(user))}
+                className="p-2 bg-black rounded hover:bg-gray-800"
+              >
+                <MdOutlineSettingsBackupRestore className="text-white" />
+              </button>
+            ) : (
+              <button
+                onClick={() => handleDelete(user)}
+                disabled={user.idUser === authUser?.idUser}
+                className={`p-2 bg-black rounded ${
+                  user.idUser === authUser?.idUser
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-800"
+                }`}
+              >
+                <MdOutlineDelete className="text-white" />
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+    ))}
+</tbody>
             </table>
           </>
         ) : (

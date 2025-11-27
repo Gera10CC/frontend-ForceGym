@@ -61,9 +61,9 @@ function DashboardManagement() {
   const formatYAxis = (value: number) => `₡${value.toLocaleString('es-CR')}`;
 
   return (
-    <div className="bg-black min-h-screen text-gray-800 pl-0 md:pl-10 transition-all duration-100">
-      {/* Header */}
-      <header className="relative flex justify-center items-center py-4 mb-6 border-b border-gray-700 bg-black px-4 sm:px-6">
+<div className="bg-black min-h-screen text-gray-800 transition-all duration-100">
+        {/* Header */}
+      <header className="relative flex justify-center items-center py-4 mb-6 bg-black px-4 sm:px-6">
         <img src="/LogoBlack.jpg" alt="Logo de Force GYM" className="w-32 sm:w-40 h-auto" />
         <button
           className="p-2 rounded-full hover:bg-gray-800 absolute right-4"

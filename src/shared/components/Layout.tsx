@@ -1,19 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AsideBar from "./AsideBar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
-  useEffect(() => {
-    const handler = (e: any) => setSidebarExpanded(e.detail);
-    window.addEventListener("sidebar-toggle", handler);
-    return () => window.removeEventListener("sidebar-toggle", handler);
-  }, []);
-
   return (
-    <div className="flex bg-black w-full min-h-screen relative">
+    <div className="flex bg-black w-full min-h-screen relative overflow-hidden">
 
-      <AsideBar />
+      <AsideBar
+        expanded={sidebarExpanded}
+        setExpanded={setSidebarExpanded}
+      />
+
+      {sidebarExpanded && (
+        <div
+          onClick={() => setSidebarExpanded(false)}
+          className="
+            fixed inset-0 z-30
+            bg-black/40
+            backdrop-blur-sm
+            transition-opacity
+          "
+        />
+      )}
 
       <div
         className={`
@@ -28,7 +37,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
-
     </div>
   );
 }

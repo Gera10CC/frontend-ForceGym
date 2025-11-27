@@ -21,9 +21,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getAuthUser } from "../utils/authentication";
 import { LogoutModal } from "./LogoutModal";
 
-// =====================================================================
-// NavItem optimizado con memo (para evitar renders innecesarios)
-// =====================================================================
+
 const NavItem = memo(
   ({
     to,
@@ -33,33 +31,36 @@ const NavItem = memo(
     expanded,
     onClick,
     allowedRoles,
-    userRole
+    userRole,
   }: any) => {
     if (allowedRoles && !allowedRoles.includes(userRole)) return null;
 
     return (
       <Link
         to={to}
-        onClick={onClick}
+        onClick={() => onClick?.()}
         className={`flex items-center gap-3 px-4 py-2 rounded-md transition
           ${isActive ? "bg-yellow text-black font-semibold" : "hover:bg-yellow hover:text-black"}
         `}
       >
-        <span className={`${expanded && "pl-2"}`}>{icon}</span>
+        <span className={`${expanded ? "pl-2" : ""}`}>{icon}</span>
         {expanded && <span className="truncate">{label}</span>}
       </Link>
     );
   }
 );
 
-// =====================================================================
-// ASIDEBAR PRINCIPAL
-// =====================================================================
-export default function AsideBar() {
+
+export default function AsideBar({
+  expanded,
+  setExpanded,
+}: {
+  expanded: boolean;
+  setExpanded: (value: boolean) => void;
+}) {
   const loggedUser = getAuthUser();
   const userRole = loggedUser?.role?.name ?? "";
 
-  const [expanded, setExpanded] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
@@ -69,14 +70,6 @@ export default function AsideBar() {
   const submenuRef = useRef<HTMLDivElement>(null);
   const optionsBtnRef = useRef<HTMLDivElement>(null);
 
-  // Emitimos el estado del sidebar al layout global
-  useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent("sidebar-toggle", { detail: expanded })
-    );
-  }, [expanded]);
-
-  // Cerrar submenús al hacer click afuera
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -92,6 +85,7 @@ export default function AsideBar() {
     return () => document.removeEventListener("click", handler);
   }, []);
 
+
   const logout = () => {
     localStorage.removeItem("user");
     navigate("/login");
@@ -99,24 +93,23 @@ export default function AsideBar() {
 
   return (
     <>
+
       <aside
-        id="sidebar"
         className={`
-          fixed bg-black text-white h-full flex flex-col justify-between 
-          transition-all duration-300 z-40 shadow-xl
+        fixed bg-black text-white h-full ...
+        transition-all duration-300 z-[100] shadow-xl
           ${expanded ? "w-56 px-2" : "w-14"}
         `}
       >
-        {/* BOTÓN MENÚ */}
+
         <div
-          className="flex items-center gap-3 p-3 hover:bg-yellow hover:text-black cursor-pointer rounded-b-md"
+          className="flex items-center gap-3  py-[21px] px-4 hover:bg-yellow hover:text-black cursor-pointer rounded-b-md"
           onClick={() => setExpanded(!expanded)}
         >
           <Menu />
           {expanded && <span className="text-sm font-medium">Menú</span>}
         </div>
 
-        {/* NAV ITEMS */}
         <nav className="flex flex-col gap-1 mt-4 border-y border-gray-700 py-4">
           <NavItem
             to="/gestion/dashboard"
@@ -210,7 +203,6 @@ export default function AsideBar() {
             userRole={userRole}
           />
 
-          {/* MORE OPTIONS */}
           <div
             ref={optionsBtnRef}
             onClick={(e) => {
@@ -228,10 +220,11 @@ export default function AsideBar() {
           </div>
         </nav>
 
-        {/* USER + LOGOUT */}
         <div className="mb-4">
           {expanded && (
-            <p className="px-4 truncate opacity-80 text-sm">{loggedUser?.username}</p>
+            <p className="px-4 truncate opacity-80 text-sm">
+              {loggedUser?.username}
+            </p>
           )}
 
           <div
@@ -244,7 +237,6 @@ export default function AsideBar() {
         </div>
       </aside>
 
-      {/* SUBMENÚ FLOTANTE */}
       {showOptions && (
         <div
           ref={submenuRef}
@@ -334,7 +326,9 @@ export default function AsideBar() {
             label="Categorías de Ejercicios"
             expanded
             userRole={userRole}
-            isActive={location.pathname === "/gestion/categorias-ejercicios"}
+            isActive={
+              location.pathname === "/gestion/categorias-ejercicios"
+            }
             onClick={() => setShowOptions(false)}
           />
         </div>
