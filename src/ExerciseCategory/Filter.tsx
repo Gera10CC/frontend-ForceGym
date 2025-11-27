@@ -4,15 +4,18 @@ import useExerciseCategoryStore from "./Store";
 
 export function FilterButton() {
     const { filterByStatus, showModalFilter } = useExerciseCategoryStore();
-
-    const filteringStyles =(
-        filterByStatus !== ''
-    ) && ' bg-white outline-none'
+    
+    const hasFilters = filterByStatus !== '';
 
     return (
         <button
-            className={"flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300" + filteringStyles}
-            onClick={()=>{ showModalFilter() }}
+            className={`
+                flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
+                rounded-lg transition-all
+                ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
+                hover:bg-gray-300
+            `}
+            onClick={showModalFilter}
         >
             <IoFilterOutline />
             <span>Filtrar</span>
