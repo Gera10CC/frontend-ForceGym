@@ -1,18 +1,23 @@
-import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { formatAmountToCRC, formatDate } from "../shared/utils/format";
+import {
+  MdModeEdit,
+  MdOutlineDelete,
+  MdOutlineSettingsBackupRestore,
+} from "react-icons/md";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
-import { mapEconomicIncomeToDataForm } from "../shared/types/mapper";
-import DataInfo from "./DataInfo";
+
 import Modal from "../shared/components/Modal";
-import { EconomicIncome } from "../shared/types";
+import DataInfo from "./DataInfo";
 import NoData from "../shared/components/NoData";
 import Pagination from "../shared/components/Pagination";
 
-interface IncomeTableProps {
-  economicIncomes: EconomicIncome[];
+import { mapUserToDataForm } from "../shared/types/mapper";
+import { User } from "../shared/types";
+
+interface UserTableProps {
+  users: User[];
   modalInfo: boolean;
-  modalForm: boolean;
+  modalForm: boolean; 
   orderBy: string;
   directionOrderBy: string;
   filterByStatus: boolean;
@@ -20,18 +25,19 @@ interface IncomeTableProps {
   size: number;
   totalRecords: number;
   handleOrderByChange: (field: string) => void;
-  getEconomicIncomeById: (id: number) => void;
+  getUserById: (id: number) => void;
   showModalInfo: () => void;
   closeModalInfo: () => void;
   showModalForm: () => void;
-  handleDelete: (income: EconomicIncome) => void;
-  handleRestore: (income: any) => void;
+  handleDelete: (user: User) => void;
+  handleRestore: (user: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
+  authUser: User | null; // para deshabilitar eliminarse a sí mismo
 }
 
-function IncomeTable({
-  economicIncomes,
+function UserTable({
+  users,
   modalInfo,
   orderBy,
   directionOrderBy,
@@ -40,7 +46,7 @@ function IncomeTable({
   size,
   totalRecords,
   handleOrderByChange,
-  getEconomicIncomeById,
+  getUserById,
   showModalInfo,
   closeModalInfo,
   showModalForm,
@@ -48,12 +54,12 @@ function IncomeTable({
   handleRestore,
   changePage,
   changeSize,
-}: IncomeTableProps) {
+  authUser,
+}: UserTableProps) {
   return (
     <div className="w-full mt-4">
-
       <div className="overflow-x-auto rounded-lg">
-        {economicIncomes?.length > 0 ? (
+        {users?.length > 0 ? (
           <>
             <table className="w-full min-w-[900px] text-center">
               <thead className="bg-gray-100 text-gray-700">
@@ -63,93 +69,85 @@ function IncomeTable({
                   <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("voucherNumber")}
+                      onClick={() => handleOrderByChange("identificationNumber")}
                     >
-                      VOUCHER
-                      {orderBy === "voucherNumber" && directionOrderBy === "DESC" && (
-                        <FaArrowUp className="text-yellow" />
-                      )}
-                      {orderBy === "voucherNumber" && directionOrderBy === "ASC" && (
-                        <FaArrowDown className="text-yellow" />
-                      )}
-                    </button>
-                  </th>
-
-                  <th className="py-3 px-2 font-semibold">CLIENTE</th>
-
-                  <th className="py-3 px-2">
-                    <button
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("registrationDate")}
-                    >
-                      FECHA
-                      {orderBy === "registrationDate" && directionOrderBy === "DESC" && (
-                        <FaArrowUp className="text-yellow" />
-                      )}
-                      {orderBy === "registrationDate" && directionOrderBy === "ASC" && (
-                        <FaArrowDown className="text-yellow" />
-                      )}
+                      CÉDULA
+                      {orderBy === "identificationNumber" &&
+                        directionOrderBy === "DESC" && (
+                          <FaArrowUp className="text-yellow" />
+                        )}
+                      {orderBy === "identificationNumber" &&
+                        directionOrderBy === "ASC" && (
+                          <FaArrowDown className="text-yellow" />
+                        )}
                     </button>
                   </th>
 
                   <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("amount")}
+                      onClick={() => handleOrderByChange("name")}
                     >
-                      MONTO
-                      {orderBy === "amount" && directionOrderBy === "DESC" && (
+                      NOMBRE
+                      {orderBy === "name" && directionOrderBy === "DESC" && (
                         <FaArrowUp className="text-yellow" />
                       )}
-                      {orderBy === "amount" && directionOrderBy === "ASC" && (
+                      {orderBy === "name" && directionOrderBy === "ASC" && (
                         <FaArrowDown className="text-yellow" />
                       )}
                     </button>
                   </th>
 
-                  <th className="py-3 px-2 font-semibold">PAGO</th>
+                  <th className="py-3 px-2">
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                      onClick={() => handleOrderByChange("username")}
+                    >
+                      USUARIO
+                      {orderBy === "username" &&
+                        directionOrderBy === "DESC" && (
+                          <FaArrowUp className="text-yellow" />
+                        )}
+                      {orderBy === "username" &&
+                        directionOrderBy === "ASC" && (
+                          <FaArrowDown className="text-yellow" />
+                        )}
+                    </button>
+                  </th>
 
-                  <th className="py-3 px-2 font-semibold">CLIENTE TIPO</th>
+                  <th className="py-3 px-2 font-semibold">ROL</th>
 
-                  {filterByStatus && <th className="py-3 px-2 font-semibold">ESTADO</th>}
+                  {filterByStatus && (
+                    <th className="py-3 px-2 font-semibold">ESTADO</th>
+                  )}
 
                   <th className="py-3 px-2 font-semibold">ACCIONES</th>
                 </tr>
               </thead>
 
               <tbody className="text-sm">
-                {economicIncomes.map((income, index) => (
+                {users.map((user, index) => (
                   <tr
-                    key={income.idEconomicIncome}
+                    key={user.idUser}
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="py-3">{index + 1}</td>
 
                     <td className="py-3">
-                      {income.voucherNumber !== "" ? income.voucherNumber : "No adjunto"}
+                      {user.person.identificationNumber}
                     </td>
 
                     <td className="py-3">
-                      {income.client.person.name +
-                        " " +
-                        income.client.person.firstLastName +
-                        " " +
-                        income.client.person.secondLastName}
+                      {`${user.person.name} ${user.person.firstLastName} ${user.person.secondLastName}`}
                     </td>
 
-                    <td className="py-3">
-                      {formatDate(new Date(income.registrationDate))}
-                    </td>
+                    <td className="py-3">{user.username}</td>
 
-                    <td className="py-3">{formatAmountToCRC(income.amount)}</td>
-
-                    <td className="py-3">{income.meanOfPayment.name}</td>
-
-                    <td className="py-3">{income.client.clientType.name}</td>
+                    <td className="py-3">{user.role.name}</td>
 
                     {filterByStatus && (
                       <td className="py-3">
-                        {income.isDeleted ? (
+                        {user.isDeleted ? (
                           <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
                             Inactivo
                           </span>
@@ -163,10 +161,9 @@ function IncomeTable({
 
                     <td className="py-3">
                       <div className="flex justify-center gap-3">
-
                         <button
                           onClick={() => {
-                            getEconomicIncomeById(income.idEconomicIncome);
+                            getUserById(user.idUser);
                             showModalInfo();
                           }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
@@ -176,7 +173,7 @@ function IncomeTable({
 
                         <button
                           onClick={() => {
-                            getEconomicIncomeById(income.idEconomicIncome);
+                            getUserById(user.idUser);
                             showModalForm();
                           }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
@@ -184,19 +181,22 @@ function IncomeTable({
                           <MdModeEdit className="text-white" />
                         </button>
 
-                        {income.isDeleted ? (
+                        {user.isDeleted ? (
                           <button
-                            onClick={() =>
-                              handleRestore(mapEconomicIncomeToDataForm(income))
-                            }
+                            onClick={() => handleRestore(mapUserToDataForm(user))}
                             className="p-2 bg-black rounded hover:bg-gray-800"
                           >
                             <MdOutlineSettingsBackupRestore className="text-white" />
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleDelete(income)}
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            onClick={() => handleDelete(user)}
+                            disabled={user.idUser === authUser?.idUser}
+                            className={`p-2 bg-black rounded ${
+                              user.idUser === authUser?.idUser
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-gray-800"
+                            }`}
                           >
                             <MdOutlineDelete className="text-white" />
                           </button>
@@ -209,40 +209,29 @@ function IncomeTable({
             </table>
           </>
         ) : (
-          <NoData module="ingresos económicos" />
+          <NoData module="usuarios" />
         )}
       </div>
 
-      {economicIncomes?.length > 0 && (
-        <>
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h3 className="text-lg font-bold">
-              Total de Ingresos:{" "}
-              {formatAmountToCRC(
-                economicIncomes.reduce((total, item) => total + item.amount, 0)
-              )}
-            </h3>
-          </div>
-
-          <Pagination
-            page={page}
-            size={size}
-            totalRecords={totalRecords}
-            onSizeChange={changeSize}
-            onPageChange={changePage}
-          />
-        </>
+      {users?.length > 0 && (
+        <Pagination
+          page={page}
+          size={size}
+          totalRecords={totalRecords}
+          onSizeChange={changeSize}
+          onPageChange={changePage}
+        />
       )}
 
       <Modal
         Button={() => <></>}
         modal={modalInfo}
         closeModal={closeModalInfo}
-        getDataById={getEconomicIncomeById}
+        getDataById={getUserById}
         Content={DataInfo}
       />
     </div>
   );
 }
 
-export default IncomeTable;
+export default UserTable;

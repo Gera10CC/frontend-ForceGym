@@ -1,16 +1,16 @@
 import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore } from "react-icons/md";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { formatAmountToCRC, formatDate } from "../shared/utils/format";
 import { IoIosMore } from "react-icons/io";
-import { mapEconomicIncomeToDataForm } from "../shared/types/mapper";
-import DataInfo from "./DataInfo";
 import Modal from "../shared/components/Modal";
-import { EconomicIncome } from "../shared/types";
 import NoData from "../shared/components/NoData";
 import Pagination from "../shared/components/Pagination";
+import { formatDate } from "../shared/utils/format";
+import DataInfo from "./DataInfo";
+import { mapMeasurementToDataForm } from "../shared/types/mapper";
+import { Measurement } from "../shared/types";
 
-interface IncomeTableProps {
-  economicIncomes: EconomicIncome[];
+interface MeasurementTableProps {
+  measurements: Measurement[];
   modalInfo: boolean;
   modalForm: boolean;
   orderBy: string;
@@ -20,18 +20,18 @@ interface IncomeTableProps {
   size: number;
   totalRecords: number;
   handleOrderByChange: (field: string) => void;
-  getEconomicIncomeById: (id: number) => void;
+  getMeasurementById: (id: number) => void;
   showModalInfo: () => void;
   closeModalInfo: () => void;
   showModalForm: () => void;
-  handleDelete: (income: EconomicIncome) => void;
-  handleRestore: (income: any) => void;
+  handleDelete: (measurement: Measurement) => void;
+  handleRestore: (measurement: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
 }
 
-function IncomeTable({
-  economicIncomes,
+function MeasurementTable({
+  measurements,
   modalInfo,
   orderBy,
   directionOrderBy,
@@ -40,7 +40,7 @@ function IncomeTable({
   size,
   totalRecords,
   handleOrderByChange,
-  getEconomicIncomeById,
+  getMeasurementById,
   showModalInfo,
   closeModalInfo,
   showModalForm,
@@ -48,12 +48,13 @@ function IncomeTable({
   handleRestore,
   changePage,
   changeSize,
-}: IncomeTableProps) {
+}: MeasurementTableProps) {
+
   return (
     <div className="w-full mt-4">
 
       <div className="overflow-x-auto rounded-lg">
-        {economicIncomes?.length > 0 ? (
+        {measurements?.length > 0 ? (
           <>
             <table className="w-full min-w-[900px] text-center">
               <thead className="bg-gray-100 text-gray-700">
@@ -63,53 +64,23 @@ function IncomeTable({
                   <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("voucherNumber")}
-                    >
-                      VOUCHER
-                      {orderBy === "voucherNumber" && directionOrderBy === "DESC" && (
-                        <FaArrowUp className="text-yellow" />
-                      )}
-                      {orderBy === "voucherNumber" && directionOrderBy === "ASC" && (
-                        <FaArrowDown className="text-yellow" />
-                      )}
-                    </button>
-                  </th>
-
-                  <th className="py-3 px-2 font-semibold">CLIENTE</th>
-
-                  <th className="py-3 px-2">
-                    <button
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("registrationDate")}
+                      onClick={() => handleOrderByChange("measurementDate")}
                     >
                       FECHA
-                      {orderBy === "registrationDate" && directionOrderBy === "DESC" && (
+                      {orderBy === "measurementDate" && directionOrderBy === "DESC" && (
                         <FaArrowUp className="text-yellow" />
                       )}
-                      {orderBy === "registrationDate" && directionOrderBy === "ASC" && (
+                      {orderBy === "measurementDate" && directionOrderBy === "ASC" && (
                         <FaArrowDown className="text-yellow" />
                       )}
                     </button>
                   </th>
 
-                  <th className="py-3 px-2">
-                    <button
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("amount")}
-                    >
-                      MONTO
-                      {orderBy === "amount" && directionOrderBy === "DESC" && (
-                        <FaArrowUp className="text-yellow" />
-                      )}
-                      {orderBy === "amount" && directionOrderBy === "ASC" && (
-                        <FaArrowDown className="text-yellow" />
-                      )}
-                    </button>
-                  </th>
-
-                  <th className="py-3 px-2 font-semibold">PAGO</th>
-
-                  <th className="py-3 px-2 font-semibold">CLIENTE TIPO</th>
+                  <th className="py-3 px-2 font-semibold">PESO (kg)</th>
+                  <th className="py-3 px-2 font-semibold">ALTURA (cm)</th>
+                  <th className="py-3 px-2 font-semibold">MÚSCULO (%)</th>
+                  <th className="py-3 px-2 font-semibold">GRASA (%)</th>
+                  <th className="py-3 px-2 font-semibold">VISCERAL (%)</th>
 
                   {filterByStatus && <th className="py-3 px-2 font-semibold">ESTADO</th>}
 
@@ -118,38 +89,26 @@ function IncomeTable({
               </thead>
 
               <tbody className="text-sm">
-                {economicIncomes.map((income, index) => (
+                {measurements.map((measurement, index) => (
                   <tr
-                    key={income.idEconomicIncome}
+                    key={measurement.idMeasurement}
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="py-3">{index + 1}</td>
 
                     <td className="py-3">
-                      {income.voucherNumber !== "" ? income.voucherNumber : "No adjunto"}
+                      {formatDate(new Date(measurement.measurementDate))}
                     </td>
 
-                    <td className="py-3">
-                      {income.client.person.name +
-                        " " +
-                        income.client.person.firstLastName +
-                        " " +
-                        income.client.person.secondLastName}
-                    </td>
-
-                    <td className="py-3">
-                      {formatDate(new Date(income.registrationDate))}
-                    </td>
-
-                    <td className="py-3">{formatAmountToCRC(income.amount)}</td>
-
-                    <td className="py-3">{income.meanOfPayment.name}</td>
-
-                    <td className="py-3">{income.client.clientType.name}</td>
+                    <td className="py-3">{measurement.weight}</td>
+                    <td className="py-3">{measurement.height}</td>
+                    <td className="py-3">{measurement.muscleMass}</td>
+                    <td className="py-3">{measurement.bodyFatPercentage}</td>
+                    <td className="py-3">{measurement.visceralFatPercentage}</td>
 
                     {filterByStatus && (
                       <td className="py-3">
-                        {income.isDeleted ? (
+                        {measurement.isDeleted ? (
                           <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
                             Inactivo
                           </span>
@@ -166,7 +125,7 @@ function IncomeTable({
 
                         <button
                           onClick={() => {
-                            getEconomicIncomeById(income.idEconomicIncome);
+                            getMeasurementById(measurement.idMeasurement);
                             showModalInfo();
                           }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
@@ -176,7 +135,7 @@ function IncomeTable({
 
                         <button
                           onClick={() => {
-                            getEconomicIncomeById(income.idEconomicIncome);
+                            getMeasurementById(measurement.idMeasurement);
                             showModalForm();
                           }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
@@ -184,10 +143,10 @@ function IncomeTable({
                           <MdModeEdit className="text-white" />
                         </button>
 
-                        {income.isDeleted ? (
+                        {measurement.isDeleted ? (
                           <button
                             onClick={() =>
-                              handleRestore(mapEconomicIncomeToDataForm(income))
+                              handleRestore(mapMeasurementToDataForm(measurement))
                             }
                             className="p-2 bg-black rounded hover:bg-gray-800"
                           >
@@ -195,7 +154,7 @@ function IncomeTable({
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleDelete(income)}
+                            onClick={() => handleDelete(measurement)}
                             className="p-2 bg-black rounded hover:bg-gray-800"
                           >
                             <MdOutlineDelete className="text-white" />
@@ -209,40 +168,29 @@ function IncomeTable({
             </table>
           </>
         ) : (
-          <NoData module="ingresos económicos" />
+          <NoData module="mediciones" />
         )}
       </div>
 
-      {economicIncomes?.length > 0 && (
-        <>
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h3 className="text-lg font-bold">
-              Total de Ingresos:{" "}
-              {formatAmountToCRC(
-                economicIncomes.reduce((total, item) => total + item.amount, 0)
-              )}
-            </h3>
-          </div>
-
-          <Pagination
-            page={page}
-            size={size}
-            totalRecords={totalRecords}
-            onSizeChange={changeSize}
-            onPageChange={changePage}
-          />
-        </>
+      {measurements?.length > 0 && (
+        <Pagination
+          page={page}
+          size={size}
+          totalRecords={totalRecords}
+          onSizeChange={changeSize}
+          onPageChange={changePage}
+        />
       )}
 
       <Modal
         Button={() => <></>}
         modal={modalInfo}
         closeModal={closeModalInfo}
-        getDataById={getEconomicIncomeById}
+        getDataById={getMeasurementById}
         Content={DataInfo}
       />
     </div>
   );
 }
 
-export default IncomeTable;
+export default MeasurementTable;

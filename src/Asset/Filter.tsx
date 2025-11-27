@@ -1,168 +1,255 @@
 import { IoFilterOutline } from "react-icons/io5";
 import useAssetStore from "./Store";
-import { MdOutlineCancel } from "react-icons/md";
 
 export function FilterButton() {
-    const { filterByStatus, filterByCostRangeMin, filterByCostRangeMax, filterByQuantityRangeMin, filterByQuantityRangeMax, showModalFilter } = useAssetStore()
-    const filteringStyles = (
-        filterByStatus!='' || filterByCostRangeMin!=0 || filterByCostRangeMax!=0 || filterByQuantityRangeMin!=0 || filterByQuantityRangeMax!=0
-    ) && ' bg-white outline-none'
+  const {
+    filterByStatus,
+    filterByCostRangeMin,
+    filterByCostRangeMax,
+    filterByQuantityRangeMin,
+    filterByQuantityRangeMax,
+    showModalFilter,
+  } = useAssetStore();
 
-    return (
-        <button
-            className={"flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300" + filteringStyles}
-            onClick={()=>{ showModalFilter() }}
-        >
-            <IoFilterOutline />
-            <span>Filtrar</span>
-        </button>
-    );
+  const hasFilters =
+    filterByStatus !== "" ||
+    filterByCostRangeMin !== 0 ||
+    filterByCostRangeMax !== 0 ||
+    filterByQuantityRangeMin !== 0 ||
+    filterByQuantityRangeMax !== 0;
+
+  return (
+    <button
+      className={`
+        flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
+        rounded-lg transition-all
+        ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
+        hover:bg-gray-300
+      `}
+      onClick={showModalFilter}
+    >
+      <IoFilterOutline />
+      <span>Filtrar</span>
+    </button>
+  );
 }
+import { MdOutlineCancel } from "react-icons/md";
 
 export function FilterSelect() {
-    const { 
-        filterByStatus, 
-        filterByCostRangeMin, 
-        filterByCostRangeMax, 
-        filterByQuantityRangeMin, 
-        filterByQuantityRangeMax, 
-        changeFilterByStatus, 
-        changeFilterByCostRangeMin,
-        changeFilterByCostRangeMax,
-        changeFilterByQuantityRangeMin,
-        changeFilterByQuantityRangeMax,
-        clearAllFilters
-    } = useAssetStore()
-    const filteredStatusSelectStyles = filterByStatus!='' && ' px-0.5 rounded-md border-2 border-yellow text-yellow'
-    const filteredCostRangeStyles = (filterByCostRangeMin!=0 && filterByCostRangeMax!=0)  && ' px-0.5 border-2 border-yellow text-yellow'
-    const filteredQuantityRangeStyles = (filterByQuantityRangeMin !=0 && filterByQuantityRangeMax!=0)  && ' px-0.5 border-2 border-yellow text-yellow'
+  const {
+    filterByStatus,
+    filterByCostRangeMin,
+    filterByCostRangeMax,
+    filterByQuantityRangeMin,
+    filterByQuantityRangeMax,
 
-    return (
-        <div className="flex flex-col gap-4">
-            
-            {/* Botón de limpiar todos */}
-            <div className="flex justify-end pr-4">
-                <button
-                    className="text-yellow border border-yellow px-3 py-1 rounded-md hover:bg-yellow hover:text-black transition-all"
-                    onClick={clearAllFilters}
-                >
-                    Limpiar todos los filtros
-                </button>
-            </div>
+    changeFilterByStatus,
+    changeFilterByCostRangeMin,
+    changeFilterByCostRangeMax,
+    changeFilterByQuantityRangeMin,
+    changeFilterByQuantityRangeMax,
 
-            {/* Filtro por Estado */}
-            <div className="flex items-center gap-4">
-                <label htmlFor="status" className="w-20">Estado</label>
-                <select
-                    className={'border rounded-md p-2 w-52 text-center' + filteredStatusSelectStyles}
-                    name="status"
-                    id="status"
-                    value={filterByStatus} 
-                    onChange={(e) => {
-                        if(Number(e.target.value) === 0){
-                            changeFilterByStatus('')
-                        }else{
-                            changeFilterByStatus(e.target.value)
-                        }
-                    }}
-                >
-                    <option value={0}> Activos </option>
-                    <option value={'Inactivos'}> Inactivos </option>
-                    <option value={'Todos'}> Todos </option>
-                </select>
-                {filterByStatus && 
-                    <button
-                        className="text-2xl text-yellow"
-                        onClick={() => changeFilterByStatus('')}
-                    >
-                        <MdOutlineCancel className="hover:cursor-pointer" />
-                    </button>
-                }
-            </div>
-    
-            {/* Filtro por Costo */}
-            <div className="flex items-center gap-4">
-                <label className="w-20">Costo</label>
-                <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                        <label htmlFor="costMin" className="text-sm">Mínimo</label>
-                        <input
-                            className={'border-2 w-24 p-1 text-center' + filteredCostRangeStyles}
-                            name="costMin"
-                            id="costMin"
-                            type="number"
-                            min={1}
-                            value={filterByCostRangeMin}
-                            onChange={(e) => changeFilterByCostRangeMin(+e.target.value)}
-                        />
-                    </div>
-                    <span>-</span>
-                    <div className="flex flex-col">
-                        <label htmlFor="costMax" className="text-sm">Máximo</label>
-                        <input
-                            className={'border-2 w-24 p-1 text-center' + filteredCostRangeStyles}
-                            name="costMax"
-                            id="costMax"
-                            type="number"
-                            value={filterByCostRangeMax}
-                            onChange={(e) => changeFilterByCostRangeMax(+e.target.value)}
-                        />
-                    </div>
-                    {(filterByCostRangeMin !== 0 || filterByCostRangeMax !== 0) && 
-                        <button
-                            className="text-2xl text-yellow"
-                            onClick={() => { 
-                                changeFilterByCostRangeMin(0);
-                                changeFilterByCostRangeMax(0);
-                            }}
-                        >
-                            <MdOutlineCancel className="hover:cursor-pointer" />
-                        </button>
-                    }
-                </div>
-            </div>
-    
-            {/* Filtro por Cantidad */}
-            <div className="flex items-center gap-4">
-                <label className="w-20">Cantidad</label>
-                <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                        <label htmlFor="quantityMin" className="text-sm">Mínima</label>
-                        <input
-                            className={'border-2 w-24 p-1 text-center' + filteredQuantityRangeStyles}
-                            name="quantityMin"
-                            id="quantityMin"
-                            type="number"
-                            min={1}
-                            value={filterByQuantityRangeMin}
-                            onChange={(e) => changeFilterByQuantityRangeMin(+e.target.value)}
-                        />
-                    </div>
-                    <span>-</span>
-                    <div className="flex flex-col">
-                        <label htmlFor="quantityMax" className="text-sm">Máxima</label>
-                        <input
-                            className={'border-2 w-24 p-1 text-center' + filteredQuantityRangeStyles}
-                            name="quantityMax"
-                            id="quantityMax"
-                            type="number"
-                            value={filterByQuantityRangeMax}
-                            onChange={(e) => changeFilterByQuantityRangeMax(+e.target.value)}
-                        />
-                    </div>
-                    {(filterByQuantityRangeMin !== 0 || filterByQuantityRangeMax !== 0) && 
-                        <button
-                            className="text-2xl text-yellow"
-                            onClick={() => { 
-                                changeFilterByQuantityRangeMin(0);
-                                changeFilterByQuantityRangeMax(0);
-                            }}
-                        >
-                            <MdOutlineCancel className="hover:cursor-pointer" />
-                        </button>
-                    }
-                </div>
-            </div>
+    clearAllFilters,
+  } = useAssetStore();
+
+  return (
+    <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+
+      <div className="flex justify-end w-full">
+        <button
+          className="text-yellow border border-yellow px-4 py-1 rounded-md 
+                     hover:bg-yellow hover:text-black transition-all text-sm sm:text-base"
+          onClick={clearAllFilters}
+        >
+          Limpiar todos
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+
+        <label className="w-full sm:w-28 text-sm sm:text-base font-semibold">
+          Estado
+        </label>
+
+        <div className="flex items-center gap-2 w-full">
+          <select
+            className={`
+              border rounded-md p-2 w-full text-center
+              ${filterByStatus !== "" ? "border-yellow text-yellow" : ""}
+            `}
+            value={filterByStatus}
+            onChange={(e) =>
+              Number(e.target.value) === 0
+                ? changeFilterByStatus("")
+                : changeFilterByStatus(e.target.value)
+            }
+          >
+            <option value={0}>Activos</option>
+            <option value="Inactivos">Inactivos</option>
+            <option value="Todos">Todos</option>
+          </select>
+
+          {filterByStatus !== "" && (
+            <MdOutlineCancel
+              className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+              onClick={() => changeFilterByStatus("")}
+            />
+          )}
         </div>
-    );      
+      </div>
+
+      <div className="flex flex-col gap-2 w-full">
+
+        <label className="text-sm sm:text-base font-semibold">Costo</label>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+
+          <div className="flex flex-col w-full">
+            <label className="text-xs mb-1">Mínimo</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              className={`border rounded-md p-2 text-center w-full 
+                ${(filterByCostRangeMin || filterByCostRangeMax) 
+                  ? "border-yellow text-yellow" 
+                  : ""}`}
+              value={filterByCostRangeMin === 0 ? "" : filterByCostRangeMin}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value === "") {
+                  changeFilterByCostRangeMin(0);
+                  return;
+                }
+
+                if (+value < 0) return;
+
+                changeFilterByCostRangeMin(+value);
+              }}
+              style={{ MozAppearance: "textfield" }}
+              onWheel={(e) => e.currentTarget.blur()}
+            />
+          </div>
+
+          <div className="flex flex-col w-full">
+            <label className="text-xs mb-1">Máximo</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              className={`border rounded-md p-2 text-center w-full 
+                ${(filterByCostRangeMin || filterByCostRangeMax) 
+                  ? "border-yellow text-yellow" 
+                  : ""}`}
+              value={filterByCostRangeMax === 0 ? "" : filterByCostRangeMax}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value === "") {
+                  changeFilterByCostRangeMax(0);
+                  return;
+                }
+
+                if (+value < 0) return;
+
+                changeFilterByCostRangeMax(+value);
+              }}
+              style={{ MozAppearance: "textfield" }}
+              onWheel={(e) => e.currentTarget.blur()}
+            />
+          </div>
+        </div>
+
+        {(filterByCostRangeMin !== 0 || filterByCostRangeMax !== 0) && (
+          <button
+            onClick={() => {
+              changeFilterByCostRangeMin(0);
+              changeFilterByCostRangeMax(0);
+            }}
+            className="text-yellow text-sm mt-1 self-end hover:underline"
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2 w-full">
+
+        <label className="text-sm sm:text-base font-semibold">Cantidad</label>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+
+          <div className="flex flex-col w-full">
+            <label className="text-xs mb-1">Mínima</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              className={`border rounded-md p-2 text-center w-full 
+                ${(filterByQuantityRangeMin || filterByQuantityRangeMax) 
+                  ? "border-yellow text-yellow" 
+                  : ""}`}
+              value={filterByQuantityRangeMin === 0 ? "" : filterByQuantityRangeMin}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value === "") {
+                  changeFilterByQuantityRangeMin(0);
+                  return;
+                }
+
+                if (+value < 0) return;
+
+                changeFilterByQuantityRangeMin(+value);
+              }}
+              style={{ MozAppearance: "textfield" }}
+              onWheel={(e) => e.currentTarget.blur()}
+            />
+          </div>
+
+          <div className="flex flex-col w-full">
+            <label className="text-xs mb-1">Máxima</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              className={`border rounded-md p-2 text-center w-full 
+                ${(filterByQuantityRangeMin || filterByQuantityRangeMax) 
+                  ? "border-yellow text-yellow" 
+                  : ""}`}
+              value={filterByQuantityRangeMax === 0 ? "" : filterByQuantityRangeMax}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (value === "") {
+                  changeFilterByQuantityRangeMax(0);
+                  return;
+                }
+
+                if (+value < 0) return;
+
+                changeFilterByQuantityRangeMax(+value);
+              }}
+              style={{ MozAppearance: "textfield" }}
+              onWheel={(e) => e.currentTarget.blur()}
+            />
+          </div>
+        </div>
+
+        {(filterByQuantityRangeMin !== 0 || filterByQuantityRangeMax !== 0) && (
+          <button
+            onClick={() => {
+              changeFilterByQuantityRangeMin(0);
+              changeFilterByQuantityRangeMax(0);
+            }}
+            className="text-yellow text-sm mt-1 self-end hover:underline"
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+
+    </div>
+  );
 }

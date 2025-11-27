@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import SignatureCanvas from 'react-signature-canvas';
-import ErrorForm from '../../shared/components/ErrorForm';
+import React, { useRef } from "react";
+import { useFormContext } from "react-hook-form";
+import SignatureCanvas from "react-signature-canvas";
+import ErrorForm from "../../shared/components/ErrorForm";
 
 const CONTRACT_TEXT = `
 Con la firma del presente contrato, se aceptan los términos y condiciones estipulados a continuación:
@@ -19,60 +19,76 @@ Con la firma del presente contrato, se aceptan los términos y condiciones estip
 `;
 
 export const StepContract = () => {
-  const { 
-    setValue, 
-    formState: { errors } 
+  const {
+    setValue,
+    formState: { errors },
   } = useFormContext();
-  
+
   const sigCanvasRef = useRef<SignatureCanvas>(null);
 
   const handleClear = () => {
     sigCanvasRef.current?.clear();
-    setValue('signatureImage', '');
+    setValue("signatureImage", "");
   };
 
-  const handleSignatureEnd = () => {
-    if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-      const signatureData = sigCanvasRef.current
-        .getTrimmedCanvas()
-        .toDataURL('image/png');
-      setValue('signatureImage', signatureData);
-    } else {
-      setValue('signatureImage', '');
-    }
-  };
+const handleSignatureEnd = () => {
+  if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
+    const signatureData =
+      sigCanvasRef.current.getCanvas().toDataURL("image/png");
+
+    setValue("signatureImage", signatureData);
+  } else {
+    setValue("signatureImage", "");
+  }
+};
 
   return (
-    <div className="space-y-5">
-      <div className="contract-container bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Términos y condiciones</h2>
-        <pre className="whitespace-pre-wrap font-sans">{CONTRACT_TEXT}</pre>
+    <div className="space-y-6 w-full px-1 sm:px-2">
+
+
+      <div className="bg-gray-50 p-4 rounded-lg max-h-80 sm:max-h-96 overflow-y-auto border border-gray-200">
+        <h2 className="text-lg sm:text-xl font-bold mb-3">
+          Términos y Condiciones
+        </h2>
+
+        <pre className="whitespace-pre-wrap font-sans text-sm sm:text-base leading-relaxed">
+          {CONTRACT_TEXT}
+        </pre>
       </div>
 
-      <div className="signature-section mt-6">
-        <h3 className="text-sm uppercase font-bold mb-2">Firma Digital</h3>
-        <div className="border border-gray-300 rounded-md">
+      <div>
+        <label className="text-sm uppercase font-bold block mb-2">
+          Firma Digital
+        </label>
+
+        <div className="border border-gray-300 rounded-md overflow-hidden bg-white w-full">
           <SignatureCanvas
             ref={sigCanvasRef}
             penColor="black"
             canvasProps={{
-              width: 500,
-              height: 200,
-              className: 'sig-canvas w-full bg-white'
+              className:
+                "w-full h-[180px] sm:h-[220px] bg-white touch-none",
             }}
             onEnd={handleSignatureEnd}
           />
         </div>
-        
+
         {errors.signatureImage && (
-          <ErrorForm>{errors.signatureImage.message?.toString()}</ErrorForm>
+          <ErrorForm>
+            {errors.signatureImage.message?.toString()}
+          </ErrorForm>
         )}
 
-        <div className="flex gap-4 mt-4">
+        <div className="flex mt-4">
           <button
             type="button"
             onClick={handleClear}
-            className="border-2 border-gray-600 text-gray-600 py-2 px-3 uppercase font-bold rounded-md hover:opacity-50 cursor-pointer transition-colors"
+            className="
+              border-2 border-gray-600 text-gray-600
+              py-2 px-4 uppercase font-bold rounded-md
+              hover:opacity-70 cursor-pointer
+              transition-colors
+            "
           >
             Limpiar Firma
           </button>

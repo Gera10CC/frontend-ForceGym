@@ -35,11 +35,12 @@ type AssetStore = {
     changeDirectionOrderBy: (newDirectionOrderBy: string) => void;
     changeSearchType: (newSearchType: number) => void;
     changeSearchTerm: (newSearchTerm: string) => void;
-    changeFilterByStatus: (newFilterByStatus: string) => void;
-    changeFilterByCostRangeMax: (newFilter: number) => void;
-    changeFilterByCostRangeMin: (newFilter: number) => void;
-    changeFilterByQuantityRangeMax: (newFilter: number) => void;
-    changeFilterByQuantityRangeMin: (newFilter: number) => void;
+
+    changeFilterByStatus: (v: string) => void;
+    changeFilterByCostRangeMax: (v: number) => void;
+    changeFilterByCostRangeMin: (v: number) => void;
+    changeFilterByQuantityRangeMax: (v: number) => void;
+    changeFilterByQuantityRangeMin: (v: number) => void;
 
     showModalForm: () => void;
     closeModalForm: () => void;
@@ -49,9 +50,8 @@ type AssetStore = {
     closeModalInfo: () => void;
     showModalFileType: () => void;
     closeModalFileType: () => void;
-    
+    resetEditing: () => void;
     clearAllFilters: () => void;
-
 };
 
 export const useAssetStore = create<AssetStore>()(
@@ -61,7 +61,7 @@ export const useAssetStore = create<AssetStore>()(
         modalFilter: false,
         modalInfo: false,
         modalFileTypeDecision: false,
-        activeEditingId: 0, 
+        activeEditingId: 0,
         size: 5,
         page: 1,
         totalRecords: 0,
@@ -75,15 +75,16 @@ export const useAssetStore = create<AssetStore>()(
         filterByQuantityRangeMax: 0,
         filterByQuantityRangeMin: 0,
 
-        clearAllFilters: () => set(() => ({
-            filterByStatus: '',
-            filterByCostRangeMin: 0,
-            filterByCostRangeMax: 0,
-            filterByQuantityRangeMin: 0,
-            filterByQuantityRangeMax: 0,
-            searchTerm: ''
-        })),
-        
+        clearAllFilters: () => {
+            set({
+                filterByStatus: '',
+                filterByCostRangeMin: 0,
+                filterByCostRangeMax: 0,
+                filterByQuantityRangeMin: 0,
+                filterByQuantityRangeMax: 0,
+                searchTerm: ''
+            });
+        },
 
         fetchAssets: async () => {
             const state = useAssetStore.getState();
@@ -112,55 +113,57 @@ export const useAssetStore = create<AssetStore>()(
 
             const totalPages = Math.max(1, Math.ceil(result.data.totalRecords / state.size));
             if (state.page > totalPages) {
-                newPage = state.page-1; 
+                newPage = state.page - 1;
             }
 
-            const assets = result.data?.assets ?? []
-            const totalRecords = result.data?.totalRecords ?? 0
+            set({
+                assets: [...(result.data?.assets ?? [])],
+                totalRecords: result.data?.totalRecords ?? 0,
+                page: newPage
+            });
 
-            set({ assets: [...assets], totalRecords: totalRecords, page: newPage });
             return result;
         },
 
         getAssetById: (id) => {
-            set(() => ({ activeEditingId: id }));
+            set({ activeEditingId: id });
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
+
 
         addAsset: async (data) => {
-            const result = await postData(`${import.meta.env.VITE_URL_API}asset/add`, data);
-            return result;
+            return await postData(`${import.meta.env.VITE_URL_API}asset/add`, data);
         },
 
         updateAsset: async (data) => {
-            const result = await putData(`${import.meta.env.VITE_URL_API}asset/update`, data);
-            return result;
+            return await putData(`${import.meta.env.VITE_URL_API}asset/update`, data);
         },
 
         deleteAsset: async (id, loggedIdUser) => {
-            const result = await deleteData(`${import.meta.env.VITE_URL_API}asset/delete/${id}`, loggedIdUser);
-            return result;
+            return await deleteData(`${import.meta.env.VITE_URL_API}asset/delete/${id}`, loggedIdUser);
         },
 
-        changeSize: (newSize) => set(() => ({ size: newSize })),
-        changePage: (newPage) => set(() => ({ page: newPage })),
-        changeOrderBy: (newOrderBy) => set(() => ({ orderBy: newOrderBy })),
-        changeDirectionOrderBy: (newDirectionOrderBy) => set(() => ({ directionOrderBy: newDirectionOrderBy })),
-        changeSearchType: (newSearchType) => set(() => ({ searchType: newSearchType })),
-        changeSearchTerm: (newSearchTerm) => set(() => ({ searchTerm: newSearchTerm })),
-        changeFilterByStatus: (newFilterByStatus) => set(() => ({ filterByStatus: newFilterByStatus })),
-        changeFilterByCostRangeMax: (newFilter) => set(() => ({ filterByCostRangeMax: newFilter })),
-        changeFilterByCostRangeMin: (newFilter) => set(() => ({ filterByCostRangeMin: newFilter })),
-        changeFilterByQuantityRangeMax: (newFilter) => set(() => ({ filterByQuantityRangeMax: newFilter })),
-        changeFilterByQuantityRangeMin: (newFilter) => set(() => ({ filterByQuantityRangeMin: newFilter })),
+        changeSize: (v) => { set({ size: v }); },
+        changePage: (v) => { set({ page: v }); },
+        changeOrderBy: (v) => { set({ orderBy: v }); },
+        changeDirectionOrderBy: (v) => { set({ directionOrderBy: v }); },
+        changeSearchType: (v) => { set({ searchType: v }); },
+        changeSearchTerm: (v) => { set({ searchTerm: v }); },
 
-        showModalForm: () => set(() => ({ modalForm: true })),
-        closeModalForm: () => set(() => ({ modalForm: false })),
-        showModalFilter: () => set(() => ({ modalFilter: true })),
-        closeModalFilter: () => set(() => ({ modalFilter: false })),
-        showModalInfo: () => set(() => ({ modalInfo: true })),
-        closeModalInfo: () => set(() => ({ modalInfo: false })),
-        showModalFileType: () => set(() => ({ modalFileTypeDecision: true })),
-        closeModalFileType: () => set(() => ({ modalFileTypeDecision: false }))
+        changeFilterByStatus: (v) => { set({ filterByStatus: v }); },
+        changeFilterByCostRangeMax: (v) => { set({ filterByCostRangeMax: v }); },
+        changeFilterByCostRangeMin: (v) => { set({ filterByCostRangeMin: v }); },
+        changeFilterByQuantityRangeMax: (v) => { set({ filterByQuantityRangeMax: v }); },
+        changeFilterByQuantityRangeMin: (v) => { set({ filterByQuantityRangeMin: v }); },
+
+        showModalForm: () => { set({ modalForm: true }); },
+        closeModalForm: () => { set({ modalForm: false }); },
+        showModalFilter: () => { set({ modalFilter: true }); },
+        closeModalFilter: () => { set({ modalFilter: false }); },
+        showModalInfo: () => { set({ modalInfo: true }); },
+        closeModalInfo: () => { set({ modalInfo: false }); },
+        showModalFileType: () => { set({ modalFileTypeDecision: true }); },
+        closeModalFileType: () => { set({ modalFileTypeDecision: false }); }
     }))
 );
 

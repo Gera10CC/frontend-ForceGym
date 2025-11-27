@@ -50,6 +50,7 @@ type MeasurementStore = {
     showModalFileType: () => void;
     closeModalFileType: () => void;
     clearAllFilters: () => void;
+    resetEditing: () => void;
 };
 
 export const useMeasurementStore = create<MeasurementStore>()(
@@ -125,6 +126,8 @@ export const useMeasurementStore = create<MeasurementStore>()(
                 selectedMeasurement: measurement || null,
             }));
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
+
 
         addMeasurement: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}measurement/add`, data);

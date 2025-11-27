@@ -12,155 +12,132 @@ const MINLENGTH_NAME = 2;
 
 export const PersonalInfoStep = ({ genders }: { genders: any[] }) => {
   const { register, formState: { errors } } = useFormContext();
-  
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 w-full px-1 sm:px-2">
+      
       <div>
-        <label htmlFor="identificationNumber" className="text-sm uppercase font-bold">
-          Cédula 
-        </label>
-        <input  
-          id="identificationNumber"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese la cédula" 
-          {...register('identificationNumber', {
-            required: 'La cédula es obligatoria',
+        <label className="text-sm uppercase font-bold">Cédula</label>
+        <input
+          type="text"
+          className="
+            w-full p-3 border border-gray-200 rounded-md mt-1
+          "
+          placeholder="Ingrese la cédula"
+          {...register("identificationNumber", {
+            required: "La cédula es obligatoria",
             minLength: {
               value: MINLENGTH_IDENTIFICATIONUMBER,
-              message: `Debe ingresar una cédula de mínimo ${MINLENGTH_IDENTIFICATIONUMBER} carácteres`
+              message: `Debe ingresar una cédula de mínimo ${MINLENGTH_IDENTIFICATIONUMBER} caracteres`,
             },
             maxLength: {
               value: MAXLENGTH_IDENTIFICATIONUMBER,
-              message: `Debe ingresar una cédula de máximo ${MAXLENGTH_IDENTIFICATIONUMBER} carácteres`
+              message: `Máximo ${MAXLENGTH_IDENTIFICATIONUMBER} caracteres`,
             },
             pattern: {
               value: /^[0-9]+$/,
-              message: 'La cédula sólo puede contener números, ejemplo: 401240987'
-            }
+              message: "Solo números",
+            },
           })}
         />
-        {errors.identificationNumber && 
+        {errors.identificationNumber && (
           <ErrorForm>{errors.identificationNumber.message?.toString()}</ErrorForm>
-        }
+        )}
       </div>
 
       <div>
-        <label htmlFor="name" className="text-sm uppercase font-bold">
-          Nombre 
-        </label>
-        <input  
-          id="name"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese el nombre" 
-          {...register('name', {
-            required: 'El nombre es obligatorio',
-            minLength: {
-              value: MINLENGTH_NAME,
-              message: `Debe ingresar un nombre de mínimo ${MINLENGTH_NAME} carácteres`
-            },
-            maxLength: {
-              value: MAXLENGTH_NAME,
-              message: `Debe ingresar un nombre de máximo ${MAXLENGTH_NAME} carácteres`
-            },
+        <label className="text-sm uppercase font-bold">Nombre</label>
+        <input
+          type="text"
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          placeholder="Ingrese el nombre"
+          {...register("name", {
+            required: "El nombre es obligatorio",
+            minLength: { value: MINLENGTH_NAME, message: `Mínimo ${MINLENGTH_NAME} caracteres` },
+            maxLength: { value: MAXLENGTH_NAME, message: `Máximo ${MAXLENGTH_NAME} caracteres` },
             pattern: {
               value: /^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s'-]*$/,
-              message: 'El nombre no puede contener números ni símbolos especiales'
-            }
+              message: "No puede contener números",
+            },
           })}
         />
         {errors.name && <ErrorForm>{errors.name.message?.toString()}</ErrorForm>}
       </div>
 
       <div>
-        <label htmlFor="firstLastName" className="text-sm uppercase font-bold">
-          Primer Apellido 
-        </label>
-        <input  
-          id="firstLastName"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese el primer apellido" 
-          {...register('firstLastName', {
-            required: 'El primer apellido es obligatorio',
-            minLength: {
-              value: MINLENGTH_NAME,
-              message: `Debe ingresar un primer apellido de mínimo ${MINLENGTH_NAME} carácteres`
-            },
+        <label className="text-sm uppercase font-bold">Primer Apellido</label>
+        <input
+          type="text"
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          placeholder="Ingrese el primer apellido"
+          {...register("firstLastName", {
+            required: "Obligatorio",
+            minLength: { value: MINLENGTH_NAME, message: `Mínimo ${MINLENGTH_NAME} caracteres` },
             maxLength: {
               value: MAXLENGTH_FIRSTLASTNAME,
-              message: `Debe ingresar un primer apellido de máximo ${MAXLENGTH_FIRSTLASTNAME} carácteres`
+              message: `Máximo ${MAXLENGTH_FIRSTLASTNAME} caracteres`,
             },
             pattern: {
               value: /^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s'-]*$/,
-              message: 'El primer apellido no puede contener números ni símbolos especiales'
-            }
+              message: "No puede contener números",
+            },
           })}
         />
-        {errors.firstLastName && <ErrorForm>{errors.firstLastName.message?.toString()}</ErrorForm>}
+        {errors.firstLastName && (
+          <ErrorForm>{errors.firstLastName.message?.toString()}</ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="secondLastName" className="text-sm uppercase font-bold">
-          Segundo Apellido 
-        </label>
-        <input  
-          id="secondLastName"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese el segundo apellido" 
-          {...register('secondLastName', {
-            required: 'El segundo apellido es obligatorio',
-            minLength: {
-              value: MINLENGTH_NAME,
-              message: `Debe ingresar un segundo apellido de mínimo ${MINLENGTH_NAME} carácteres`
-            },
+        <label className="text-sm uppercase font-bold">Segundo Apellido</label>
+        <input
+          type="text"
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          placeholder="Ingrese el segundo apellido"
+          {...register("secondLastName", {
+            required: "Obligatorio",
+            minLength: { value: MINLENGTH_NAME, message: `Mínimo ${MINLENGTH_NAME} caracteres` },
             maxLength: {
               value: MAXLENGTH_SECONDLASTNAME,
-              message: `Debe ingresar un segundo apellido de máximo ${MAXLENGTH_SECONDLASTNAME} carácteres`
+              message: `Máximo ${MAXLENGTH_SECONDLASTNAME} caracteres`,
             },
             pattern: {
               value: /^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s'-]*$/,
-              message: 'El segundo apellido no puede contener números ni símbolos especiales'
-            }
+              message: "No puede contener números",
+            },
           })}
         />
-        {errors.secondLastName && <ErrorForm>{errors.secondLastName.message?.toString()}</ErrorForm>}
+        {errors.secondLastName && (
+          <ErrorForm>{errors.secondLastName.message?.toString()}</ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="birthday" className="text-sm uppercase font-bold">
-          Fecha de nacimiento
-        </label>
-        <input  
-          id="birthday"
-          className="w-full p-3 border border-gray-100"  
-          type="date" 
-          {...register('birthday', {
-            required: 'La fecha de nacimiento es obligatoria',
+        <label className="text-sm uppercase font-bold">Fecha de nacimiento</label>
+        <input
+          type="date"
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          {...register("birthday", {
+            required: "La fecha de nacimiento es obligatoria",
             max: {
               value: MAXDATE_BIRTHDAY,
-              message: `Debe ingresar una fecha de nacimiento de máximo ${formatDate(new Date())}`
-            }
+              message: `Debe ser antes de ${formatDate(new Date())}`,
+            },
           })}
         />
         {errors.birthday && <ErrorForm>{errors.birthday.message?.toString()}</ErrorForm>}
       </div>
 
       <div>
-        <label htmlFor="idGender" className="text-sm uppercase font-bold">
-          Género 
-        </label>
+        <label className="text-sm uppercase font-bold">Género</label>
         <select
-          id="idGender"
-          className="w-full p-3 border border-gray-100" 
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
           {...register("idGender", {
-            required: 'El género es obligatorio',
-            validate: value =>  Number(value) !== 0 || 'Debe seleccionar un género'
-          })}   
+            required: "El género es obligatorio",
+            validate: (v) => Number(v) !== 0 || "Debe seleccionar un género",
+          })}
         >
-          <option value = {0} >Seleccione un género</option>
+          <option value={0}>Seleccione un género</option>
           {genders.map((gender) => (
             <option key={gender.idGender} value={gender.idGender}>
               {gender.name}

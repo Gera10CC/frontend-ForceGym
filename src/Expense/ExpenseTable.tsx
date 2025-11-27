@@ -52,7 +52,6 @@ function ExpenseTable({
   return (
     <div className="w-full mt-4">
 
-      {/* Scroll solo en móvil */}
       <div className="overflow-x-auto rounded-lg">
         {economicExpenses?.length > 0 ? (
           <>
@@ -61,7 +60,6 @@ function ExpenseTable({
                 <tr>
                   <th className="py-3 px-2 font-semibold">#</th>
 
-                  {/* VOUCHER */}
                   <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
@@ -77,7 +75,6 @@ function ExpenseTable({
                     </button>
                   </th>
 
-                  {/* FECHA */}
                   <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
@@ -93,7 +90,6 @@ function ExpenseTable({
                     </button>
                   </th>
 
-                  {/* MONTO */}
                   <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
@@ -158,11 +154,9 @@ function ExpenseTable({
                       </td>
                     )}
 
-                    {/* ACCIONES */}
                     <td className="py-3">
                       <div className="flex justify-center gap-3">
 
-                        {/* VER MÁS */}
                         <button
                           onClick={() => {
                             getEconomicExpenseById(economicExpense.idEconomicExpense);
@@ -173,7 +167,6 @@ function ExpenseTable({
                           <IoIosMore className="text-white" />
                         </button>
 
-                        {/* EDITAR */}
                         <button
                           onClick={() => {
                             getEconomicExpenseById(economicExpense.idEconomicExpense);
@@ -184,7 +177,6 @@ function ExpenseTable({
                           <MdModeEdit className="text-white" />
                         </button>
 
-                        {/* ELIMINAR / RESTAURAR */}
                         {economicExpense.isDeleted ? (
                           <button
                             onClick={() =>
@@ -214,7 +206,6 @@ function ExpenseTable({
         )}
       </div>
 
-      {/* TOTAL + PAGINACIÓN */}
       {economicExpenses?.length > 0 && (
         <>
           <div className="mt-6 p-4 bg-gray-100 rounded-lg">

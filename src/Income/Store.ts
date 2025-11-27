@@ -56,6 +56,8 @@ type EconomicIncomeStore = {
     showModalFileType: () => void;
     closeModalFileType: () => void;
     clearAllFilters: () => void;
+    resetEditing: () => void;
+
 };
 
 export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
@@ -158,6 +160,8 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
             const result = await deleteData(`${import.meta.env.VITE_URL_API}economicIncome/delete/${id}`, loggedIdUser);
             return result;
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
+
 
         changeSize: (newSize) => set(() => ({ size: newSize })),
         changePage: (newPage) => set(() => ({ page: newPage })),

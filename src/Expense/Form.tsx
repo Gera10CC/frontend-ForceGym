@@ -37,13 +37,11 @@ function Form() {
         closeModalForm
     } = useEconomicExpenseStore();
 
-    // Valores observados
     const idMeanOfPayment = watch("idMeanOfPayment") ? Number(watch("idMeanOfPayment")) : null;
     const voucherNumber = watch("voucherNumber");
     const amount = watch("amount");
     const isCashPayment = idMeanOfPayment === CASH_PAYMENT_ID;
 
-    // SUBMIT
     const submitForm = async (data: EconomicExpenseDataForm) => {
         
         if (isCashPayment && data.voucherNumber) {
@@ -118,7 +116,6 @@ function Form() {
         }
     };
 
-    // Cargar datos para edición
 useEffect(() => {
         if (activeEditingId) {
             const activeExpense = economicExpenses.find(expense => expense.idEconomicExpense === activeEditingId);
@@ -135,14 +132,12 @@ useEffect(() => {
         }
     }, [activeEditingId]);
 
-    // Limpiar voucher cuando es efectivo
     useEffect(() => {
         if (isCashPayment && voucherNumber) {
             setValue('voucherNumber', '');
         }
     }, [isCashPayment, voucherNumber]);
 
-    // Evitar negativos en monto
     useEffect(() => {
         if (amount !== undefined && amount < 0) {
             setValue('amount', 0);
@@ -165,12 +160,10 @@ useEffect(() => {
                 {activeEditingId ? 'Actualizar gasto' : 'Registrar gasto'}
             </legend>
 
-            {/* Ocultos */}
             <input type="hidden" {...register('idUser')} />
             <input type="hidden" {...register('idEconomicExpense')} />
             <input type="hidden" {...register('isDeleted')} />
 
-            {/* CATEGORÍA */}
             <div>
                 <label className="text-sm uppercase font-bold">Categoría</label>
                 <select
@@ -189,7 +182,6 @@ useEffect(() => {
                 {errors.idCategory && <ErrorForm>{errors.idCategory.message}</ErrorForm>}
             </div>
 
-            {/* FECHA */}
             <div>
                 <label className="text-sm uppercase font-bold">Fecha</label>
                 <input
@@ -206,7 +198,6 @@ useEffect(() => {
                 {errors.registrationDate && <ErrorForm>{errors.registrationDate.message as string}</ErrorForm>}
             </div>
 
-            {/* MEDIO DE PAGO */}
             <div>
                 <label className="text-sm uppercase font-bold">Medio de pago</label>
                 <select
@@ -225,7 +216,6 @@ useEffect(() => {
                 {errors.idMeanOfPayment && <ErrorForm>{errors.idMeanOfPayment.message}</ErrorForm>}
             </div>
 
-            {/* VOUCHER */}
             <div>
                 <label className="text-sm uppercase font-bold">Voucher</label>
                 <input
@@ -249,7 +239,6 @@ useEffect(() => {
                 {errors.voucherNumber && <ErrorForm>{errors.voucherNumber.message}</ErrorForm>}
             </div>
 
-            {/* DETALLE */}
             <div>
                 <label className="text-sm uppercase font-bold">Detalle</label>
                 <input
@@ -271,7 +260,6 @@ useEffect(() => {
                 {errors.detail && <ErrorForm>{errors.detail.message}</ErrorForm>}
             </div>
 
-            {/* MONTO */}
             <div>
                 <label className="text-sm uppercase font-bold">Monto</label>
                 <input
@@ -293,7 +281,6 @@ useEffect(() => {
                 {errors.amount && <ErrorForm>{errors.amount.message}</ErrorForm>}
             </div>
 
-            {/* SUBMIT */}
             <input
                 type="submit"
                 value={activeEditingId ? "Actualizar" : "Registrar"}

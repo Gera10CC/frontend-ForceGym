@@ -95,7 +95,6 @@ export default function EconomicExpenseManagement() {
 
   return (
     <Layout>
-      {/* HEADER */}
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -106,7 +105,6 @@ export default function EconomicExpenseManagement() {
           Gastos
         </h1>
 
-        {/* BUSCADOR */}
         <SearchInput
           searchTerm={searchTerm}
           handleSearch={handleSearch}
@@ -116,9 +114,7 @@ export default function EconomicExpenseManagement() {
           <option value={2}>Detalle</option>
         </SearchInput>
 
-        {/* BOTONES */}
         <div className="flex gap-3 mt-4 md:mt-0">
-          {/* DASHBOARD / TABLE TOGGLE */}
           <button
             onClick={() => setShowDashboard(!showDashboard)}
             className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
@@ -126,7 +122,6 @@ export default function EconomicExpenseManagement() {
             {showDashboard ? "Ver Tabla" : "Ver Dashboard"}
           </button>
 
-          {/* FILTRO */}
           <ModalFilter
             modalFilter={modalFilter}
             closeModalFilter={closeModalFilter}
@@ -136,7 +131,6 @@ export default function EconomicExpenseManagement() {
         </div>
       </header>
 
-      {/* CONTENIDO */}
       <main className="mt-6">
         <div
           className="
@@ -144,10 +138,8 @@ export default function EconomicExpenseManagement() {
             overflow-hidden
           "
         >
-          {/* TOP BUTTONS */}
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
 
-            {/* AÑADIR */}
             <Modal
               Button={() => (
                 <button
@@ -173,7 +165,6 @@ export default function EconomicExpenseManagement() {
               Content={Form}
             />
 
-            {/* DESCARGAR */}
             {economicExpenses?.length > 0 && (
               <Modal
                 Button={() => (
@@ -209,7 +200,6 @@ export default function EconomicExpenseManagement() {
             )}
           </div>
 
-          {/* TABLA O DASHBOARD */}
           {showDashboard ? (
             <ExpenseDashboard economicExpenses={economicExpenses} />
           ) : (
