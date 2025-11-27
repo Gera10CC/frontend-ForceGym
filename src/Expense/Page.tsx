@@ -94,7 +94,7 @@ export default function EconomicExpenseManagement() {
   ]);
 
   return (
-    <Layout>
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -226,6 +226,6 @@ export default function EconomicExpenseManagement() {
           )}
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

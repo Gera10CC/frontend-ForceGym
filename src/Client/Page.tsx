@@ -10,7 +10,6 @@ import {
   setAuthUser,
 } from "../shared/utils/authentication";
 
-import Layout from "../shared/components/Layout";
 import SearchInput from "../shared/components/SearchInput";
 import ModalFilter from "../shared/components/ModalFilter";
 import Modal from "../shared/components/Modal";
@@ -116,7 +115,7 @@ export default function ClientManagement() {
   ]);
 
   return (
-    <Layout>
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -233,6 +232,6 @@ export default function ClientManagement() {
           />
         </div>
       </main>
-    </Layout>
+    </>
   );
 }
