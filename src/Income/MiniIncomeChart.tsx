@@ -1,5 +1,15 @@
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Cell
+} from "recharts";
+
 import { formatAmountToCRC } from "../shared/utils/format";
 import { EconomicIncome } from "../shared/types";
 
@@ -8,30 +18,32 @@ interface MiniIncomeChartProps {
 }
 
 const MiniIncomeChart: React.FC<MiniIncomeChartProps> = ({ economicIncomes }) => {
-  // Cálculo de totales
+
   const calculateTotals = () => {
-    let dailyTotal = 0, weeklyTotal = 0, biweeklyTotal = 0, monthlyTotal = 0;
-    
-    economicIncomes.forEach(income => {
+    let dailyTotal = 0;
+    let weeklyTotal = 0;
+    let biweeklyTotal = 0;
+    let monthlyTotal = 0;
+
+    const today = new Date();
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(today.getDate() - 7);
+
+    economicIncomes.forEach((income) => {
       const incomeDate = new Date(income.registrationDate);
-      const today = new Date();
-      
-      // Diario
+
       if (incomeDate.toDateString() === today.toDateString()) {
         dailyTotal += income.amount;
       }
-      
-      // Semanal
-      if (incomeDate >= new Date(today.setDate(today.getDate() - 7))) {
+
+      if (incomeDate >= oneWeekAgo) {
         weeklyTotal += income.amount;
       }
-      
-      // Quincenal
+
       if (incomeDate.getMonth() === today.getMonth() && incomeDate.getDate() <= 15) {
         biweeklyTotal += income.amount;
       }
-      
-      // Mensual
+
       if (incomeDate.getMonth() === today.getMonth()) {
         monthlyTotal += income.amount;
       }
@@ -42,25 +54,36 @@ const MiniIncomeChart: React.FC<MiniIncomeChartProps> = ({ economicIncomes }) =>
 
   const { dailyTotal, weeklyTotal, biweeklyTotal, monthlyTotal } = calculateTotals();
 
-  // Datos para el gráfico de barras
   const chartData = [
-    { name: "Diario", value: dailyTotal, fill: "#8884d8" },
-    { name: "Semanal", value: weeklyTotal, fill: "#82ca9d" },
-    { name: "Quincenal", value: biweeklyTotal, fill: "#ffc658" },
-    { name: "Mensual", value: monthlyTotal, fill: "#ff8042" },
+    { name: "Diario", value: dailyTotal, fill: "#4f46e5" },
+    { name: "Semanal", value: weeklyTotal, fill: "#16a34a" },
+    { name: "Quincenal", value: biweeklyTotal, fill: "#eab308" },
+    { name: "Mensual", value: monthlyTotal, fill: "#fb923c" },
   ];
 
   return (
-    <div className="h-36">
+    <div className="w-full h-40 sm:h-48 lg:h-56 px-2">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${formatAmountToCRC(Number(value))}`, "Ingresos"]} />
+
+          <XAxis 
+            dataKey="name"
+            tick={{ fontSize: 10, fill: "#444" }}
+          />
+
+          <YAxis 
+            tick={{ fontSize: 10, fill: "#444" }}
+          />
+
+          <Tooltip
+            formatter={(value) => [`${formatAmountToCRC(Number(value))}`, "Ingresos"]}
+            labelStyle={{ fontSize: 12 }}
+          />
+
           <Bar dataKey="value" name="Ingresos">
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
+              <Cell key={index} fill={entry.fill} />
             ))}
           </Bar>
         </BarChart>

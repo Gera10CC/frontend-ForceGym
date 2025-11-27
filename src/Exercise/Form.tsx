@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { ExerciseDataForm } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import useExerciseStore from "./Store";
@@ -16,14 +16,22 @@ const MINLENGTH_DESCRIPTION = 5;
 function FormExercise() {
   const navigate = useNavigate();
   const { exerciseCategories, exerciseDifficulty } = useCommonDataStore();
-  const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<ExerciseDataForm>();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm<ExerciseDataForm>();
+
   const {
     exercises,
     activeEditingId,
     fetchExercises,
     addExercise,
     updateExercise,
-    closeModalForm
+    closeModalForm,
   } = useExerciseStore();
 
   const submitForm = async (data: ExerciseDataForm) => {
@@ -36,28 +44,27 @@ function FormExercise() {
       return;
     }
 
-    const reqData = {
+    const request = {
       ...data,
-      paramLoggedIdUser: loggedUser.idUser,
       idUser: loggedUser.idUser,
+      paramLoggedIdUser: loggedUser.idUser,
     };
 
-    let result;
     const isEditing = activeEditingId !== 0;
-    const actionText = isEditing ? "actualizada" : "agregada";
+    const actionText = isEditing ? "actualizado" : "agregado";
 
-    result = isEditing
-      ? await updateExercise(reqData)
-      : await addExercise(reqData);
+    const result = isEditing
+      ? await updateExercise(request)
+      : await addExercise(request);
 
     if (result.ok) {
-      const result2 = await fetchExercises();
+      const res2 = await fetchExercises();
 
-      if (result2.logout) {
+      if (res2.logout) {
         setAuthHeader(null);
         setAuthUser(null);
-        navigate('/login');
-        return; 
+        navigate("/login");
+        return;
       }
 
       closeModalForm();
@@ -65,14 +72,12 @@ function FormExercise() {
 
       Swal.fire({
         title: `Ejercicio ${actionText}`,
-        text: `Se ha ${actionText} el ejercicio ${reqData.name}`,
-        icon: 'success',
-        confirmButtonText: 'OK',
+        text: `Se ha ${actionText} el ejercicio "${request.name}"`,
+        icon: "success",
         timer: 3000,
-        timerProgressBar: true,
-        width: 500,
-        confirmButtonColor: '#CFAD04'
+        confirmButtonColor: "#CFAD04",
       });
+
     } else if (result.logout) {
       setAuthHeader(null);
       setAuthUser(null);
@@ -82,129 +87,124 @@ function FormExercise() {
 
   useEffect(() => {
     if (activeEditingId !== 0) {
-      const exercise = exercises.find(ex => ex.idExercise === activeEditingId);
+      const exercise = exercises.find((x) => x.idExercise === activeEditingId);
+
       if (exercise) {
         setValue("idExercise", exercise.idExercise);
         setValue("name", exercise.name);
         setValue("description", exercise.description);
-        // Cambios realizados aquí:
-        setValue("idExerciseDifficulty", exercise.exerciseDifficulty?.idExerciseDifficulty); // ANTES ESTABA: exercise.idExerciseDifficulty || exercise.exerciseDifficulty?.idDifficulty, SE DEBE CORREGIR
+        setValue("idExerciseDifficulty", exercise.exerciseDifficulty?.idExerciseDifficulty);
         setValue("idExerciseCategory", exercise.exerciseCategory?.idExerciseCategory);
         setValue("isDeleted", exercise.isDeleted);
       }
     }
-  }, [activeEditingId, exercises, setValue]);
+  }, [activeEditingId, exercises]);
 
   return (
     <form
-      className="bg-white rounded-lg px-5 mb-10 overflow-scroll"
-      noValidate
       onSubmit={handleSubmit(submitForm)}
+      noValidate
+      className="
+        bg-white rounded-lg max-h-[80vh] overflow-y-auto
+        px-4 sm:px-8 py-6 w-full space-y-5
+      "
     >
-      <legend className="uppercase text-center text-yellow text-2xl font-black border-b-2 py-2 border-yellow">
+      <legend
+        className="
+          uppercase text-center text-yellow text-xl sm:text-2xl font-black 
+          border-b-2 border-yellow pb-2
+        "
+      >
         {activeEditingId ? "Actualizar ejercicio" : "Registrar ejercicio"}
       </legend>
 
-      {/* Inputs ocultos */}
       <input type="hidden" {...register("idExercise")} />
       <input type="hidden" {...register("idUser")} />
       <input type="hidden" {...register("isDeleted")} />
 
-      {/* Campo nombre */}
-      <div className="mb-5">
-        <label htmlFor="name" className="text-sm uppercase font-bold">
-          Nombre
-        </label>
+      <div>
+        <label className="text-sm uppercase font-bold">Nombre</label>
         <input
-          id="name"
-          className="w-full p-3 border border-gray-100"
           type="text"
-          placeholder="Ingrese el nombre"
+          placeholder="Nombre del ejercicio"
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
           {...register("name", {
             required: "El nombre es obligatorio",
-            minLength: {
-              value: MINLENGTH_NAME,
-              message: `Debe ingresar un nombre de mínimo ${MINLENGTH_NAME} carácteres`
-            },
-            maxLength: {
-              value: MAXLENGTH_NAME,
-              message: `Debe ingresar un nombre de máximo ${MAXLENGTH_NAME} caracteres`
-            }
+            minLength: { value: MINLENGTH_NAME, message: `Mínimo ${MINLENGTH_NAME} caracteres` },
+            maxLength: { value: MAXLENGTH_NAME, message: `Máximo ${MAXLENGTH_NAME} caracteres` },
           })}
         />
         {errors.name && <ErrorForm>{errors.name.message}</ErrorForm>}
       </div>
 
-      {/* Campo descripción */}
-      <div className="mb-5">
-        <label htmlFor="description" className="text-sm uppercase font-bold">
-          Descripción
-        </label>
+      <div>
+        <label className="text-sm uppercase font-bold">Descripción</label>
         <input
-          id="description"
-          className="w-full p-3 border border-gray-100"
           type="text"
-          placeholder="Ingrese la descripción"
+          placeholder="Descripción del ejercicio"
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
           {...register("description", {
             required: "La descripción es obligatoria",
             minLength: {
               value: MINLENGTH_DESCRIPTION,
-              message: `Debe ingresar una descripción de mínimo ${MINLENGTH_DESCRIPTION} carácteres`
+              message: `Mínimo ${MINLENGTH_DESCRIPTION} caracteres`,
             },
             maxLength: {
               value: MAXLENGTH_DESCRIPTION,
-              message: `Debe ingresar una descripción de máximo ${MAXLENGTH_DESCRIPTION} caracteres`
-            }
+              message: `Máximo ${MAXLENGTH_DESCRIPTION} caracteres`,
+            },
           })}
         />
         {errors.description && <ErrorForm>{errors.description.message}</ErrorForm>}
       </div>
 
-      {/* Campo Dificultad (select) */}
-      <div className="mb-5">
-        <label htmlFor="idExerciseDifficulty" className="text-sm uppercase font-bold">
-        Dificultad
-        </label>
+      <div>
+        <label className="text-sm uppercase font-bold">Dificultad</label>
         <select
-          id="idExerciseDifficulty"
-          className="w-full p-3 border border-gray-100"
-          {...register("idExerciseDifficulty", { required: "La Dificultad es obligatoria" })}
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          {...register("idExerciseDifficulty", {
+            required: "La dificultad es obligatoria",
+          })}
         >
-          <option value="">Seleccione una Dificultad</option>
-          {exerciseDifficulty.map(cat => (
-            <option key={cat.idExerciseDifficulty} value={cat.idExerciseDifficulty}>
-              {cat.difficulty}
+          <option value="">Seleccione dificultad</option>
+          {exerciseDifficulty.map((d) => (
+            <option key={d.idExerciseDifficulty} value={d.idExerciseDifficulty}>
+              {d.difficulty}
             </option>
           ))}
         </select>
-        {errors.idExerciseDifficulty && <ErrorForm>{errors.idExerciseDifficulty.message}</ErrorForm>}
+        {errors.idExerciseDifficulty && (
+          <ErrorForm>{errors.idExerciseDifficulty.message}</ErrorForm>
+        )}
       </div>
 
-      {/* Campo categoría (select) */}
-      <div className="mb-5">
-        <label htmlFor="idExerciseCategory" className="text-sm uppercase font-bold">
-          Categoría
-        </label>
+      <div>
+        <label className="text-sm uppercase font-bold">Categoría</label>
         <select
-          id="idExerciseCategory"
-          className="w-full p-3 border border-gray-100"
-          {...register("idExerciseCategory", { required: "La categoría es obligatoria" })}
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          {...register("idExerciseCategory", {
+            required: "La categoría es obligatoria",
+          })}
         >
-          <option value="">Seleccione una categoría</option>
-          {exerciseCategories.map(cat => (
-            <option key={cat.idExerciseCategory} value={cat.idExerciseCategory}>
-              {cat.name}
+          <option value="">Seleccione categoría</option>
+          {exerciseCategories.map((c) => (
+            <option key={c.idExerciseCategory} value={c.idExerciseCategory}>
+              {c.name}
             </option>
           ))}
         </select>
-        {errors.idExerciseCategory && <ErrorForm>{errors.idExerciseCategory.message}</ErrorForm>}
+        {errors.idExerciseCategory && (
+          <ErrorForm>{errors.idExerciseCategory.message}</ErrorForm>
+        )}
       </div>
 
-      {/* Botón de submit */}
       <input
         type="submit"
-        className="bg-yellow w-full p-3 text-white uppercase font-bold hover:bg-amber-600 cursor-pointer transition-colors"
         value={activeEditingId ? "Actualizar" : "Registrar"}
+        className="
+          bg-yellow text-black w-full p-3 rounded-md uppercase font-bold 
+          hover:bg-amber-500 mt-4 cursor-pointer transition-colors
+        "
       />
     </form>
   );

@@ -28,6 +28,7 @@ type RoutineStore = {
     closeModalInfo: () => void;
     showModalFileType: () => void; 
     closeModalFileType: () => void;
+    resetEditing: () => void;
 };
 
 export const useRoutineStore = create<RoutineStore>()(
@@ -59,6 +60,8 @@ export const useRoutineStore = create<RoutineStore>()(
                 return { ok: false };
             }
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
+
         
         getRoutineById: async (id) => {
             if (!id || id <= 0) {
@@ -70,6 +73,7 @@ export const useRoutineStore = create<RoutineStore>()(
                 });
                 return;
             }
+        
         
             set({ isLoading: true });
             try {

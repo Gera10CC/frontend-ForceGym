@@ -20,7 +20,6 @@ interface ExpenseDashboardProps {
 
 const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses }) => {
   
-  // Obtener número de semana
   const getWeekNumber = (date: Date): number => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
@@ -32,7 +31,6 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
       );
   };
 
-  // Cálculo de totales
   const calculateTotals = () => {
     const today = new Date();
     const currentDay = formatDate(today);
@@ -52,20 +50,16 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
       const expenseDate = new Date(expense.registrationDate);
       const formattedDate = formatDate(expenseDate);
 
-      // Acumular por día
       dailyData[formattedDate] = (dailyData[formattedDate] || 0) + expense.amount;
 
-      // Diario
       if (formattedDate === currentDay) {
         dailyTotal += expense.amount;
       }
 
-      // Semanal
       if (getWeekNumber(expenseDate) === currentWeek) {
         weeklyTotal += expense.amount;
       }
 
-      // Quincenal
       if (expenseDate.getMonth() === today.getMonth()) {
         if (
           (isFirstQuincena && expenseDate.getDate() <= 15) ||
@@ -75,13 +69,11 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
         }
       }
 
-      // Mensual
       if (expenseDate.getMonth() === today.getMonth()) {
         monthlyTotal += expense.amount;
       }
     });
 
-    // Día con más gasto
     Object.entries(dailyData).forEach(([date, amount]) => {
       if (amount > highestDay.amount) highestDay = { date, amount };
     });
@@ -109,7 +101,6 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
     highestDay
   } = calculateTotals();
 
-  // Datos del gráfico
   const chartData = [
     { name: 'Diario', value: dailyTotal, fill: '#f87171' },
     { name: 'Semanal', value: weeklyTotal, fill: '#fb923c' },
@@ -120,12 +111,10 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
   return (
     <div className="w-full px-3 sm:px-4 lg:px-10 mt-6">
 
-      {/* Título */}
       <h2 className="text-center text-xl sm:text-2xl lg:text-3xl font-bold mb-8">
         Dashboard de Gastos
       </h2>
 
-      {/* Tarjetas de resumen */}
       <div className="
         grid grid-cols-1 
         sm:grid-cols-2 
@@ -160,7 +149,6 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
         </div>
       </div>
 
-      {/* Gráfico */}
       <div className="bg-white p-4 rounded-lg shadow mb-8 w-full">
         <h3 className="text-lg sm:text-xl font-semibold mb-4">Resumen por periodos</h3>
 
@@ -185,7 +173,6 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
         </div>
       </div>
 
-      {/* Estadísticas adicionales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-semibold text-base mb-2">Día con más gastos</h3>

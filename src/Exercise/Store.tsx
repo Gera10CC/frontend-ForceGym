@@ -44,6 +44,7 @@ type ExerciseStore = {
     showModalInfo: () => void;
     closeModalInfo: () => void;
     clearAllFilters: () => void;
+    resetEditing: () => void;
 };
 
 export const useExerciseStore = create<ExerciseStore>()(
@@ -111,6 +112,7 @@ export const useExerciseStore = create<ExerciseStore>()(
         getExerciseById: (id) => {
             set(() => ({ activeEditingId: id }));
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
 
         addExercise: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}exercise/add`, data);

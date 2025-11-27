@@ -1,198 +1,252 @@
 import { IoFilterOutline } from "react-icons/io5";
 import useClientStore from "./Store";
+
+export function FilterButton() {
+  const {
+    filterByStatus,
+    filterByBalanceLoss,
+    filterByBoneJointIssues,
+    filterByBreathingIssues,
+    filterByCardiovascularDisease,
+    filterByDiabetes,
+    filterByMuscleInjuries,
+    filterByHypertension,
+    filterByBirthDateRangeMax,
+    filterByBirthDateRangeMin,
+    filterByClientType,
+    showModalFilter,
+  } = useClientStore();
+
+  const hasFilters =
+    filterByStatus !== "" ||
+    filterByClientType !== -1 ||
+    filterByBirthDateRangeMin !== null ||
+    filterByBirthDateRangeMax !== null ||
+    filterByDiabetes !== null ||
+    filterByHypertension !== null ||
+    filterByMuscleInjuries !== null ||
+    filterByBalanceLoss !== null ||
+    filterByBoneJointIssues !== null ||
+    filterByBreathingIssues !== null ||
+    filterByCardiovascularDisease !== null;
+
+  return (
+    <button
+      className={`
+        flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
+        rounded-lg transition-all
+        ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
+        hover:bg-gray-300
+      `}
+      onClick={showModalFilter}
+    >
+      <IoFilterOutline />
+      <span>Filtrar</span>
+    </button>
+  );
+}
 import { MdOutlineCancel } from "react-icons/md";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 
-export function FilterButton() {
-    const { 
-        showModalFilter,
-        filterByStatus, 
-        filterByBalanceLoss,
-        filterByBoneJointIssues,
-        filterByBreathingIssues,
-        filterByCardiovascularDisease,
-        filterByDiabetes,
-        filterByMuscleInjuries,
-        filterByHypertension,
-        filterByBirthDateRangeMax,
-        filterByBirthDateRangeMin,
-        filterByClientType
-    } = useClientStore()
-    const filteringStyles = (
-        filterByStatus!='' || filterByBalanceLoss!=null || filterByBoneJointIssues!=null || filterByBreathingIssues!=null || filterByCardiovascularDisease!=null
-        || filterByDiabetes!=null || filterByMuscleInjuries!=null || filterByHypertension!=null || filterByBirthDateRangeMax!=null || filterByBirthDateRangeMin!=null
-        || filterByClientType!=-1
-    ) && ' bg-white outline-none'
-
-    return (
-        <button
-            className={"flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300" + filteringStyles}
-            onClick={()=>{ showModalFilter() }}
-        >
-            <IoFilterOutline />
-            <span>Filtrar</span>
-        </button>
-    );
-}
-
 export function FilterSelect() {
-    const { 
-        filterByStatus, 
-        filterByBalanceLoss,
-        filterByBoneJointIssues,
-        filterByBreathingIssues,
-        filterByCardiovascularDisease,
-        filterByDiabetes,
-        filterByMuscleInjuries,
-        filterByHypertension,
-        filterByBirthDateRangeMax,
-        filterByBirthDateRangeMin,
-        filterByClientType,
-        changeFilterByBalanceLoss,
-        changeFilterByBirthDateRangeMax,
-        changeFilterByBirthDateRangeMin,
-        changeFilterByBoneJointIssues,
-        changeFilterByBreathingIssues,
-        changeFilterByCardiovascularDisease,
-        changeFilterByDiabetes,
-        changeFilterByHypertension,
-        changeFilterByMuscleInjuries,
-        changeFilterByStatus,
-        changeFilterByClientType,
-        clearAllFilters
-    } = useClientStore();
+  const {
+    filterByStatus,
+    filterByClientType,
+    filterByBirthDateRangeMin,
+    filterByBirthDateRangeMax,
+    filterByBalanceLoss,
+    filterByBoneJointIssues,
+    filterByBreathingIssues,
+    filterByCardiovascularDisease,
+    filterByDiabetes,
+    filterByMuscleInjuries,
+    filterByHypertension,
 
-    const filteredStatusSelectStyles = filterByStatus !== '' && ' px-0.5 border-yellow text-yellow';
-    const filteredBirthDateRangeStyles = (filterByBirthDateRangeMin !== null && filterByBirthDateRangeMax !== null)  && ' px-0.5 border-yellow text-yellow';
-    const filteredClientTypeSelectStyles = filterByClientType !== -1 && ' px-0.5 border-yellow text-yellow';
+    changeFilterByStatus,
+    changeFilterByClientType,
+    changeFilterByBirthDateRangeMin,
+    changeFilterByBirthDateRangeMax,
+    changeFilterByBalanceLoss,
+    changeFilterByBoneJointIssues,
+    changeFilterByBreathingIssues,
+    changeFilterByCardiovascularDisease,
+    changeFilterByDiabetes,
+    changeFilterByMuscleInjuries,
+    changeFilterByHypertension,
 
-    const { clientTypes } = useCommonDataStore();
-    const filters = [
-        { label: "Diabetes", state: filterByDiabetes, changeState: changeFilterByDiabetes },
-        { label: "Hipertensión", state: filterByHypertension, changeState: changeFilterByHypertension },
-        { label: "Lesiones musculares", state: filterByMuscleInjuries, changeState: changeFilterByMuscleInjuries },
-        { label: "Pérdida de equilibrio", state: filterByBalanceLoss, changeState: changeFilterByBalanceLoss },
-        { label: "Problemas óseos/articulares", state: filterByBoneJointIssues, changeState: changeFilterByBoneJointIssues },
-        { label: "Problemas respiratorios", state: filterByBreathingIssues, changeState: changeFilterByBreathingIssues },
-        { label: "Enfermedad cardiovascular", state: filterByCardiovascularDisease, changeState: changeFilterByCardiovascularDisease },
-    ];
+    clearAllFilters,
+  } = useClientStore();
 
-    return (
-        <div className="flex flex-col gap-4">
-            
-            {/* Botón de limpiar todos */}
-            <div className="flex justify-end pr-4">
-                <button
-                    className="text-yellow border border-yellow px-3 py-1 rounded-md hover:bg-yellow hover:text-black transition-all"
-                    onClick={clearAllFilters}
-                >
-                    Limpiar todos los filtros
-                </button>
-            </div>
+  const { clientTypes } = useCommonDataStore();
 
-            <div className="flex items-center gap-4">
-                <label htmlFor="status" className="w-20">Estado</label>
-                <select 
-                    className={'border rounded-md p-2 w-78 text-center' + filteredStatusSelectStyles}
-                    name="status"
-                    id="status"
-                    value={filterByStatus} 
-                    onChange={(e) => changeFilterByStatus(e.target.value || '')}
-                >
-                    <option value=""> Activos </option>
-                    <option value="Inactivos"> Inactivos </option>
-                    <option value="Todos"> Todos </option>
-                </select>
-                {filterByStatus && 
-                    <button className="text-2xl text-yellow" onClick={() => changeFilterByStatus('')}>
-                        <MdOutlineCancel className="hover:cursor-pointer" />
-                    </button>
-                }
-            </div>
+  const yesNoFilters = [
+    { label: "Diabetes", state: filterByDiabetes, change: changeFilterByDiabetes },
+    { label: "Hipertensión", state: filterByHypertension, change: changeFilterByHypertension },
+    { label: "Lesiones musculares", state: filterByMuscleInjuries, change: changeFilterByMuscleInjuries },
+    { label: "Pérdida de equilibrio", state: filterByBalanceLoss, change: changeFilterByBalanceLoss },
+    { label: "Problemas óseos/articulares", state: filterByBoneJointIssues, change: changeFilterByBoneJointIssues },
+    { label: "Problemas respiratorios", state: filterByBreathingIssues, change: changeFilterByBreathingIssues },
+    { label: "Enfermedad cardiovascular", state: filterByCardiovascularDisease, change: changeFilterByCardiovascularDisease },
+  ];
 
-            <div className="flex items-center gap-4">
-                <label htmlFor="idClientType" className="w-20">Tipo de Cliente</label>
-                <select
-                    id="idClientType"
-                    className={"border rounded-md p-2 w-78 text-center" + filteredClientTypeSelectStyles}
-                    value={filterByClientType}
-                    onChange={(e) => changeFilterByClientType(+e.target.value)}
-                >
-                    <option value={-1}>Todos</option>
+  return (
+    <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
 
-                    {clientTypes.map((type)=> (
-                        <option key={type.idClientType} value={type.idClientType}>
-                            {type.name}
-                        </option>
-                    ))}
-                </select>
-                {filterByClientType!=-1 && 
-                    <button className="text-2xl text-yellow" onClick={() => changeFilterByClientType(-1)}>
-                        <MdOutlineCancel className="hover:cursor-pointer" />
-                    </button>
-                }
-            </div>
+      <div className="flex justify-end w-full">
+        <button
+          className="
+            text-yellow border border-yellow px-4 py-1 rounded-md 
+            hover:bg-yellow hover:text-black transition-all
+            text-sm sm:text-base
+          "
+          onClick={clearAllFilters}
+        >
+          Limpiar todos
+        </button>
+      </div>
 
-            {filters.map(({ label, state, changeState }) => (
-                <div key={label} className="flex items-center gap-4">
-                    <label className="w-40">{label}</label>
-                    <div className="flex items-center gap-2">
-                        <label htmlFor={`${label}Yes`} className="w-20">Sí</label>
-                        <input id={`${label}Yes`} type="radio" checked={state === true} onChange={() => changeState(true)} />
-                        <label htmlFor={`${label}No`} className="w-20">No</label>
-                        <input id={`${label}No`} type="radio" checked={state === false} onChange={() => changeState(false)} />
-                        {state !== null && 
-                            <button className="text-2xl text-yellow" onClick={() => changeState(null)}>
-                                <MdOutlineCancel className="hover:cursor-pointer" />
-                            </button>
-                        }
-                    </div>
-                </div>
-            ))}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+        <label className="w-full sm:w-40 text-sm sm:text-base font-semibold">Estado</label>
 
-            <div className="flex items-center gap-4">
-                <label className="w-20">Fecha de nacimiento</label>
-                <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                        <label htmlFor="dateMin" className="text-sm">Inicio</label>
-                        <input
-                            className={'border-2 w-36 p-1 text-center' + filteredBirthDateRangeStyles}
-                            name="dateMin"
-                            id="dateMin"
-                            type="date"
-                            min={'2010-01-01'}
-                            max={new Date().toISOString().split('T')[0]}
-                            value={filterByBirthDateRangeMin ? filterByBirthDateRangeMin.toISOString().split('T')[0] : ''}
-                            onChange={(e) => changeFilterByBirthDateRangeMin(new Date(e.target.value))}
-                        />
-                    </div>
-                    <span>-</span>
-                    <div className="flex flex-col">
-                        <label htmlFor="dateMax" className="text-sm">Final</label>
-                        <input
-                            className={'border-2 w-36 p-1 text-center' + filteredBirthDateRangeStyles}
-                            name="dateMax"
-                            id="dateMax"
-                            type="date"
-                            min={'2010-01-01'}
-                            max={new Date().toISOString().split('T')[0]}
-                            value={filterByBirthDateRangeMax ? filterByBirthDateRangeMax.toISOString().split('T')[0] : ''}
-                            onChange={(e) => changeFilterByBirthDateRangeMax(new Date(e.target.value))}
-                        />
-                    </div>
-                    {(filterByBirthDateRangeMin !== null || filterByBirthDateRangeMax !== null) && 
-                        <button
-                            className="text-2xl text-yellow"
-                            onClick={() => { 
-                                changeFilterByBirthDateRangeMin(null); 
-                                changeFilterByBirthDateRangeMax(null);
-                            }}
-                        >
-                            <MdOutlineCancel className="hover:cursor-pointer" />
-                        </button>
-                    }
-                </div>
-            </div>
+        <div className="flex items-center gap-2 w-full">
+          <select
+            className={`
+              border rounded-md p-2 w-full text-center 
+              ${filterByStatus !== "" ? "border-yellow text-yellow" : ""}
+            `}
+            value={filterByStatus}
+            onChange={(e) =>
+              e.target.value === "0"
+                ? changeFilterByStatus("")
+                : changeFilterByStatus(e.target.value)
+            }
+          >
+            <option value="0">Activos</option>
+            <option value="Inactivos">Inactivos</option>
+            <option value="Todos">Todos</option>
+          </select>
+
+          {filterByStatus !== "" && (
+            <MdOutlineCancel
+              className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+              onClick={() => changeFilterByStatus("")}
+            />
+          )}
         </div>
-    );
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+        <label className="w-full sm:w-40 text-sm sm:text-base font-semibold">
+          Tipo de Cliente
+        </label>
+
+        <div className="flex items-center gap-2 w-full">
+          <select
+            className={`
+              border rounded-md p-2 w-full text-center 
+              ${filterByClientType !== -1 ? "border-yellow text-yellow" : ""}
+            `}
+            value={filterByClientType}
+            onChange={(e) => changeFilterByClientType(Number(e.target.value))}
+          >
+            <option value={-1}>Todos</option>
+
+            {clientTypes.map((type) => (
+              <option key={type.idClientType} value={type.idClientType}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+
+          {filterByClientType !== -1 && (
+            <MdOutlineCancel
+              className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+              onClick={() => changeFilterByClientType(-1)}
+            />
+          )}
+        </div>
+      </div>
+
+      {yesNoFilters.map(({ label, state, change }) => (
+        <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+          <label className="w-full sm:w-40 text-sm sm:text-base font-semibold">
+            {label}
+          </label>
+
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2">
+              Sí
+              <input type="radio" checked={state === true} onChange={() => change(true)} />
+            </label>
+
+            <label className="flex items-center gap-2">
+              No
+              <input type="radio" checked={state === false} onChange={() => change(false)} />
+            </label>
+
+            {state !== null && (
+              <MdOutlineCancel
+                className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+                onClick={() => change(null)}
+              />
+            )}
+          </div>
+        </div>
+      ))}
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+        <label className="w-full sm:w-40 text-sm sm:text-base font-semibold">
+          Fecha de nacimiento
+        </label>
+
+        <div className="flex items-center gap-2 w-full flex-wrap">
+          <div className="flex flex-col">
+            <span className="text-xs">Inicio</span>
+            <input
+              type="date"
+              className={`border rounded-md p-2 w-40 text-center ${
+                filterByBirthDateRangeMin || filterByBirthDateRangeMax
+                  ? "border-yellow text-yellow"
+                  : ""
+              }`}
+              value={
+                filterByBirthDateRangeMin
+                  ? filterByBirthDateRangeMin.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) => changeFilterByBirthDateRangeMin(new Date(e.target.value))}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-xs">Final</span>
+            <input
+              type="date"
+              className={`border rounded-md p-2 w-40 text-center ${
+                filterByBirthDateRangeMin || filterByBirthDateRangeMax
+                  ? "border-yellow text-yellow"
+                  : ""
+              }`}
+              value={
+                filterByBirthDateRangeMax
+                  ? filterByBirthDateRangeMax.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) => changeFilterByBirthDateRangeMax(new Date(e.target.value))}
+            />
+          </div>
+
+          {(filterByBirthDateRangeMin || filterByBirthDateRangeMax) && (
+            <MdOutlineCancel
+              className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+              onClick={() => {
+                changeFilterByBirthDateRangeMin(null);
+                changeFilterByBirthDateRangeMax(null);
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

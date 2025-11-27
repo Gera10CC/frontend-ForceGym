@@ -64,6 +64,8 @@ type ClientStore = {
     closeModalInfo: () => void;
     showModalFileType: () => void;
     closeModalFileType: () => void;
+    resetEditing: () => void;
+
     
     clearAllFilters: () => void;
 };
@@ -178,6 +180,8 @@ export const useClientStore = create<ClientStore>()(
         getClientById: (id) => {
             set(() => ({ activeEditingId: id }));
         },
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
+
 
         addClient: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}client/add`, data);

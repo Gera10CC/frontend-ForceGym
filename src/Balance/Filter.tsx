@@ -4,201 +4,263 @@ import { MdOutlineCancel } from "react-icons/md";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 
 export function FilterButton() {
-    const { filterByStatus, filterByAmountRangeMin, filterByAmountRangeMax, filterByDateRangeMin, filterByDateRangeMax, filterByMeanOfPayment, showModalFilter } = useEconomicBalanceStore()
-    const filteringStyles = (
-        filterByStatus!='' || filterByAmountRangeMin!=0 || filterByAmountRangeMax!=0 || filterByDateRangeMin!=null || filterByDateRangeMax!=null || filterByMeanOfPayment!=0
-    ) && ' bg-white outline-none'
+  const {
+    filterByStatus,
+    filterByAmountRangeMin,
+    filterByAmountRangeMax,
+    filterByDateRangeMin,
+    filterByDateRangeMax,
+    filterByMeanOfPayment,
+    showModalFilter,
+  } = useEconomicBalanceStore();
 
-    return (
-        <button
-            className={"flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300" + filteringStyles}
-            onClick={()=>{ showModalFilter() }}
-        >
-            <IoFilterOutline />
-            <span>Filtrar</span>
-        </button>
-    );
+  const hasFilters =
+    filterByStatus !== "" ||
+    filterByAmountRangeMin !== 0 ||
+    filterByAmountRangeMax !== 0 ||
+    filterByDateRangeMin !== null ||
+    filterByDateRangeMax !== null ||
+    filterByMeanOfPayment !== 0;
+
+  return (
+    <button
+      className={`
+        flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
+        rounded-lg transition-all
+        ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
+        hover:bg-gray-300
+      `}
+      onClick={showModalFilter}
+    >
+      <IoFilterOutline />
+      <span>Filtrar</span>
+    </button>
+  );
 }
 
 export function FilterSelect() {
-    const { 
-        filterByStatus, 
-        filterByAmountRangeMin, 
-        filterByAmountRangeMax, 
-        filterByDateRangeMin, 
-        filterByDateRangeMax, 
-        filterByMeanOfPayment,
-        changeFilterByStatus, 
-        changeFilterByAmountRangeMin,
-        changeFilterByAmountRangeMax,
-        changeFilterByDateRangeMin, 
-        changeFilterByDateRangeMax,
-        changeFilterByMeanOfPayment,
-        clearAllFilters
-    } = useEconomicBalanceStore()
-    const filteredStatusSelectStyles = filterByStatus!='' && ' px-0.5 border-yellow text-yellow'
-    const filteredMeanOfPaymentStyles = filterByMeanOfPayment!=0 && ' px-0.5 border-yellow text-yellow'
-    const filteredAmountRangeStyles = (filterByAmountRangeMin!=0 && filterByAmountRangeMax!=0)  && ' px-0.5 border-yellow text-yellow'
-    const filteredDateRangeStyles = (filterByDateRangeMin !=null && filterByDateRangeMax!=null)  && ' px-0.5 border-yellow text-yellow'
-    const { meansOfPayment} = useCommonDataStore()
+  const {
+    filterByStatus,
+    filterByAmountRangeMin,
+    filterByAmountRangeMax,
+    filterByDateRangeMin,
+    filterByDateRangeMax,
+    filterByMeanOfPayment,
 
-    return (
-        <div className="flex flex-col gap-4">
-            
-            {/* Botón de limpiar todos */}
-            <div className="flex justify-end pr-4">
-                <button
-                    className="text-yellow border border-yellow px-3 py-1 rounded-md hover:bg-yellow hover:text-black transition-all"
-                    onClick={clearAllFilters}
-                >
-                    Limpiar todos los filtros
-                </button>
-            </div>
+    changeFilterByStatus,
+    changeFilterByAmountRangeMin,
+    changeFilterByAmountRangeMax,
+    changeFilterByDateRangeMin,
+    changeFilterByDateRangeMax,
+    changeFilterByMeanOfPayment,
 
-            {/* Filtro por Estado */}
-            <div className="flex items-center gap-4">
-                <label htmlFor="status" className="w-20">Estado</label>
-                <select 
-                    className={'border rounded-md p-2 w-78 text-center' + filteredStatusSelectStyles}
-                    name="status"
-                    id="status"
-                    value={filterByStatus} 
-                    onChange={(e) => {
-                        if(Number(e.target.value) === 0){
-                            changeFilterByStatus('')
-                        }else{
-                            changeFilterByStatus(e.target.value)
-                        }
-                    }}
-                >
-                    <option value={0}> Activos </option>
-                    <option value={'Inactivos'}> Inactivos </option>
-                    <option value={'Todos'}> Todos </option>
-                </select>
-                { filterByStatus && 
-                    <button
-                        className="text-2xl text-yellow"
-                        onClick={() => { changeFilterByStatus('') }}
-                    >
-                        <MdOutlineCancel className="hover:cursor-pointer" />
-                    </button>
-                }
-            </div>
+    clearAllFilters,
+  } = useEconomicBalanceStore();
 
-            {/* Filtro por tipo de pago */}
-            <div className="flex items-center gap-4">
-                <label htmlFor="idMeanOfPayment" className="w-20">
-                    Medio de Pago 
-                </label>
-                <select
-                    id="idMeanOfPayment"
-                    value={filterByMeanOfPayment} 
-                    className={'border rounded-md p-2 w-78 text-center' + filteredMeanOfPaymentStyles}
-                    onChange={(e) => {changeFilterByMeanOfPayment(+e.target.value)}}
-                >
-                    <option value={0}>Todos</option>
-                    {meansOfPayment.map((meanOfPayment)=> (
-                        <option key={meanOfPayment.idMeanOfPayment} value={meanOfPayment.idMeanOfPayment}>
-                            {meanOfPayment.name}
-                        </option>
-                    ))}
-                </select>
-                { filterByMeanOfPayment!=0 && 
-                    <button
-                        className="text-2xl text-yellow"
-                        onClick={() => { changeFilterByMeanOfPayment(0) }}
-                    >
-                        <MdOutlineCancel className="hover:cursor-pointer" />
-                    </button>
-                }
-            </div>
-    
-            {/* Filtro por Monto */}
-            <div className="flex items-center gap-4">
-                <label className="w-20">Monto</label>
-                <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                        <label htmlFor="amountMin" className="text-sm">Mínimo</label>
-                        <input
-                            className={'border-2 w-36 p-1 text-center' + filteredAmountRangeStyles}
-                            name="amountMin"
-                            id="amountMin"
-                            type="number"
-                            min={1}
-                            value={filterByAmountRangeMin}
-                            onChange={(e) => changeFilterByAmountRangeMin(+e.target.value)}
-                        />
-                    </div>
-                    <span>-</span>
-                    <div className="flex flex-col">
-                        <label htmlFor="amountMax" className="text-sm">Máximo</label>
-                        <input
-                            className={'border-2 w-36 p-1 text-center' + filteredAmountRangeStyles}
-                            name="amountMax"
-                            id="amountMax"
-                            type="number"
-                            value={filterByAmountRangeMax}
-                            onChange={(e) => changeFilterByAmountRangeMax(+e.target.value)}
-                        />
-                    </div>
-                    {(filterByAmountRangeMin !== 0 || filterByAmountRangeMax !== 0) && 
-                        <button
-                            className="text-2xl text-yellow"
-                            onClick={() => { 
-                                changeFilterByAmountRangeMin(0) 
-                                changeFilterByAmountRangeMax(0)
-                            }}
-                        >
-                            <MdOutlineCancel className="hover:cursor-pointer" />
-                        </button>
-                    }
-                </div>
-            </div>
-    
-            {/* Filtro por Fecha */}
-            <div className="flex items-center gap-4">
-                <label className="w-20">Fecha</label>
-                <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                        <label htmlFor="dateMin" className="text-sm">Inicio</label>
-                        <input
-                            className={'border-2 w-36 p-1 text-center' + filteredDateRangeStyles}
-                            name="dateMin"
-                            id="dateMin"
-                            type="date"
-                            min={'2010-01-01'}
-                            max={new Date().toISOString().split('T')[0]}
-                            value={filterByDateRangeMin ? filterByDateRangeMin.toISOString().split('T')[0] : ''}
-                            onChange={(e) => changeFilterByDateRangeMin(new Date(e.target.value))}
-                        />
-                    </div>
-                    <span>-</span>
-                    <div className="flex flex-col">
-                        <label htmlFor="dateMax" className="text-sm">Final</label>
-                        <input
-                            className={'border-2 w-36 p-1 text-center' + filteredDateRangeStyles}
-                            name="dateMax"
-                            id="dateMax"
-                            type="date"
-                            min={'2010-01-01'}
-                            max={new Date().toISOString().split('T')[0]}
-                            value={filterByDateRangeMax ? filterByDateRangeMax.toISOString().split('T')[0] : ''}
-                            onChange={(e) => changeFilterByDateRangeMax(new Date(e.target.value))}
-                        />
-                    </div>
-                    {(filterByDateRangeMin !== null || filterByDateRangeMax !== null) && 
-                        <button
-                            className="text-2xl text-yellow"
-                            onClick={() => { 
-                                changeFilterByDateRangeMin(null) 
-                                changeFilterByDateRangeMax(null)
-                            }}
-                        >
-                            <MdOutlineCancel className="hover:cursor-pointer" />
-                        </button>
-                    }
-                </div>
-            </div>
+  const { meansOfPayment } = useCommonDataStore();
+
+  return (
+    <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+
+      <div className="flex justify-end w-full">
+        <button
+          className="text-yellow border border-yellow px-4 py-1 rounded-md 
+                     hover:bg-yellow hover:text-black transition-all text-sm sm:text-base"
+          onClick={clearAllFilters}
+        >
+          Limpiar todos
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+        <label className="w-full sm:w-28 text-sm sm:text-base font-semibold">
+          Estado
+        </label>
+
+        <div className="flex items-center gap-2 w-full">
+          <select
+            className={`
+              border rounded-md p-2 w-full text-center
+              ${filterByStatus !== "" ? "border-yellow text-yellow" : ""}
+            `}
+            value={filterByStatus}
+            onChange={(e) =>
+              Number(e.target.value) === 0
+                ? changeFilterByStatus("")
+                : changeFilterByStatus(e.target.value)
+            }
+          >
+            <option value={0}>Activos</option>
+            <option value="Inactivos">Inactivos</option>
+            <option value="Todos">Todos</option>
+          </select>
+
+          {filterByStatus !== "" && (
+            <MdOutlineCancel
+              className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+              onClick={() => changeFilterByStatus("")}
+            />
+          )}
         </div>
-    );
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+        <label className="w-full sm:w-28 text-sm sm:text-base font-semibold">
+          Medio de pago
+        </label>
+
+        <div className="flex items-center gap-2 w-full">
+          <select
+            className={`
+              border rounded-md p-2 w-full text-center
+              ${filterByMeanOfPayment !== 0 ? "border-yellow text-yellow" : ""}
+            `}
+            value={filterByMeanOfPayment}
+            onChange={(e) => changeFilterByMeanOfPayment(+e.target.value)}
+          >
+            <option value={0}>Todos</option>
+            {meansOfPayment.map((m) => (
+              <option key={m.idMeanOfPayment} value={m.idMeanOfPayment}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+
+          {filterByMeanOfPayment !== 0 && (
+            <MdOutlineCancel
+              className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+              onClick={() => changeFilterByMeanOfPayment(0)}
+            />
+          )}
+        </div>
+      </div>
+
+    <div className="flex flex-col gap-2 w-full">
+    <label className="text-sm sm:text-base font-semibold">Monto</label>
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+
+        <div className="flex flex-col w-full">
+        <label className="text-xs mb-1">Mínimo</label>
+        <input
+            type="number"
+            inputMode="numeric"
+            className={`border rounded-md p-2 text-center w-full
+            ${(filterByAmountRangeMin !== 0 || filterByAmountRangeMax !== 0)
+                ? "border-yellow text-yellow"
+                : ""}
+            `}
+            value={filterByAmountRangeMin === 0 ? "" : filterByAmountRangeMin}
+            min={0}
+            onChange={(e) => {
+            const v = e.target.value;
+            if (v === "") return changeFilterByAmountRangeMin(0);
+            if (+v < 0) return;
+            changeFilterByAmountRangeMin(+v);
+            }}
+            style={{ MozAppearance: "textfield" }}
+            onWheel={(e) => e.currentTarget.blur()}
+        />
+        </div>
+
+        <div className="flex flex-col w-full">
+        <label className="text-xs mb-1">Máximo</label>
+        <input
+            type="number"
+            inputMode="numeric"
+            className={`border rounded-md p-2 text-center w-full
+            ${(filterByAmountRangeMin !== 0 || filterByAmountRangeMax !== 0)
+                ? "border-yellow text-yellow"
+                : ""}
+            `}
+            value={filterByAmountRangeMax === 0 ? "" : filterByAmountRangeMax}
+            min={0}
+            onChange={(e) => {
+            const v = e.target.value;
+            if (v === "") return changeFilterByAmountRangeMax(0);
+            if (+v < 0) return;
+            changeFilterByAmountRangeMax(+v);
+            }}
+            style={{ MozAppearance: "textfield" }}
+            onWheel={(e) => e.currentTarget.blur()}
+        />
+        </div>
+    </div>
+
+    {(filterByAmountRangeMin !== 0 || filterByAmountRangeMax !== 0) && (
+        <button
+        className="text-yellow text-sm mt-1 self-end hover:underline"
+        onClick={() => {
+            changeFilterByAmountRangeMin(0);
+            changeFilterByAmountRangeMax(0);
+        }}
+        >
+        Limpiar
+        </button>
+    )}
+    </div>
+
+
+      <div className="flex flex-col gap-2 w-full">
+
+        <label className="text-sm sm:text-base font-semibold">Fecha</label>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+
+          <div className="flex flex-col w-full">
+            <label className="text-xs mb-1">Inicio</label>
+            <input
+              type="date"
+              className={`border rounded-md p-2 text-center w-full
+                ${(filterByDateRangeMin || filterByDateRangeMax)
+                  ? "border-yellow text-yellow"
+                  : ""}
+              `}
+              value={
+                filterByDateRangeMin
+                  ? filterByDateRangeMin.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                changeFilterByDateRangeMin(new Date(e.target.value))
+              }
+            />
+          </div>
+
+
+          <div className="flex flex-col w-full">
+            <label className="text-xs mb-1">Final</label>
+            <input
+              type="date"
+              className={`border rounded-md p-2 text-center w-full
+                ${(filterByDateRangeMin || filterByDateRangeMax)
+                  ? "border-yellow text-yellow"
+                  : ""}
+              `}
+              value={
+                filterByDateRangeMax
+                  ? filterByDateRangeMax.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                changeFilterByDateRangeMax(new Date(e.target.value))
+              }
+            />
+          </div>
+        </div>
+
+        {(filterByDateRangeMin || filterByDateRangeMax) && (
+          <button
+            className="text-yellow text-sm mt-1 self-end hover:underline"
+            onClick={() => {
+              changeFilterByDateRangeMin(null);
+              changeFilterByDateRangeMax(null);
+            }}
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }

@@ -18,7 +18,7 @@ interface MiniExpenseChartProps {
 }
 
 const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses }) => {
-  
+
   const calculateTotals = () => {
     let dailyTotal = 0;
     let weeklyTotal = 0;
@@ -32,22 +32,18 @@ const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses })
     economicExpenses.forEach((expense) => {
       const expenseDate = new Date(expense.registrationDate);
 
-      // Diario
       if (expenseDate.toDateString() === today.toDateString()) {
         dailyTotal += expense.amount;
       }
 
-      // Semanal
       if (expenseDate >= oneWeekAgo) {
         weeklyTotal += expense.amount;
       }
 
-      // Quincenal
       if (expenseDate.getMonth() === today.getMonth() && expenseDate.getDate() <= 15) {
         biweeklyTotal += expense.amount;
       }
 
-      // Mensual
       if (expenseDate.getMonth() === today.getMonth()) {
         monthlyTotal += expense.amount;
       }
@@ -62,7 +58,7 @@ const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses })
     { name: "Diario", value: dailyTotal, fill: "#e63946" },
     { name: "Semanal", value: weeklyTotal, fill: "#f4a261" },
     { name: "Quincenal", value: biweeklyTotal, fill: "#2a9d8f" },
-    { name: "Mensual", value: monthlyTotal, fill: "#264653" },
+    { name: "Mensual", value: monthlyTotal, fill: "#264653" }
   ];
 
   return (
@@ -72,12 +68,12 @@ const MiniExpenseChart: React.FC<MiniExpenseChartProps> = ({ economicExpenses })
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis 
-            dataKey="name" 
+            dataKey="name"
             tick={{ fontSize: 10, fill: "#444" }}
           />
-          
+
           <YAxis 
-            tick={{ fontSize: 10, fill: "#444" }} 
+            tick={{ fontSize: 10, fill: "#444" }}
           />
 
           <Tooltip

@@ -38,13 +38,11 @@ function DataInfo() {
       "
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-        {/* GASTO */}
         <div className="flex flex-col gap-3">
           <h1 className="text-yellow font-black text-2xl uppercase underline">
             Gasto
           </h1>
 
-          {/* Número de voucher */}
           <div className="flex flex-col text-sm sm:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Número de Voucher
@@ -54,7 +52,6 @@ function DataInfo() {
             </p>
           </div>
 
-          {/* Detalle */}
           <div className="flex flex-col text-sm sm:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Detalle
@@ -62,7 +59,6 @@ function DataInfo() {
             <p className="break-words">{economicExpense.detail}</p>
           </div>
 
-          {/* Fecha */}
           <div className="flex flex-col text-sm sm:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Fecha de Registro
@@ -71,13 +67,11 @@ function DataInfo() {
           </div>
         </div>
 
-        {/* DETALLES */}
         <div className="flex flex-col gap-3">
           <h1 className="text-yellow font-black text-2xl uppercase underline">
             Detalles
           </h1>
 
-          {/* Medio de pago */}
           <div className="flex flex-col text-sm sm:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Medio de Pago
@@ -85,7 +79,6 @@ function DataInfo() {
             <p>{economicExpense.meanOfPayment.name}</p>
           </div>
 
-          {/* Monto */}
           <div className="flex flex-col text-sm sm:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Monto
@@ -93,7 +86,6 @@ function DataInfo() {
             <p>{formatAmountToCRC(economicExpense.amount)}</p>
           </div>
 
-          {/* Categoría */}
           <div className="flex flex-col text-sm sm:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Categoría
