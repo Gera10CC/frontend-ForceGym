@@ -15,7 +15,7 @@ import Modal from "../shared/components/Modal";
 import Form from "./Form";
 import Pagination from "../shared/components/Pagination";
 import NoData from "../shared/components/NoData";
-// Use same layout structure as Expense/Page (do not use shared Layout wrapper)
+import Layout from "../shared/components/Layout";
 import { Plus } from "lucide-react";
 
 function CategoryManagement() {
@@ -75,14 +75,13 @@ function CategoryManagement() {
     ]);
 
     return (
-        <div className="bg-black min-h-screen">
+        <Layout>
             {/* HEADER */}
-            <header className="flex ml-12 h-20 w-0.90 items-center text-black bg-yellow justify-between px-4">
+            <header className="flex flex-col md:flex-row items-center justify-between bg-yellow text-black px-4 py-4 rounded-md shadow-md">
                 <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
                     Categorías
                 </h1>
 
-                {/* BUSCADOR */}
                 <SearchInput
                     searchTerm={searchTerm}
                     handleSearch={handleSearch}
@@ -91,9 +90,7 @@ function CategoryManagement() {
                     <option value={1}>Nombre</option>
                 </SearchInput>
 
-                {/* BOTONES */}
                 <div className="flex gap-3 mt-4 md:mt-0">
-                    {/* FILTRO */}
                     <ModalFilter
                         modalFilter={modalFilter}
                         closeModalFilter={closeModalFilter}
@@ -103,9 +100,9 @@ function CategoryManagement() {
                 </div>
             </header>
 
-            {/* CONTENIDO */}
-            <main className="justify-items-center ml-12 p-4">
-                <div className="flex flex-col mx-12 mt-4 bg-white text-lg w-full max-h-full overflow-scroll">
+            {/* MAIN */}
+            <main className="mt-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
                     {/* TOP BUTTONS */}
                     <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
                         {/* AÑADIR */}
@@ -263,7 +260,7 @@ function CategoryManagement() {
                     )}
                 </div>
             </main>
-        </div>
+        </Layout>
     );
 }
 
