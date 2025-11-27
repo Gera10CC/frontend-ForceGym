@@ -50,124 +50,189 @@ function ExpenseTable({
   changeSize
 }: ExpenseTableProps) {
   return (
-    <div className="flex flex-col mx-12 mt-4 bg-white text-lg w-full max-h-full overflow-scroll">
-      {economicExpenses?.length > 0 ? (
-        <>
-          <table className="w-full mt-8 border-t-2 border-slate-200 overflow-scroll">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>
-                  <button
-                    className="inline-flex text-center items-center gap-2 py-0.5 px-2 rounded-full hover:bg-gray-300 hover:cursor-pointer"
-                    onClick={() => { handleOrderByChange('voucherNumber') }}
-                  >
-                    VOUCHER
-                    {(orderBy === 'voucherNumber' && directionOrderBy === 'DESC') && <FaArrowUp className="text-yellow" />}
-                    {(orderBy === 'voucherNumber' && directionOrderBy === 'ASC') && <FaArrowDown className="text-yellow" />}
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className="inline-flex text-center items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300 hover:cursor-pointer"
-                    onClick={() => { handleOrderByChange('registrationDate') }}
-                  >
-                    FECHA
-                    {(orderBy === 'registrationDate' && directionOrderBy === 'DESC') && <FaArrowUp className="text-yellow" />}
-                    {(orderBy === 'registrationDate' && directionOrderBy === 'ASC') && <FaArrowDown className="text-yellow" />}
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className="inline-flex text-center items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300 hover:cursor-pointer"
-                    onClick={() => { handleOrderByChange('amount') }}
-                  >
-                    MONTO
-                    {(orderBy === 'amount' && directionOrderBy === 'DESC') && <FaArrowUp className="text-yellow" />}
-                    {(orderBy === 'amount' && directionOrderBy === 'ASC') && <FaArrowDown className="text-yellow" />}
-                  </button>
-                </th>
-                <th>MÉTODO DE PAGO</th>
-                <th>CATEGORÍA</th>
-                {filterByStatus && <th>ESTADO</th>}
-                <th>ACCIONES</th>
-              </tr>
-            </thead>
-            <tbody>
-              {economicExpenses?.map((economicExpense, index) => (
-                <tr key={economicExpense.idEconomicExpense} className="text-center py-8">
-                  <td className="py-2">{index + 1}</td>
-                  <td className="py-2">{economicExpense.voucherNumber != '' ? economicExpense.voucherNumber : 'No adjunto'}</td>
-                  <td className="py-2">{formatDate(new Date(economicExpense.registrationDate))}</td>
-                  <td className="py-2">{formatAmountToCRC(economicExpense.amount)}</td>
-                  <td className="py-2">{economicExpense.meanOfPayment.name}</td>
-                  <td className="py-2">{economicExpense.category.name}</td>
-                  {filterByStatus && (
-                    <td>
-                      {economicExpense.isDeleted ? (
-                        <button className="py-0.5 px-2 rounded-lg bg-red-500 text-white">Inactivo</button>
-                      ) : (
-                        <button className="py-0.5 px-2 rounded-lg bg-green-500 text-white">Activo</button>
+    <div className="w-full mt-4">
+
+      <div className="overflow-x-auto rounded-lg">
+        {economicExpenses?.length > 0 ? (
+          <>
+            <table className="w-full min-w-[900px] text-center">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="py-3 px-2 font-semibold">#</th>
+
+                  <th className="py-3 px-2">
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                      onClick={() => handleOrderByChange("voucherNumber")}
+                    >
+                      VOUCHER
+                      {orderBy === "voucherNumber" && directionOrderBy === "DESC" && (
+                        <FaArrowUp className="text-yellow" />
                       )}
+                      {orderBy === "voucherNumber" && directionOrderBy === "ASC" && (
+                        <FaArrowDown className="text-yellow" />
+                      )}
+                    </button>
+                  </th>
+
+                  <th className="py-3 px-2">
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                      onClick={() => handleOrderByChange("registrationDate")}
+                    >
+                      FECHA
+                      {orderBy === "registrationDate" && directionOrderBy === "DESC" && (
+                        <FaArrowUp className="text-yellow" />
+                      )}
+                      {orderBy === "registrationDate" && directionOrderBy === "ASC" && (
+                        <FaArrowDown className="text-yellow" />
+                      )}
+                    </button>
+                  </th>
+
+                  <th className="py-3 px-2">
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                      onClick={() => handleOrderByChange("amount")}
+                    >
+                      MONTO
+                      {orderBy === "amount" && directionOrderBy === "DESC" && (
+                        <FaArrowUp className="text-yellow" />
+                      )}
+                      {orderBy === "amount" && directionOrderBy === "ASC" && (
+                        <FaArrowDown className="text-yellow" />
+                      )}
+                    </button>
+                  </th>
+
+                  <th className="py-3 px-2 font-semibold">PAGO</th>
+                  <th className="py-3 px-2 font-semibold">CATEGORÍA</th>
+
+                  {filterByStatus && <th className="py-3 px-2 font-semibold">ESTADO</th>}
+
+                  <th className="py-3 px-2 font-semibold">ACCIONES</th>
+                </tr>
+              </thead>
+
+              <tbody className="text-sm">
+                {economicExpenses.map((economicExpense, index) => (
+                  <tr
+                    key={economicExpense.idEconomicExpense}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+                    <td className="py-3">{index + 1}</td>
+
+                    <td className="py-3">
+                      {economicExpense.voucherNumber !== ""
+                        ? economicExpense.voucherNumber
+                        : "No adjunto"}
                     </td>
-                  )}
-                  <td className="flex gap-4 justify-center py-2">
-                    <Modal
-                      Button={() => (
+
+                    <td className="py-3">
+                      {formatDate(new Date(economicExpense.registrationDate))}
+                    </td>
+
+                    <td className="py-3">
+                      {formatAmountToCRC(economicExpense.amount)}
+                    </td>
+
+                    <td className="py-3">{economicExpense.meanOfPayment.name}</td>
+
+                    <td className="py-3">{economicExpense.category.name}</td>
+
+                    {filterByStatus && (
+                      <td className="py-3">
+                        {economicExpense.isDeleted ? (
+                          <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                            Inactivo
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                            Activo
+                          </span>
+                        )}
+                      </td>
+                    )}
+
+                    <td className="py-3">
+                      <div className="flex justify-center gap-3">
+
                         <button
                           onClick={() => {
                             getEconomicExpenseById(economicExpense.idEconomicExpense);
                             showModalInfo();
                           }}
-                          className="p-2 bg-black rounded-sm hover:bg-slate-700 hover:cursor-pointer"
+                          className="p-2 bg-black rounded hover:bg-gray-800"
                         >
                           <IoIosMore className="text-white" />
                         </button>
-                      )}
-                      modal={modalInfo}
-                      getDataById={getEconomicExpenseById}
-                      closeModal={closeModalInfo}
-                      Content={DataInfo}
-                    />
-                    <button
-                      onClick={() => {
-                        getEconomicExpenseById(economicExpense.idEconomicExpense);
-                        showModalForm();
-                      }}
-                      className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                      title="Editar"
-                    >
-                      <MdModeEdit className="text-white" />
-                    </button>
-                    {economicExpense.isDeleted ? (
-                      <button onClick={() => handleRestore(mapEconomicExpenseToDataForm(economicExpense))} className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer">
-                        <MdOutlineSettingsBackupRestore className="text-white" />
-                      </button>
-                    ) : (
-                      <button onClick={() => handleDelete(economicExpense)} className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                        title="Eliminar">
-                        <MdOutlineDelete className="text-white" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
 
+                        <button
+                          onClick={() => {
+                            getEconomicExpenseById(economicExpense.idEconomicExpense);
+                            showModalForm();
+                          }}
+                          className="p-2 bg-black rounded hover:bg-gray-800"
+                        >
+                          <MdModeEdit className="text-white" />
+                        </button>
+
+                        {economicExpense.isDeleted ? (
+                          <button
+                            onClick={() =>
+                              handleRestore(mapEconomicExpenseToDataForm(economicExpense))
+                            }
+                            className="p-2 bg-black rounded hover:bg-gray-800"
+                          >
+                            <MdOutlineSettingsBackupRestore className="text-white" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleDelete(economicExpense)}
+                            className="p-2 bg-black rounded hover:bg-gray-800"
+                          >
+                            <MdOutlineDelete className="text-white" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <NoData module="gastos económicos" />
+        )}
+      </div>
+
+      {economicExpenses?.length > 0 && (
+        <>
           <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold">Total de Gastos:
-                {' ' + formatAmountToCRC(economicExpenses.reduce((total, item) => total + item.amount, 0))}
-              </h3>
-            </div>
+            <h3 className="text-lg font-bold">
+              Total de Gastos:{" "}
+              {formatAmountToCRC(
+                economicExpenses.reduce((total, item) => total + item.amount, 0)
+              )}
+            </h3>
           </div>
 
-          <Pagination page={page} size={size} totalRecords={totalRecords} onSizeChange={changeSize} onPageChange={changePage} />
+          <Pagination
+            page={page}
+            size={size}
+            totalRecords={totalRecords}
+            onSizeChange={changeSize}
+            onPageChange={changePage}
+          />
         </>
-      ) : (
-        <NoData module="gastos económicos" />
       )}
+    <Modal
+    Button={() => <></>} 
+    modal={modalInfo}
+    closeModal={closeModalInfo}
+    getDataById={getEconomicExpenseById}
+    Content={DataInfo}
+  />
     </div>
   );
 }

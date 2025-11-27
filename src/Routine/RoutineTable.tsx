@@ -1,0 +1,183 @@
+import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore, MdOutlineFileDownload } from "react-icons/md";
+import { IoIosMore } from "react-icons/io";
+import Modal from "../shared/components/Modal";
+import NoData from "../shared/components/NoData";
+import DataInfo from "./DataInfo";
+import FileTypeDecision from "../shared/components/ModalFileType";
+import { Routine } from "../shared/types";
+
+interface RoutineTableProps {
+  routines: Routine[];
+  modalInfo: boolean;
+  modalFileTypeDecision: boolean;
+
+  getRoutineById: (id: number) => void;
+  showModalInfo: () => void;
+  closeModalInfo: () => void;
+
+  showModalFileType: () => void;
+  closeModalFileType: () => void;
+
+  handleDelete: (routine: Routine) => void;
+  handleRestore: (routine: Routine) => void;
+  handleExportRoutine: () => Promise<any>;
+
+  showModalForm: () => void;
+}
+
+function RoutineTable({
+  routines,
+  modalInfo,
+  modalFileTypeDecision,
+
+  getRoutineById,
+  showModalInfo,
+  closeModalInfo,
+
+  showModalFileType,
+  closeModalFileType,
+
+  handleDelete,
+  handleRestore,
+  handleExportRoutine,
+
+  showModalForm
+}: RoutineTableProps) {
+
+  return (
+    <div className="w-full mt-4">
+
+      <div className="overflow-x-auto rounded-lg">
+        {routines?.length > 0 ? (
+          <>
+            <table className="w-full min-w-[900px] text-center">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="py-3 px-2 font-semibold">#</th>
+                  <th className="py-3 px-2 font-semibold">NOMBRE</th>
+                  <th className="py-3 px-2 font-semibold">DIFICULTAD</th>
+                  <th className="py-3 px-2 font-semibold">ESTADO</th>
+                  <th className="py-3 px-2 font-semibold">ACCIONES</th>
+                </tr>
+              </thead>
+
+              <tbody className="text-sm">
+                {routines.map((routine, index) => (
+                  <tr
+                    key={routine.idRoutine}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+                    <td className="py-3">{index + 1}</td>
+                    <td className="py-3">{routine.name}</td>
+                    <td className="py-3">{routine.difficultyRoutine.name}</td>
+
+                    <td className="py-3">
+                      {routine.isDeleted ? (
+                        <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                          Inactivo
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                          Activo
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="py-3">
+                      <div className="flex justify-center gap-3">
+
+                        <button
+                          onClick={() => {
+                            getRoutineById(routine.idRoutine);
+                            showModalInfo();
+                          }}
+                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          title="Ver detalles"
+                        >
+                          <IoIosMore className="text-white" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            getRoutineById(routine.idRoutine);
+                            showModalForm();
+                          }}
+                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          title="Editar"
+                        >
+                          <MdModeEdit className="text-white" />
+                        </button>
+
+                        {routine.isDeleted ? (
+                          <button
+                            onClick={() => handleRestore(routine)}
+                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            title="Restaurar"
+                          >
+                            <MdOutlineSettingsBackupRestore className="text-white" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleDelete(routine)}
+                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            title="Eliminar"
+                          >
+                            <MdOutlineDelete className="text-white" />
+                          </button>
+                        )}
+
+                        <Modal
+                          Button={() => (
+                            <button
+                              onClick={() => {
+                                getRoutineById(routine.idRoutine);
+                                showModalFileType();
+                              }}
+                              className="p-2 bg-black rounded hover:bg-gray-800"
+                              title="Exportar"
+                            >
+                              <MdOutlineFileDownload className="text-white" />
+                            </button>
+                          )}
+                          modal={modalFileTypeDecision}
+                          closeModal={closeModalFileType}
+                          getDataById={getRoutineById}
+                          Content={() => (
+                            <FileTypeDecision
+                              modulo="Rutina"
+                              closeModal={closeModalFileType}
+                              exportToPDF={async () => {
+                                const result = await handleExportRoutine();
+                                result?.exportToPDF();
+                              }}
+                              exportToExcel={async () => {
+                                const result = await handleExportRoutine();
+                                result?.exportToExcel();
+                              }}
+                            />
+                          )}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <NoData module="rutinas" />
+        )}
+      </div>
+
+      <Modal
+        Button={() => <></>}
+        modal={modalInfo}
+        closeModal={closeModalInfo}
+        getDataById={getRoutineById}
+        Content={DataInfo}
+      />
+    </div>
+  );
+}
+
+export default RoutineTable;

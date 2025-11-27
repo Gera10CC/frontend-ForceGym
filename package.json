@@ -7,6 +7,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "dev": "vite",
+    "start": "node server.js",
     "vercel-build": "npm run build",
     "test": "jest",
     "cov": "jest --coverage --collectCoverageFrom='src/**/*.{ts,tsx}'"
@@ -21,9 +22,9 @@
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.12.2",
     "exceljs": "^4.4.0",
+    "express": "^4.21.2",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.9.2",
-    "frontend": "file:",
     "fuse.js": "^7.1.0",
     "jspdf": "^3.0.0",
     "jspdf-autotable": "^5.0.2",

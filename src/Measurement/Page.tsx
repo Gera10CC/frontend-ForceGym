@@ -1,215 +1,208 @@
-import { MdModeEdit, MdOutlineDelete, MdOutlineFileDownload, MdOutlineSettingsBackupRestore } from "react-icons/md";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { Plus, Download } from "lucide-react";
+
 import Modal from "../shared/components/Modal";
 import ModalFilter from "../shared/components/ModalFilter";
-import NoData from "../shared/components/NoData";
-import Pagination from "../shared/components/Pagination";
-import { useMeasurementStore } from './Store';
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { formatDate } from "../shared/utils/format";
-import { IoIosMore } from "react-icons/io";
-import { useEffect } from "react";
-import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
-import { useLocation, useNavigate } from "react-router";
-import { useMeasurement } from "./useMeasurement";
-import Form from "./Form";
-import DataInfo from "./DataInfo";
-import { mapMeasurementToDataForm } from "../shared/types/mapper";
-import { FilterButton, FilterSelect } from "./Filter";
 import FileTypeDecision from "../shared/components/ModalFileType";
+import Layout from "../shared/components/Layout";
+
+import { useMeasurementStore } from "./Store";
+import { useMeasurement } from "./useMeasurement";
+
+import Form from "./Form";
+import MeasurementTable from "./MeasurementTable";
+import { FilterButton, FilterSelect } from "./Filter";
+
 import { exportToPDF } from "../shared/utils/pdf";
 import { exportToExcel } from "../shared/utils/excel";
+import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 
-function MeasurementManagement() {
-    const location = useLocation();
-    const navigate = useNavigate();
-    
-    const idClient = location.state?.idClient;
-    const {
-        measurements,
-        modalForm,
-        modalFilter,
-        modalInfo,
-        modalFileTypeDecision,
-        page,
-        size,
-        totalRecords,
-        orderBy,
-        directionOrderBy,
-        searchTerm,
-        filterByStatus,
-        filterByDateRangeMin,
-        filterByDateRangeMax,
-        fetchMeasurements,
-        getMeasurementById,
-        changePage,
-        changeSize,
-        showModalForm,
-        showModalInfo,
-        closeModalForm,
-        closeModalFilter,
-        closeModalInfo,
-        setIdClient,
-        showModalFileType,
-        closeModalFileType
-    } = useMeasurementStore();
+export default function MeasurementManagement() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const idClient = location.state?.idClient;
 
-    useEffect(() => {
-        if (idClient) {
-            setIdClient(idClient);
-        }
-    }, [idClient]);
+  const {
+    measurements,
+    modalForm,
+    modalFilter,
+    modalInfo,
+    modalFileTypeDecision,
+    page,
+    size,
+    totalRecords,
+    orderBy,
+    directionOrderBy,
+    searchTerm,
+    filterByStatus,
+    filterByDateRangeMin,
+    filterByDateRangeMax,
 
-    const { handleDelete, handleOrderByChange, handleRestore, tableColumn, tableRows, clientData} = useMeasurement();
-    
-    useEffect(() => {}, [measurements]);
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            const { logout } = await fetchMeasurements();
-            if (logout) {
-                setAuthHeader(null);
-                setAuthUser(null);
-                navigate('/login', { replace: true });
-            }
-        };
-        if (idClient) {
-            fetchData();
-        }
-    }, [idClient, page, size, searchTerm, orderBy, filterByStatus, filterByDateRangeMin, filterByDateRangeMax, directionOrderBy]);
+    fetchMeasurements,
+    getMeasurementById,
+    changePage,
+    changeSize,
+    showModalForm,
+    showModalInfo,
+    closeModalForm,
+    closeModalFilter,
+    closeModalInfo,
+    setIdClient,
+    showModalFileType,
+    closeModalFileType,
+    resetEditing,
+  } = useMeasurementStore();
 
-    return (
-        <div className="bg-black min-h-screen">
-            <header className="flex ml-12 h-20 w-0.90 items-center text-black bg-yellow justify-between px-4">
-                <h1 className="text-4xl uppercase">MEDIDAS</h1>
-                
-                <ModalFilter modalFilter={modalFilter} closeModalFilter={closeModalFilter} FilterButton={FilterButton} FilterSelect={FilterSelect} />
-            </header>
+  const {
+    handleDelete,
+    handleOrderByChange,
+    handleRestore,
+    tableColumn,
+    tableRows,
+    clientData,
+  } = useMeasurement();
 
-            <main className="justify-items-center ml-12 p-4">
-                <div className="flex flex-col mx-12 mt-4 bg-white text-lg w-full max-h-full overflow-scroll">
-                    <div className="flex justify-between">
-                        <Modal
-                            Button={() => (
-                                <button
-                                    className="mt-4 ml-2 px-2 py-1 hover:bg-gray-300 hover:rounded-full hover:cursor-pointer"
-                                    type="button"
-                                    onClick={showModalForm}
-                                >
-                                    + Añadir
-                                </button>
-                            )}
-                            modal={modalForm}
-                            getDataById={getMeasurementById}
-                            closeModal={closeModalForm}
-                            Content={Form}
-                        />
+  useEffect(() => {
+    if (idClient) setIdClient(idClient);
+  }, [idClient]);
 
-                        {measurements?.length > 0 && (
-                        <div className="flex gap-2">
-                            <Modal
-                                Button={() => (
-                                    <button 
-                                        onClick={showModalFileType}
-                                        className="flex gap-2 items-center text-end mt-4 mr-2 px-2 py-1 hover:bg-gray-300 hover:rounded-full hover:cursor-pointer">
-                                        <MdOutlineFileDownload /> Descargar
-                                    </button>
-                                )}
-                                modal={modalFileTypeDecision}
-                                getDataById={getMeasurementById}
-                                closeModal={closeModalFileType}
-                                Content={() => <FileTypeDecision 
-                                                    modulo="Medidas corporales" 
-                                                    closeModal={closeModalFileType} 
-                                                    exportToPDF={() => exportToPDF('Medidas', tableColumn, tableRows)}
-                                                    exportToExcel={() => exportToExcel('Medidas', tableColumn, tableRows, true, clientData)}
-                                />}
-                            />
-                        </div>
-                        )}    
-                    </div>
-                    
-                    {measurements?.length > 0 ? (
-                        <table className="w-full mt-8 border-t-2 border-slate-200 overflow-scroll">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>
-                                        <button className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-gray-300 hover:cursor-pointer" onClick={() => handleOrderByChange('measurementDate')}>
-                                            FECHA DE MEDICIÓN
-                                            {orderBy === 'measurementDate' && directionOrderBy === 'DESC' && <FaArrowUp className="text-yellow" />}
-                                            {orderBy === 'measurementDate' && directionOrderBy === 'ASC' && <FaArrowDown className="text-yellow" />}
-                                        </button>
-                                    </th>
-                                    <th>PESO (kg)</th>
-                                    <th>ALTURA (cm)</th>
-                                    <th>MÚSCULO (%)</th>
-                                    <th>GRASA CORPORAL (%)</th>
-                                    <th>GRASA VISCERAL (%)</th>
-                                    <th>ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {measurements?.map((measurement, index) => (
-                                    <tr key={measurement.idMeasurement} className="text-center py-8">
-                                        <td className="py-2">{index + 1}</td>
-                                        <td className="py-2">{formatDate(new Date(measurement.measurementDate))}</td>
-                                        <td className="py-2">{measurement.weight}</td>
-                                        <td className="py-2">{measurement.height}</td>
-                                        <td className="py-2">{measurement.muscleMass}</td>
-                                        <td className="py-2">{measurement.bodyFatPercentage}</td>
-                                        <td className="py-2">{measurement.visceralFatPercentage}</td>
-                                        <td className="flex gap-4 justify-center py-2">
-                                            <Modal
-                                                Button={() => (
-                                                    <button
-                                                        onClick={() => {
-                                                            getMeasurementById(measurement.idMeasurement);
-                                                            showModalInfo();
-                                                        }}
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                                                        title="Ver detalles"
-                                                    >
-                                                        <IoIosMore className="text-white" />
-                                                    </button>
-                                                )}
-                                                modal={modalInfo}
-                                                getDataById={getMeasurementById}
-                                                closeModal={closeModalInfo}
-                                                Content={DataInfo}
-                                            />
-                                            <button 
-                                                    onClick={async () => {
-                                                        await fetchMeasurements();
-                                                        getMeasurementById(measurement.idMeasurement);
-                                                        showModalForm();
-                                                    }}
-                                                    className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                                                    title="Editar"
-                                                >
-                                                    <MdModeEdit className="text-white" />
-                                            </button>
-                                            {measurement.isDeleted ? (
-                                                <button onClick={() => handleRestore(mapMeasurementToDataForm(measurement))} className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer">
-                                                    <MdOutlineSettingsBackupRestore className="text-white" />
-                                                </button>
-                                            ) : (
-                                                <button onClick={() => handleDelete(measurement)} className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer" title="Eliminar">
-                                                    <MdOutlineDelete className="text-white" />
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <NoData module="mediciones" />
-                    )}
-                    <Pagination page={page} size={size} totalRecords={totalRecords} onSizeChange={changeSize} onPageChange={changePage} />
-                </div>
-            </main>
+  useEffect(() => {
+    const fetchData = async () => {
+      const { logout } = await fetchMeasurements();
+      if (logout) {
+        setAuthHeader(null);
+        setAuthUser(null);
+        navigate("/login", { replace: true });
+      }
+    };
+
+    if (idClient) fetchData();
+  }, [
+    idClient,
+    page,
+    size,
+    searchTerm,
+    orderBy,
+    directionOrderBy,
+    filterByStatus,
+    filterByDateRangeMin,
+    filterByDateRangeMax,
+  ]);
+
+  return (
+    <Layout>
+      <header
+        className="
+          flex flex-col md:flex-row items-center justify-between
+          bg-yellow text-black px-4 py-4 rounded-md shadow-md
+        "
+      >
+        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
+          Medidas Corporales
+        </h1>
+
+        <ModalFilter
+          modalFilter={modalFilter}
+          closeModalFilter={closeModalFilter}
+          FilterButton={FilterButton}
+          FilterSelect={FilterSelect}
+        />
+      </header>
+
+      <main className="mt-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
+
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+
+            <Modal
+              Button={() => (
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetEditing();
+                    showModalForm();
+                  }}
+                  className="
+                    w-full sm:w-auto
+                    px-4 py-2 bg-gray-100 hover:bg-gray-300
+                    rounded-full transition flex items-center gap-2
+                    justify-center sm:justify-start
+                  "
+                >
+                  <Plus size={18} />
+                  Añadir
+                </button>
+              )}
+              modal={modalForm}
+              closeModal={closeModalForm}
+              getDataById={getMeasurementById}
+              Content={Form}
+            />
+
+            {measurements?.length > 0 && (
+              <Modal
+                Button={() => (
+                  <button
+                    className="
+                      w-full sm:w-auto
+                      px-4 py-2 bg-gray-100 hover:bg-gray-300
+                      rounded-full transition flex items-center gap-2
+                      justify-center sm:justify-start
+                    "
+                    onClick={showModalFileType}
+                  >
+                    <Download size={18} />
+                    Descargar
+                  </button>
+                )}
+                modal={modalFileTypeDecision}
+                closeModal={closeModalFileType}
+                getDataById={getMeasurementById}
+                Content={() => (
+                  <FileTypeDecision
+                    modulo="Medidas Corporales"
+                    closeModal={closeModalFileType}
+                    exportToPDF={() =>
+                      exportToPDF("Medidas", tableColumn, tableRows)
+                    }
+                    exportToExcel={() =>
+                      exportToExcel(
+                        "Medidas",
+                        tableColumn,
+                        tableRows,
+                        true,
+                        clientData
+                      )
+                    }
+                  />
+                )}
+              />
+            )}
+          </div>
+
+          <MeasurementTable
+            measurements={measurements}
+            modalInfo={modalInfo}
+            modalForm={modalForm}
+            orderBy={orderBy}
+            directionOrderBy={directionOrderBy}
+            filterByStatus={Boolean(filterByStatus)}
+            page={page}
+            size={size}
+            totalRecords={totalRecords}
+            handleOrderByChange={handleOrderByChange}
+            getMeasurementById={getMeasurementById}
+            showModalInfo={showModalInfo}
+            closeModalInfo={closeModalInfo}
+            showModalForm={showModalForm}
+            handleDelete={handleDelete}
+            handleRestore={handleRestore}
+            changePage={changePage}
+            changeSize={changeSize}
+          />
         </div>
-    );
+      </main>
+    </Layout>
+  );
 }
-
-export default MeasurementManagement;
