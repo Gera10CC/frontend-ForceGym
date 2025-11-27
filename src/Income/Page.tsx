@@ -90,7 +90,7 @@ export default function EconomicIncomeManagement() {
   ]);
 
   return (
-    <Layout>
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -219,6 +219,6 @@ export default function EconomicIncomeManagement() {
           )}
         </div>
       </main>
-    </Layout>
+    </>
   );
 }

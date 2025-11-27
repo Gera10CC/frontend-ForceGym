@@ -62,18 +62,8 @@ export default function EconomicBalanceDashboard() {
 
   const processChartData = () => {
     const months = [
-      "Ene",
-      "Feb",
-      "Mar",
-      "Abr",
-      "May",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dic",
+      "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+      "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
     ];
 
     const monthlyData = months.map((m) => ({
@@ -104,21 +94,22 @@ export default function EconomicBalanceDashboard() {
     `₡${value.toLocaleString("es-CR")}`;
 
   return (
-    <div
-      className="
-        bg-black min-h-screen text-gray-800 
-        pl-0 md:pl-12 transition-all duration-300
-      "
-    >
+    <div className="min-h-screen text-gray-800">
+
+      {/* ✅ HEADER IDÉNTICO AL DE CLIENTES */}
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
-          bg-yellow text-black px-4 py-4 rounded-md shadow-md border-b-2
+          bg-yellow text-black px-4 py-4 rounded-md shadow-md
+          gap-4
         "
       >
         <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
           Balance
         </h1>
+
+        {/* Espacio invisible para igualar al SearchInput de Clientes */}
+        <div className="hidden md:block flex-1" />
 
         <ModalFilter
           modalFilter={modalFilter}
@@ -128,7 +119,10 @@ export default function EconomicBalanceDashboard() {
         />
       </header>
 
+      {/* ✅ CONTENIDO */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 grid gap-8">
+
+        {/* BALANCE GENERAL */}
         <section
           className="
             bg-white rounded-lg shadow-md p-6 w-full
@@ -170,12 +164,15 @@ export default function EconomicBalanceDashboard() {
             </ResponsiveContainer>
           </div>
         </section>
+
+        {/* INGRESOS Y GASTOS */}
         <section
           className="
             grid grid-cols-1 md:grid-cols-2 gap-8 
             w-full max-w-6xl mx-auto
           "
         >
+
           {/* INGRESOS */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-center mb-4">
@@ -184,10 +181,7 @@ export default function EconomicBalanceDashboard() {
 
             <div className="w-full h-40 sm:h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-                >
+                <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis
@@ -195,12 +189,9 @@ export default function EconomicBalanceDashboard() {
                     tickFormatter={formatYAxis}
                     tick={{ fontSize: 11 }}
                   />
-                  <Tooltip
-                    formatter={(value: any) => [
-                      `₡${Number(value).toLocaleString("es-CR")}`,
-                      "Monto",
-                    ]}
-                  />
+                  <Tooltip formatter={(value: any) =>
+                    `₡${Number(value).toLocaleString("es-CR")}`
+                  } />
                   <Legend />
 
                   <Bar
@@ -222,10 +213,7 @@ export default function EconomicBalanceDashboard() {
 
             <div className="w-full h-40 sm:h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-                >
+                <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis
@@ -233,12 +221,9 @@ export default function EconomicBalanceDashboard() {
                     tick={{ fontSize: 11 }}
                     tickFormatter={formatYAxis}
                   />
-                  <Tooltip
-                    formatter={(value: any) => [
-                      `₡${Number(value).toLocaleString("es-CR")}`,
-                      "Monto",
-                    ]}
-                  />
+                  <Tooltip formatter={(value: any) =>
+                    `₡${Number(value).toLocaleString("es-CR")}`
+                  } />
                   <Legend />
 
                   <Bar
@@ -251,6 +236,7 @@ export default function EconomicBalanceDashboard() {
               </ResponsiveContainer>
             </div>
           </div>
+
         </section>
       </main>
     </div>

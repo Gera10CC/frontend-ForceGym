@@ -47,7 +47,7 @@ function RoutineManagement() {
   }, []);
 
   return (
-    <Layout>
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -114,7 +114,7 @@ function RoutineManagement() {
           />
         </div>
       </main>
-    </Layout>
+    </>
   );
 }
 

@@ -1,25 +1,22 @@
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 import useUserStore from "./Store";
 import { useUser } from "./useUser";
 
-import { useNavigate } from "react-router";
 import {
   getAuthUser,
   setAuthHeader,
   setAuthUser,
 } from "../shared/utils/authentication";
 
-import Layout from "../shared/components/Layout";
 import SearchInput from "../shared/components/SearchInput";
 import ModalFilter from "../shared/components/ModalFilter";
 import Modal from "../shared/components/Modal";
-import NoData from "../shared/components/NoData";
 
 import Form from "./Form/MultiStepForm";
 import UserTable from "./UserTable";
-import DataInfo from "./DataInfo";
 import { FilterButton, FilterSelect } from "./Filter";
 
 export default function UserManagement() {
@@ -47,19 +44,22 @@ export default function UserManagement() {
     closeModalForm,
     closeModalFilter,
     closeModalInfo,
-    resetEditing
   } = useUserStore();
 
-  const { handleDelete, handleSearch, handleOrderByChange, handleRestore } =
-    useUser();
+  const {
+    handleDelete,
+    handleSearch,
+    handleOrderByChange,
+    handleRestore,
+  } = useUser();
 
   const navigate = useNavigate();
   const authUser = getAuthUser();
 
+  // ✅ FETCH IGUAL QUE EXPENSES
   useEffect(() => {
     const fetchData = async () => {
       const { logout } = await fetchUsers();
-
       if (logout) {
         setAuthHeader(null);
         setAuthUser(null);
@@ -80,7 +80,7 @@ export default function UserManagement() {
   ]);
 
   return (
-    <Layout>
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
@@ -120,12 +120,9 @@ export default function UserManagement() {
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
             <Modal
               Button={() => (
-                   <button
+                <button
                   type="button"
-                  onClick={() => {
-                    resetEditing();   
-                    showModalForm();
-                  }}
+                  onClick={showModalForm}
                   className="
                     w-full sm:w-auto
                     px-4 py-2 bg-gray-100 hover:bg-gray-300
@@ -167,6 +164,6 @@ export default function UserManagement() {
           />
         </div>
       </main>
-    </Layout>
+    </>
   );
 }
