@@ -54,6 +54,7 @@ export const useNotificationTemplate = () => {
         e.preventDefault()
         const form = e.target as HTMLFormElement
         const { searchTerm } = Object.fromEntries(new FormData(form))
+        useNotificationTemplateStore.setState({ page: 1 })
         changeSearchTerm(searchTerm.toString())
     }
 

@@ -26,13 +26,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div
         className={`
-          flex-1 min-h-screen overflow-y-auto
-          transition-all duration-300 ease-in-out
-          text-black relative z-10
-          ${sidebarExpanded ? "ml-56 blur-[1.5px]" : "ml-14"}
+          flex-1 min-h-screen overflow-hidden
+          transition-all duration-300
+          text-black 
+          relative z-10
+          ${sidebarExpanded ? "pl-56" : "pl-14"}
         `}
       >
-        {children}
+        <div className="h-full overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   );

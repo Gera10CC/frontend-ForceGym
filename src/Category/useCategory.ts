@@ -7,7 +7,17 @@ import { useNavigate } from "react-router"
 
 export const useCategory = () => {
     const navigate = useNavigate()
-    const { fetchCategories, deleteCategory, updateCategory, changeSearchTerm, changeOrderBy, changeDirectionOrderBy, directionOrderBy } = useCategoryStore()
+    const { 
+        fetchCategories, 
+        deleteCategory, 
+        updateCategory, 
+        changeSearchTerm, 
+        changeOrderBy, 
+        changeDirectionOrderBy, 
+        setOrder,
+        directionOrderBy,
+        orderBy
+    } = useCategoryStore()
 
     const handleDelete = async ({ idCategory, name } : Category) => {
         await Swal.fire({
@@ -37,8 +47,7 @@ export const useCategory = () => {
                         width: 500,
                         confirmButtonColor: '#CFAD04'
                     })
-
-                    fetchCategories()
+                    // El store ya maneja el fetch automáticamente
                 }
 
                 if(response.logout){
@@ -58,8 +67,13 @@ export const useCategory = () => {
     }
 
     const handleOrderByChange = (orderByTerm : string) => {
-        changeOrderBy(orderByTerm)
-        changeDirectionOrderBy(directionOrderBy === 'DESC' ? 'ASC' : 'DESC')
+        // If clicking the same column, toggle direction. If switching column, default to DESC.
+        if (orderByTerm === orderBy) {
+            changeDirectionOrderBy(directionOrderBy === 'DESC' ? 'ASC' : 'DESC')
+        } else {
+            // Use atomic setter to avoid intermediate fetch with partial state
+            setOrder(orderByTerm, 'DESC')
+        }
     }
 
     const handleRestore = async (category: CategoryDataForm) => {
@@ -96,8 +110,7 @@ export const useCategory = () => {
                         width: 500,
                         confirmButtonColor: '#CFAD04'
                     })
-                    
-                    fetchCategories()
+                    // El store ya maneja el fetch automáticamente
                 }
 
                 if(response.logout){

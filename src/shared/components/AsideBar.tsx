@@ -208,6 +208,10 @@ export default function AsideBar({
             onClick={(e) => {
               e.stopPropagation();
               setShowOptions(!showOptions);
+              // Cerrar sidebar en mobile cuando se abre el submenú
+              if (!showOptions && window.innerWidth < 768) {
+                setExpanded(false);
+              }
             }}
             className="flex items-center gap-3 px-4 py-2 hover:bg-yellow hover:text-black cursor-pointer rounded-md"
           >
@@ -236,12 +240,44 @@ export default function AsideBar({
       {showOptions && (
         <div
           ref={submenuRef}
-          className="fixed bg-black border border-gray-700 rounded-md shadow-lg text-white p-2 w-64 z-50 flex flex-col gap-2"
+          key={`submenu-${expanded}`}
+          className="fixed bg-black border border-gray-700 rounded-md shadow-lg text-white p-2 w-64 z-50 flex flex-col gap-2 max-h-80 overflow-y-auto"
           style={{
-            top:
-              (optionsBtnRef.current?.getBoundingClientRect().top ?? 0) - 20,
-            left:
-              (optionsBtnRef.current?.getBoundingClientRect().right ?? 0) + 8,
+            top: (() => {
+              const btnRect = optionsBtnRef.current?.getBoundingClientRect();
+              if (!btnRect) return 0;
+              
+              // Altura aproximada del menú (4 items * ~40px cada uno + padding)
+              const menuHeight = 280;
+              const spaceBelow = window.innerHeight - btnRect.bottom;
+              
+              // Si no hay suficiente espacio abajo, abrir hacia arriba
+              if (spaceBelow < menuHeight) {
+                return btnRect.top - menuHeight + 20;
+              }
+              
+              return btnRect.top - 20;
+            })(),
+            left: (() => {
+              const btnRect = optionsBtnRef.current?.getBoundingClientRect();
+              if (!btnRect) return 0;
+              
+              // Si el sidebar está expandido, posicionar a la derecha del sidebar
+              if (expanded) {
+                return btnRect.right + 8;
+              }
+              
+              // Si el sidebar está colapsado, posicionar más adentro de la pantalla
+              const menuWidth = 256;
+              const rightEdge = btnRect.right + 8 + menuWidth;
+              
+              // Si el menú se sale de la pantalla, posicionarlo desde la izquierda con margen
+              if (rightEdge > window.innerWidth) {
+                return 60; // Margen desde la izquierda
+              }
+              
+              return btnRect.right + 8;
+            })()
           }}
         >
           <NavItem

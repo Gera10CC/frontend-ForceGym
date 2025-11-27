@@ -4,11 +4,17 @@ import useCategoryStore from "./Store";
 
 export function FilterButton() {
     const { filterByStatus, showModalFilter } = useCategoryStore();
-    const filteringStyles = filterByStatus !== "" && " bg-white outline-none";
+    
+    const hasFilters = filterByStatus !== "";
 
     return (
         <button
-            className={"flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300" + filteringStyles}
+            className={`
+                flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
+                rounded-lg transition-all
+                ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
+                hover:bg-gray-300
+            `}
             onClick={showModalFilter}
         >
             <IoFilterOutline />
@@ -24,49 +30,46 @@ export function FilterSelect() {
         clearAllFilters
     } = useCategoryStore();
 
-    const filteredStatusSelectStyles = filterByStatus !== "" && " px-0.5 rounded-md border-2 border-yellow text-yellow";
-
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
             
             {/* Botón de limpiar todos */}
-            <div className="flex justify-end pr-4">
+            <div className="flex justify-end w-full">
                 <button
-                    className="text-yellow border border-yellow px-3 py-1 rounded-md hover:bg-yellow hover:text-black transition-all"
+                    className="text-yellow border border-yellow px-4 py-1 rounded-md hover:bg-yellow hover:text-black transition-all text-sm sm:text-base"
                     onClick={clearAllFilters}
                 >
-                    Limpiar todos los filtros
+                    Limpiar todos
                 </button>
             </div>
 
-            <div className="flex items-center gap-4">
-                <label htmlFor="status" className="w-20">Estado</label>
-                <select
-                    className={'border rounded-md p-2 w-52 text-center' + filteredStatusSelectStyles}
-                    name="status"
-                    id="status"
-                    value={filterByStatus}
-                    onChange={(e) => {
-                        const value = Number(e.target.value);
-                        if (value === 0) {
-                            changeFilterByStatus("");
-                        } else {
-                            changeFilterByStatus(e.target.value);
-                        }
-                    }}
-                >
-                    <option value={0}>Activos</option>
-                    <option value={'Inactivos'}>Inactivos</option>
-                    <option value={'Todos'}>Todos</option>
-                </select>
-                {filterByStatus && (
-                    <button
-                        className="text-2xl text-yellow"
-                        onClick={() => changeFilterByStatus("")}
+            {/* Filtro por Estado */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full max-w-full overflow-hidden">
+                <label className="w-full sm:w-28 text-sm sm:text-base font-semibold">
+                    Estado
+                </label>
+
+                <div className="flex items-center gap-2 w-full max-w-full overflow-hidden">
+                    <select
+                        className={`
+                            border rounded-md p-2 w-full text-center
+                            ${filterByStatus !== "" ? "border-yellow text-yellow" : ""}
+                        `}
+                        value={filterByStatus}
+                        onChange={(e) => changeFilterByStatus(e.target.value)}
                     >
-                        <MdOutlineCancel className="hover:cursor-pointer" />
-                    </button>
-                )}
+                        <option value="">Activos</option>
+                        <option value="Inactivos">Inactivos</option>
+                        <option value="Todos">Todos</option>
+                    </select>
+
+                    {filterByStatus !== "" && (
+                        <MdOutlineCancel
+                            className="text-2xl text-yellow hover:cursor-pointer shrink-0"
+                            onClick={() => changeFilterByStatus("")}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

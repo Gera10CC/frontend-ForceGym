@@ -9,6 +9,7 @@ import useActivityTypeStore from './Store'
 import { useActivityType } from "./useActivityType";
 import Form from "./Form";
 import DataInfo from "./DataInfo";
+import Layout from "../shared/components/Layout";
 
 function ActivityTypeManagement() {
     const {
@@ -43,20 +44,36 @@ function ActivityTypeManagement() {
     }, [])
 
     return (
-        <div className="bg-black min-h-screen">
-            <header className="flex ml-12 h-20 w-0.90 items-center text-black bg-yellow justify-between px-4">
-                <h1 className="text-4xl uppercase">Tipos de Actividad</h1>
+        <Layout>
+            {/* HEADER */}
+            <header className="
+                flex flex-col md:flex-row items-center justify-between gap-4
+                bg-yellow text-black px-4 py-4 rounded-md shadow-md
+            ">
+                <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
+                    Tipos de Actividad
+                </h1>
             </header>
 
-            <main className="justify-items-center ml-12 p-4">
-                <div className="flex flex-col mx-12 mt-4 bg-white text-lg w-full max-h-full overflow-scroll">
-                    <div className="flex justify-between">
+            {/* MAIN */}
+            <main className="mt-6">
+                <div className="
+                    bg-white rounded-lg shadow-md p-4 sm:p-6
+                    overflow-hidden
+                ">
+                    {/* TOP ACTIONS */}
+                    <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
                         <Modal
                             Button={() => (
                                 <button
-                                    className="mt-4 ml-2 px-2 py-1 hover:bg-gray-300 hover:rounded-full hover:cursor-pointer"
                                     type="button"
                                     onClick={showModalForm}
+                                    className="
+                                        w-full sm:w-auto
+                                        px-4 py-2 bg-gray-100 hover:bg-gray-300
+                                        rounded-full transition flex items-center gap-2
+                                        justify-center
+                                    "
                                 >
                                     + Añadir
                                 </button>
@@ -68,77 +85,73 @@ function ActivityTypeManagement() {
                         />
                     </div>
 
+                    {/* TABLE */}
                     {activityTypes?.length > 0 ? (
-                        <table className="w-full mt-8 border-t-2 border-slate-200 overflow-scroll">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th><button
-                                        className="inline-flex text-center items-center gap-2 py-0.5 px-2 rounded-full"
-                                    >
-                                        NOMBRE
-                                    </button></th>
-                                    <th>ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                {activityTypes?.map((activityType, index) => (
-                                    <tr key={activityType.idActivityType} className="text-center py-8">
-                                        <td className="py-2">{index + 1}</td>
-                                        <td className="py-2">{activityType.name}</td>
-                                        <td className="flex gap-4 justify-center py-2">
-                                            <Modal
-                                                Button={() => (
-                                                    <button
-                                                        onClick={() => {
-                                                            getActivityTypeById(activityType.idActivityType);
-                                                            showModalInfo();
-                                                        }}
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                                                        title="Ver detalles"
-                                                    >
-                                                        <IoIosMore className="text-white" />
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full border-t-2 border-slate-200 min-w-[600px]">
+                                <thead>
+                                    <tr className="text-center">
+                                        <th className="px-2 py-2">#</th>
+                                        <th className="px-2 py-2">NOMBRE</th>
+                                        <th className="px-2 py-2">ACCIONES</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {activityTypes?.map((activityType, index) => (
+                                        <tr key={activityType.idActivityType} className="text-center">
+                                            <td className="py-2">{index + 1}</td>
+                                            <td className="py-2">{activityType.name}</td>
+                                            <td className="flex gap-3 justify-center py-3">
+                                                <Modal
+                                                    Button={() => (
+                                                        <button
+                                                            onClick={() => {
+                                                                getActivityTypeById(activityType.idActivityType);
+                                                                showModalInfo();
+                                                            }}
+                                                            className="p-2 bg-black rounded-sm hover:bg-gray-700"
+                                                            title="Ver detalles"
+                                                        >
+                                                            <IoIosMore className="text-white" />
+                                                        </button>
+                                                    )}
+                                                    modal={modalInfo}
+                                                    getDataById={getActivityTypeById}
+                                                    closeModal={closeModalInfo}
+                                                    Content={DataInfo}
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        getActivityTypeById(activityType.idActivityType);
+                                                        showModalForm();
+                                                    }}
+                                                    className="p-2 bg-black rounded-sm hover:bg-gray-700"
+                                                    title="Editar"
+                                                >
+                                                    <MdModeEdit className="text-white" />
+                                                </button>
+                                                {activityType.isDeleted ? (
+                                                    <button onClick={() => handleRestore(activityType)} className="p-2 bg-black rounded-sm hover:bg-slate-700">
+                                                        <MdOutlineSettingsBackupRestore className="text-white" />
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={() => handleDelete(activityType)} className="p-2 bg-black rounded-sm hover:bg-gray-700"
+                                                        title="Eliminar">
+                                                        <MdOutlineDelete className="text-white" />
                                                     </button>
                                                 )}
-                                                modal={modalInfo}
-                                                getDataById={getActivityTypeById}
-                                                closeModal={closeModalInfo}
-                                                Content={DataInfo}
-                                            />
-                                            <button
-                                                onClick={() => {
-                                                    getActivityTypeById(activityType.idActivityType);
-                                                    showModalForm();
-                                                }}
-                                                className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                                                title="Editar"
-                                            >
-                                                <MdModeEdit className="text-white" />
-                                            </button>
-                                            {activityType.isDeleted ? (
-                                                <button onClick={() => handleRestore(activityType)} className="p-2 bg-black rounded-sm hover:bg-slate-700 hover:cursor-pointer">
-                                                    <MdOutlineSettingsBackupRestore className="text-white" />
-                                                </button>
-                                            ) : (
-                                                <button onClick={() => handleDelete(activityType)} className="p-2 bg-black rounded-sm hover:bg-gray-700 hover:cursor-pointer"
-                                                    title="Eliminar">
-                                                    <MdOutlineDelete className="text-white" />
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-
-                            </tbody>
-                        </table>
-                    ) :
-                    (
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
                         <NoData module="tipos de actividad" />
                     )}
                 </div>
             </main>
-        </div>
+        </Layout>
     );
 }
 

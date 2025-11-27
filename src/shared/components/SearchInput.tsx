@@ -1,5 +1,5 @@
-import React, { FormEvent, ReactNode, useState } from "react";
-import { Search } from "lucide-react";
+import React, { FormEvent, ReactNode, useState, useEffect } from "react";
+import { Search, ChevronDown } from "lucide-react";
 
 type Option = {
   value: number;
@@ -60,6 +60,15 @@ export default function SearchInput({
       label: child.props.children,
     })
   );
+
+  // Inicializar con la primera opción disponible (solo una vez)
+  useEffect(() => {
+    if (options.length > 0 && selectedType === null) {
+      const firstOption = options[0].value;
+      setSelectedType(firstOption);
+      changeSearchType(firstOption);
+    }
+  }, []); // Solo ejecutar al montar
 
   const handleSelectChange = (val: number) => {
     setSelectedType(val);
