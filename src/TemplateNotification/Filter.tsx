@@ -5,13 +5,17 @@ import { useCommonDataStore } from "../shared/CommonDataStore";
 
 export function FilterButton() {
     const { filterByStatus, filterByNotificationType, showModalFilter } = useNotificationTemplateStore();
-    const filteringStyles = (
-        filterByStatus !== '' || filterByNotificationType !== 0
-    ) ? ' bg-white outline-none' : '';
+    
+    const hasFilters = filterByStatus !== '' || filterByNotificationType !== 0;
 
     return (
         <button
-            className={`flex items-center gap-4 text-lg uppercase outline-2 py-2 px-4 rounded-lg hover:cursor-pointer hover:bg-slate-300${filteringStyles}`}
+            className={`
+                flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
+                rounded-lg transition-all
+                ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
+                hover:bg-gray-300
+            `}
             onClick={showModalFilter}
         >
             <IoFilterOutline />
