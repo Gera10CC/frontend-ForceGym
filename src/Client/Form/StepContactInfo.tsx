@@ -70,7 +70,7 @@ export const StepContactInfo = () => {
 
       <div>
         <label className="text-sm uppercase font-bold">
-          Contacto de emergencia
+          Nombre del contacto de emergencia
         </label>
         <input
           type="text"

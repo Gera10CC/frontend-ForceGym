@@ -14,7 +14,6 @@ import ExpenseTable from "./ExpenseTable";
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
-import Layout from "../shared/components/Layout";
 import { Plus, Download } from "lucide-react";
 
 export default function EconomicExpenseManagement() {

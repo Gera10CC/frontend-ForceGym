@@ -8,11 +8,9 @@ import { useNavigate } from "react-router"
 export const useCategory = () => {
     const navigate = useNavigate()
     const { 
-        fetchCategories, 
         deleteCategory, 
         updateCategory, 
         changeSearchTerm, 
-        changeOrderBy, 
         changeDirectionOrderBy, 
         setOrder,
         directionOrderBy,

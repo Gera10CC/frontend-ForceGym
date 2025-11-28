@@ -47,57 +47,54 @@ function NotificationTemplateManagement() {
     const { handleDelete, handleSearch, handleOrderByChange, handleRestore } = useNotificationTemplate()
     const navigate = useNavigate()
 
-    useEffect(() => {}, [notificationTemplates])
+    useEffect(() => { }, [notificationTemplates])
 
     useEffect(() => {
         const fetchData = async () => {
             const { logout } = await fetchNotificationTemplates()
 
-            if(logout){
+            if (logout) {
                 setAuthHeader(null)
                 setAuthUser(null)
-                navigate('/login', {replace: true})
-            }    
+                navigate('/login', { replace: true })
+            }
 
         }
-        
+
         fetchData()
     }, [page, size, searchType, searchTerm, orderBy, directionOrderBy, filterByStatus, filterByNotificationType])
 
     return (
-        <Layout>
-            {/* HEADER */}
+        <>
             <header className="
                 flex flex-col md:flex-row items-center justify-between gap-4
                 bg-yellow text-black px-4 py-4 rounded-md shadow-md
             ">
                 <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
-                    Plantillas
+                    Plantillas de Notificación
                 </h1>
-                
-                <SearchInput 
-                    searchTerm={searchTerm} 
-                    handleSearch={handleSearch} 
+
+                <SearchInput
+                    searchTerm={searchTerm}
+                    handleSearch={handleSearch}
                     changeSearchType={changeSearchType}
                 >
                     <option value={2}>Mensaje</option>
                 </SearchInput>
-                
-                <ModalFilter 
-                    modalFilter={modalFilter} 
-                    closeModalFilter={closeModalFilter} 
-                    FilterButton={FilterButton} 
-                    FilterSelect={FilterSelect} 
+
+                <ModalFilter
+                    modalFilter={modalFilter}
+                    closeModalFilter={closeModalFilter}
+                    FilterButton={FilterButton}
+                    FilterSelect={FilterSelect}
                 />
             </header>
 
-            {/* MAIN */}
             <main className="mt-6">
                 <div className="
                     bg-white rounded-lg shadow-md p-4 sm:p-6
                     overflow-hidden
                 ">
-                    {/* TOP ACTIONS */}
                     <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
                         <Modal
                             Button={() => (
@@ -121,131 +118,171 @@ function NotificationTemplateManagement() {
                         />
                     </div>
 
-                    {/* TABLE */}
-                    {notificationTemplates?.length > 0 ? (
-                        <div className="overflow-x-auto w-full">
-                            <table className="w-full border-t-2 border-slate-200 min-w-[600px]">
-                                <thead>
-                                    <tr className="text-center">
-                                        <th className="px-2 py-2">#</th>
-                                        
-                                        <th className="px-2">
-                                            <button
-                                                className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300"
-                                                onClick={() => {handleOrderByChange('message')}}
-                                            >
-                                                MENSAJE
-                                                {(orderBy === 'message' && directionOrderBy === 'DESC') && <FaArrowUp className="text-yellow" />}
-                                                {(orderBy === 'message' && directionOrderBy === 'ASC') && <FaArrowDown className="text-yellow" />}
-                                            </button>
-                                        </th>
+                    <div className="w-full mt-4">
 
-                                        <th className="px-2">
-                                            <button
-                                                className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300"
-                                                onClick={() => {handleOrderByChange('notificationType')}}
-                                            >
-                                                TIPO
-                                                {(orderBy === 'notificationType' && directionOrderBy === 'DESC') && <FaArrowUp className="text-yellow" />}
-                                                {(orderBy === 'notificationType' && directionOrderBy === 'ASC') && <FaArrowDown className="text-yellow" />}
-                                            </button>
-                                        </th>
+                        <div className="overflow-x-auto rounded-lg">
+                            {notificationTemplates?.length > 0 ? (
+                                <>
+                                    <table className="w-full min-w-[700px] text-center">
+                                        <thead className="bg-gray-100 text-gray-700">
+                                            <tr>
+                                                <th className="py-3 px-2 font-semibold">#</th>
 
-                                        {filterByStatus && <th className="px-2">ESTADO</th>}
-                                        <th className="px-2">ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {notificationTemplates?.map((notificationTemplate, index) => (
-                                        <tr key={notificationTemplate.idNotificationTemplate} className="text-center">
-                                            <td className="py-2">{(page - 1) * size + index + 1}</td>
-                                            <td className="py-2">{notificationTemplate.message}</td>
-                                            <td className="py-2">{notificationTemplate.notificationType.name}</td>
-
-                                            {filterByStatus && (
-                                                <td className="py-2">
-                                                    {notificationTemplate.isDeleted ? (
-                                                        <button className="py-0.5 px-2 rounded-lg bg-red-500 text-white">
-                                                            Inactivo
-                                                        </button>
-                                                    ) : (
-                                                        <button className="py-0.5 px-2 rounded-lg bg-green-500 text-white">
-                                                            Activo
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            )}
-                                            
-                                            <td className="flex gap-3 justify-center py-3">
-                                                <Modal
-                                                    Button={() => (
-                                                        <button
-                                                            onClick={() => {
-                                                                getNotificationTemplateById(notificationTemplate.idNotificationTemplate);
-                                                                showModalInfo();
-                                                            }}
-                                                            className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                            title="Ver detalles"
-                                                        >
-                                                            <IoIosMore className="text-white" />
-                                                        </button>
-                                                    )}
-                                                    modal={modalInfo}
-                                                    getDataById={getNotificationTemplateById}
-                                                    closeModal={closeModalInfo}
-                                                    Content={DataInfo}
-                                                />
-                                                <button
-                                                    onClick={() => {
-                                                        getNotificationTemplateById(notificationTemplate.idNotificationTemplate);
-                                                        showModalForm();
-                                                    }}
-                                                    className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                    title="Editar"
-                                                >
-                                                    <MdModeEdit className="text-white" />
-                                                </button>
-                                                {notificationTemplate.isDeleted ? (
-                                                    <button 
-                                                        onClick={() => handleRestore(mapNotificationTemplateToDataForm(notificationTemplate))} 
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                    >
-                                                        <MdOutlineSettingsBackupRestore className="text-white" />
-                                                    </button>
-                                                ) : (
+                                                <th className="py-3 px-2">
                                                     <button
-                                                        onClick={() => handleDelete(notificationTemplate)}
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                        title="Eliminar"
+                                                        className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                                                        onClick={() => handleOrderByChange("message")}
                                                     >
-                                                        <MdOutlineDelete className="text-white" />
+                                                        MENSAJE
+                                                        {orderBy === "message" && directionOrderBy === "DESC" && (
+                                                            <FaArrowUp className="text-yellow" />
+                                                        )}
+                                                        {orderBy === "message" && directionOrderBy === "ASC" && (
+                                                            <FaArrowDown className="text-yellow" />
+                                                        )}
                                                     </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <NoData module="plantillas de notificación" />
-                    )}
+                                                </th>
 
-                    {/* PAGINATION */}
-                    {notificationTemplates?.length > 0 && (
-                        <div className="mt-6">
-                            <Pagination 
-                                page={page} 
-                                size={size} 
-                                totalRecords={totalRecords} 
-                                onSizeChange={changeSize} 
+                                                <th className="py-3 px-2">
+                                                    <button
+                                                        className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                                                        onClick={() => handleOrderByChange("notificationType")}
+                                                    >
+                                                        TIPO
+                                                        {orderBy === "notificationType" && directionOrderBy === "DESC" && (
+                                                            <FaArrowUp className="text-yellow" />
+                                                        )}
+                                                        {orderBy === "notificationType" && directionOrderBy === "ASC" && (
+                                                            <FaArrowDown className="text-yellow" />
+                                                        )}
+                                                    </button>
+                                                </th>
+
+                                                {filterByStatus && (
+                                                    <th className="py-3 px-2 font-semibold">ESTADO</th>
+                                                )}
+
+                                                <th className="py-3 px-2 font-semibold">ACCIONES</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody className="text-sm">
+                                            {notificationTemplates.map((notificationTemplate, index) => (
+                                                <tr
+                                                    key={notificationTemplate.idNotificationTemplate}
+                                                    className="border-b hover:bg-gray-50 transition"
+                                                >
+                                                    <td className="py-3">
+                                                        {(page - 1) * size + index + 1}
+                                                    </td>
+
+                                                    <td className="py-3">
+                                                        {notificationTemplate.message}
+                                                    </td>
+
+                                                    <td className="py-3">
+                                                        {notificationTemplate.notificationType.name}
+                                                    </td>
+
+                                                    {filterByStatus && (
+                                                        <td className="py-3">
+                                                            {notificationTemplate.isDeleted ? (
+                                                                <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                                                                    Inactivo
+                                                                </span>
+                                                            ) : (
+                                                                <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                                                                    Activo
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    )}
+
+                                                    <td className="py-3">
+                                                        <div className="flex justify-center gap-3">
+
+                                                            <Modal
+                                                                Button={() => (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            getNotificationTemplateById(
+                                                                                notificationTemplate.idNotificationTemplate
+                                                                            );
+                                                                            showModalInfo();
+                                                                        }}
+                                                                        className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                        title="Ver detalles"
+                                                                    >
+                                                                        <IoIosMore className="text-white" />
+                                                                    </button>
+                                                                )}
+                                                                modal={modalInfo}
+                                                                getDataById={getNotificationTemplateById}
+                                                                closeModal={closeModalInfo}
+                                                                Content={DataInfo}
+                                                            />
+
+                                                            <button
+                                                                onClick={() => {
+                                                                    getNotificationTemplateById(
+                                                                        notificationTemplate.idNotificationTemplate
+                                                                    );
+                                                                    showModalForm();
+                                                                }}
+                                                                className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                title="Editar"
+                                                            >
+                                                                <MdModeEdit className="text-white" />
+                                                            </button>
+
+                                                            {notificationTemplate.isDeleted ? (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleRestore(
+                                                                            mapNotificationTemplateToDataForm(notificationTemplate)
+                                                                        )
+                                                                    }
+                                                                    className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                    title="Restaurar"
+                                                                >
+                                                                    <MdOutlineSettingsBackupRestore className="text-white" />
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleDelete(notificationTemplate)}
+                                                                    className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    <MdOutlineDelete className="text-white" />
+                                                                </button>
+                                                            )}
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : (
+                                <NoData module="plantillas de notificación" />
+                            )}
+                        </div>
+                        {notificationTemplates?.length > 0 && (
+                            <Pagination
+                                page={page}
+                                size={size}
+                                totalRecords={totalRecords}
+                                onSizeChange={changeSize}
                                 onPageChange={changePage}
                             />
-                        </div>
-                    )}
+                        )}
+
+                    </div>
+
                 </div>
             </main>
-        </Layout>
+        </>
     );
 }
 

@@ -48,7 +48,7 @@ function ExerciseCategoryManagement() {
     }, [size, page, filterByStatus]);
 
     return (
-        <Layout>
+        <>
             {/* HEADER */}
             <header className="
                 flex flex-col md:flex-row items-center justify-between gap-4
@@ -96,93 +96,108 @@ function ExerciseCategoryManagement() {
                         />
                     </div>
 
-                    {/* TABLE */}
-                    {categories?.length > 0 ? (
-                        <div className="overflow-x-auto w-full">
-                            <table className="w-full border-t-2 border-slate-200 min-w-[600px]">
-                                <thead>
-                                    <tr className="text-center">
-                                        <th className="px-2 py-2">#</th>
-                                        <th className="px-2 py-2">
-                                            <button className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300">
-                                                NOMBRE
-                                            </button>
-                                        </th>
-                                        {filterByStatus && <th className="px-2 py-2">ESTADO</th>}
-                                        <th className="px-2 py-2">ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {categories.map((category, index) => (
-                                        <tr key={category.idExerciseCategory} className="text-center">
-                                            <td className="py-2">{(page - 1) * size + index + 1}</td>
-                                            <td className="py-2">{category.name}</td>
-                                            {filterByStatus && (
-                                                <td className="py-2">
-                                                    {category.isDeleted ? (
-                                                        <button className="py-0.5 px-2 rounded-lg bg-red-500 text-white">
-                                                            Inactiva
-                                                        </button>
-                                                    ) : (
-                                                        <button className="py-0.5 px-2 rounded-lg bg-green-500 text-white">
-                                                            Activa
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            )}
-                                            <td className="flex gap-3 justify-center py-3">
-                                                <button
-                                                    onClick={() => {
-                                                        getExerciseCategoryById(category.idExerciseCategory);
-                                                        showModalForm();
-                                                    }}
-                                                    className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                    title="Editar"
-                                                >
-                                                    <MdModeEdit className="text-white" />
-                                                </button>
-                                                {category.isDeleted ? (
-                                                    <button 
-                                                        onClick={() => handleRestore(category)} 
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                    >
-                                                        <MdOutlineSettingsBackupRestore className="text-white" />
-                                                    </button>
-                                                ) : (
-                                                    <button 
-                                                        onClick={() => handleDelete(category)} 
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                        title="Eliminar"
-                                                    >
-                                                        <MdOutlineDelete className="text-white" />
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <NoData module="categorías de ejercicios" />
-                    )}
+          <div className="w-full mt-4">
+            <div className="overflow-x-auto rounded-lg">
+              {categories?.length > 0 ? (
+                <>
+                  <table className="w-full min-w-[600px] text-center">
+                    <thead className="bg-gray-100 text-gray-700">
+                      <tr>
+                        <th className="py-3 px-2 font-semibold">#</th>
+                        <th className="py-3 px-2 font-semibold">NOMBRE</th>
 
-                    {/* PAGINATION */}
-                    {categories?.length > 0 && (
-                        <div className="mt-6">
-                            <Pagination 
-                                page={page} 
-                                size={size} 
-                                totalRecords={totalRecords} 
-                                onSizeChange={changeSize} 
-                                onPageChange={changePage}
-                            />
-                        </div>
-                    )}
-                </div>
-            </main>
-        </Layout>
-    );
+                        {filterByStatus && (
+                          <th className="py-3 px-2 font-semibold">ESTADO</th>
+                        )}
+
+                        <th className="py-3 px-2 font-semibold">ACCIONES</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="text-sm">
+                      {categories.map((category, index) => (
+                        <tr
+                          key={category.idExerciseCategory}
+                          className="border-b hover:bg-gray-50 transition"
+                        >
+                          <td className="py-3">
+                            {(page - 1) * size + index + 1}
+                          </td>
+
+                          <td className="py-3">{category.name}</td>
+
+                          {filterByStatus && (
+                            <td className="py-3">
+                              {category.isDeleted ? (
+                                <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                                  Inactiva
+                                </span>
+                              ) : (
+                                <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                                  Activa
+                                </span>
+                              )}
+                            </td>
+                          )}
+
+                          <td className="py-3">
+                            <div className="flex justify-center gap-3">
+                              <button
+                                onClick={() => {
+                                  getExerciseCategoryById(
+                                    category.idExerciseCategory
+                                  );
+                                  showModalForm();
+                                }}
+                                className="p-2 bg-black rounded hover:bg-gray-800"
+                                title="Editar"
+                              >
+                                <MdModeEdit className="text-white" />
+                              </button>
+
+                              {category.isDeleted ? (
+                                <button
+                                  onClick={() => handleRestore(category)}
+                                  className="p-2 bg-black rounded hover:bg-gray-800"
+                                  title="Restaurar"
+                                >
+                                  <MdOutlineSettingsBackupRestore className="text-white" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleDelete(category)}
+                                  className="p-2 bg-black rounded hover:bg-gray-800"
+                                  title="Eliminar"
+                                >
+                                  <MdOutlineDelete className="text-white" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <NoData module="categorías de ejercicios" />
+              )}
+            </div>
+
+            {categories?.length > 0 && (
+              <Pagination
+                page={page}
+                size={size}
+                totalRecords={totalRecords}
+                onSizeChange={changeSize}
+                onPageChange={changePage}
+              />
+            )}
+          </div>
+        </div>
+      </main>
+    </>
+  );
 }
 
 export default ExerciseCategoryManagement;

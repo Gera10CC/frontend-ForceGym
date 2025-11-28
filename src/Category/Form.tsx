@@ -80,7 +80,7 @@ function FormCategory() {
       const category = categories.find(cat => cat.idCategory === activeEditingId);
       if (category) {
         setValue("idCategory", category.idCategory);
-        setValue("idUser", category.user?.idUser || 0); // Por si no viene el user
+        setValue("idUser", category.user?.idUser || 0);
         setValue("name", category.name);
         setValue("isDeleted", category.isDeleted);
       }
