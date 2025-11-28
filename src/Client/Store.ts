@@ -157,7 +157,7 @@ export const useClientStore = create<ClientStore>()(
                 const formattedDateMin = format(state.filterByBirthDateRangeMin!, 'yyyy-MM-dd');
                 filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
             }
-            if(state.filterByClientType != 0){
+            if(state.filterByClientType != -1){
                 filters += `&filterByClientType=${state.filterByClientType}`;
             }
 
@@ -170,10 +170,18 @@ export const useClientStore = create<ClientStore>()(
                 newPage = state.page-1; 
             }
 
-            const expenses = result.data?.clients ?? []
-            const totalRecords = result.data?.totalRecords ?? 0
+            const allClients = result.data?.clients ?? [];
+            const totalRecords = result.data?.totalRecords ?? allClients.length;
 
-            set({ clients: [...expenses], totalRecords: totalRecords, page: newPage });
+            const start = (state.page - 1) * state.size;
+            const end = start + state.size;
+            const paginatedClients = allClients.slice(start, end);
+
+            set({
+            clients: paginatedClients,
+            totalRecords,
+            page: newPage,
+            });
             return result;
         },
 

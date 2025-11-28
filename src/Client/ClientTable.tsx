@@ -135,7 +135,9 @@ function ClientTable({
                     key={client.idClient}
                     className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="py-3">{index + 1}</td>
+                   <td className="py-3">
+                      {(page - 1) * size + index + 1}
+                    </td>
 
                     <td className="py-3">
                       {client.person.identificationNumber}

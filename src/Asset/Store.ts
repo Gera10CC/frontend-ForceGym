@@ -116,11 +116,18 @@ export const useAssetStore = create<AssetStore>()(
                 newPage = state.page - 1;
             }
 
-            set({
-                assets: [...(result.data?.assets ?? [])],
-                totalRecords: result.data?.totalRecords ?? 0,
-                page: newPage
-            });
+         const allAssets = result.data?.assets ?? [];
+        const totalRecords = result.data?.totalRecords ?? allAssets.length;
+
+        const start = (state.page - 1) * state.size;
+        const end = start + state.size;
+        const paginatedAssets = allAssets.slice(start, end);
+
+        set({
+        assets: paginatedAssets,
+        totalRecords,
+        page: newPage
+        });
 
             return result;
         },
