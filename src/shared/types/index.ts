@@ -73,7 +73,11 @@ export type ExerciseCategory = {
     idExerciseCategory: number
     name: string
     isDeleted: number
+    user: User
 }
+export type ExerciseCategoryDataForm =
+  Omit<ExerciseCategory, 'user'> & Pick<User, 'idUser'>
+
 
 export type ExerciseDifficulty = {
     idExerciseDifficulty: number

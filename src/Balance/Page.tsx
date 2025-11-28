@@ -105,7 +105,7 @@ export default function EconomicBalanceDashboard() {
         "
       >
         <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
-          Balance
+          Balance Económico
         </h1>
 
         {/* Espacio invisible para igualar al SearchInput de Clientes */}

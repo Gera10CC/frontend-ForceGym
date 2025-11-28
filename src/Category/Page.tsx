@@ -15,7 +15,6 @@ import Modal from "../shared/components/Modal";
 import Form from "./Form";
 import Pagination from "../shared/components/Pagination";
 import NoData from "../shared/components/NoData";
-import Layout from "../shared/components/Layout";
 import { Plus } from "lucide-react";
 
 function CategoryManagement() {
@@ -75,11 +74,11 @@ function CategoryManagement() {
     ]);
 
     return (
-        <Layout>
+        <>
             {/* HEADER */}
             <header className="flex flex-col md:flex-row items-center justify-between bg-yellow text-black px-4 py-4 rounded-md shadow-md">
                 <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
-                    Categorías
+                    Categorías de Gastos
                 </h1>
 
                 <SearchInput
@@ -133,134 +132,153 @@ function CategoryManagement() {
                     </div>
 
                     {/* TABLA */}
-                    {isLoading ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full mt-8 border-t-2 border-slate-200">
-                                <thead>
-                                    <tr>
-                                        <th className="py-3 px-2 text-center">#</th>
-                                        <th className="py-3 px-2 text-center">
-                                            <button
-                                                className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300"
-                                                onClick={() => handleOrderByChange("name")}
-                                            >
-                                                NOMBRE
-                                                {orderBy === "name" && (
-                                                    directionOrderBy === "DESC"
-                                                        ? <FaArrowDown className="text-yellow" />
-                                                        : <FaArrowUp className="text-yellow" />
-                                                )}
-                                            </button>
-                                        </th>
-                                        {filterByStatus && <th className="py-3 px-2 text-center">ESTADO</th>}
-                                        <th className="py-3 px-2 text-center">ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colSpan={filterByStatus ? 4 : 3} className="py-12" style={{ height: `${size * 60}px` }}>
-                                            <div className="flex items-center justify-center h-full">
-                                                <div className="text-center">
-                                                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow"></div>
-                                                    <p className="mt-4 text-gray-600">Cargando categorías...</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : categories?.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full mt-8 border-t-2 border-slate-200">
-                                <thead>
-                                    <tr>
-                                        <th className="py-3 px-2 text-center">#</th>
-                                        <th className="py-3 px-2 text-center">
-                                            <button
-                                                className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300"
-                                                onClick={() => handleOrderByChange("name")}
-                                            >
-                                                NOMBRE
-                                                {orderBy === "name" && (
-                                                    directionOrderBy === "DESC"
-                                                        ? <FaArrowDown className="text-yellow" />
-                                                        : <FaArrowUp className="text-yellow" />
-                                                )}
-                                            </button>
-                                        </th>
-                                        {filterByStatus && <th className="py-3 px-2 text-center">ESTADO</th>}
-                                        <th className="py-3 px-2 text-center">ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {categories.map((category, index) => (
-                                        <tr key={category.idCategory} className="border-b border-slate-100">
-                                            <td className="py-3 px-2 text-center">{(page - 1) * size + index + 1}</td>
-                                            <td className="py-3 px-2 text-center">{category.name}</td>
-                                            {filterByStatus && (
-                                                <td className="py-3 px-2 text-center">
-                                                    {category.isDeleted ? (
-                                                        <button className="py-0.5 px-2 rounded-lg bg-red-500 text-white">Inactivo</button>
-                                                    ) : (
-                                                        <button className="py-0.5 px-2 rounded-lg bg-green-500 text-white">Activo</button>
-                                                    )}
-                                                </td>
-                                            )}
-                                            <td className="py-3 px-2">
-                                                <div className="flex gap-4 justify-center">
-                                                    <button
-                                                        onClick={() => {
-                                                            getCategoryById(category.idCategory);
-                                                            showModalForm();
-                                                        }}
-                                                        className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                        title="Editar"
-                                                    >
-                                                        <MdModeEdit className="text-white" />
-                                                    </button>
-                                                    {category.isDeleted ? (
-                                                        <button
-                                                            onClick={() => handleRestore(mapCategoryToDataForm(category))}
-                                                            className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                            title="Restaurar"
-                                                        >
-                                                            <MdOutlineSettingsBackupRestore className="text-white" />
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => handleDelete(category)}
-                                                            className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                                                            title="Eliminar"
-                                                        >
-                                                            <MdOutlineDelete className="text-white" />
-                                                        </button>
-                                                    )}
+                    <div className="w-full mt-4">
+
+                        <div className="overflow-x-auto rounded-lg">
+
+                            {isLoading ? (
+                                <table className="w-full min-w-[600px] text-center">
+                                    <thead className="bg-gray-100 text-gray-700">
+                                        <tr>
+                                            <th className="py-3 px-2">#</th>
+                                            <th className="py-3 px-2">NOMBRE</th>
+                                            {filterByStatus && <th className="py-3 px-2">ESTADO</th>}
+                                            <th className="py-3 px-2">ACCIONES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colSpan={filterByStatus ? 4 : 3} className="py-16">
+                                                <div className="flex flex-col items-center justify-center gap-4">
+                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow"></div>
+                                                    <p className="text-gray-600">Cargando categorías...</p>
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
 
-                            {/* PAGINACIÓN */}
-                            <div className="mt-6">
-                                <Pagination
-                                    page={page}
-                                    size={size}
-                                    totalRecords={totalRecords}
-                                    onSizeChange={changeSize}
-                                    onPageChange={changePage}
-                                    isLoading={isLoading}
-                                />
-                            </div>
+                            ) : categories?.length > 0 ? (
+                                <>
+                                    <table className="w-full min-w-[600px] text-center">
+
+                                        {/* HEADER */}
+                                        <thead className="bg-gray-100 text-gray-700">
+                                            <tr>
+                                                <th className="py-3 px-2 font-semibold">#</th>
+
+                                                <th className="py-3 px-2">
+                                                    <button
+                                                        className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                                                        onClick={() => handleOrderByChange("name")}
+                                                    >
+                                                        NOMBRE
+                                                        {orderBy === "name" && directionOrderBy === "DESC" && (
+                                                            <FaArrowUp className="text-yellow" />
+                                                        )}
+                                                        {orderBy === "name" && directionOrderBy === "ASC" && (
+                                                            <FaArrowDown className="text-yellow" />
+                                                        )}
+                                                    </button>
+                                                </th>
+
+                                                {filterByStatus && (
+                                                    <th className="py-3 px-2 font-semibold">ESTADO</th>
+                                                )}
+
+                                                <th className="py-3 px-2 font-semibold">ACCIONES</th>
+                                            </tr>
+                                        </thead>
+
+                                        {/* BODY */}
+                                        <tbody className="text-sm">
+                                            {categories.map((category, index) => (
+                                                <tr
+                                                    key={category.idCategory}
+                                                    className="border-b hover:bg-gray-50 transition"
+                                                >
+                                                    <td className="py-3">
+                                                        {(page - 1) * size + index + 1}
+                                                    </td>
+
+                                                    <td className="py-3">{category.name}</td>
+
+                                                    {filterByStatus && (
+                                                        <td className="py-3">
+                                                            {category.isDeleted ? (
+                                                                <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                                                                    Inactivo
+                                                                </span>
+                                                            ) : (
+                                                                <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                                                                    Activo
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                    )}
+
+                                                    <td className="py-3">
+                                                        <div className="flex justify-center gap-3">
+
+                                                            {/* EDITAR */}
+                                                            <button
+                                                                onClick={() => {
+                                                                    getCategoryById(category.idCategory);
+                                                                    showModalForm();
+                                                                }}
+                                                                className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                title="Editar"
+                                                            >
+                                                                <MdModeEdit className="text-white" />
+                                                            </button>
+
+                                                            {/* ELIMINAR / RESTAURAR */}
+                                                            {category.isDeleted ? (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleRestore(mapCategoryToDataForm(category))
+                                                                    }
+                                                                    className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                    title="Restaurar"
+                                                                >
+                                                                    <MdOutlineSettingsBackupRestore className="text-white" />
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleDelete(category)}
+                                                                    className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    <MdOutlineDelete className="text-white" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+
+                                    {/* PAGINACIÓN */}
+                                    <div className="mt-6">
+                                        <Pagination
+                                            page={page}
+                                            size={size}
+                                            totalRecords={totalRecords}
+                                            onSizeChange={changeSize}
+                                            onPageChange={changePage}
+                                            isLoading={isLoading}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <NoData module="categorías" />
+                            )}
                         </div>
-                    ) : (
-                        <NoData module="categorías" />
-                    )}
+                    </div>
                 </div>
             </main>
-        </Layout>
+        </>
     );
 }
 

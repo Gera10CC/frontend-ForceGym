@@ -16,7 +16,6 @@ import Form from "./Form";
 import { mapClientTypeToDataForm } from "../shared/types/mapper";
 import { useNavigate } from "react-router";
 import NoData from "../shared/components/NoData";
-import Layout from "../shared/components/Layout";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 
 function ClientTypeManagement() {
@@ -71,8 +70,7 @@ function ClientTypeManagement() {
   ]);
 
   return (
-    <Layout>
-      {/* HEADER */}
+    <>
       <header
         className="
           flex flex-col md:flex-row items-center justify-between gap-4
@@ -99,7 +97,6 @@ function ClientTypeManagement() {
         />
       </header>
 
-      {/* MAIN */}
       <main className="mt-6">
         <div
           className="
@@ -107,7 +104,6 @@ function ClientTypeManagement() {
             overflow-hidden
           "
         >
-          {/* TOP ACTIONS */}
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
             <Modal
               Button={() => (
@@ -131,103 +127,113 @@ function ClientTypeManagement() {
             />
           </div>
 
-          {/* TABLE */}
-          {clientTypes?.length > 0 ? (
-            <div className="overflow-x-auto w-full">
-              <table className="w-full border-t-2 border-slate-200 min-w-[600px]">
-                <thead>
-                  <tr className="text-center">
-                    <th className="px-2 py-2">#</th>
+          <div className="w-full mt-4">
 
-                    <th className="px-2">
-                      <button
-                        className="inline-flex items-center gap-2 py-0.5 px-2 rounded-full hover:bg-slate-300"
-                        onClick={() => {
-                          handleOrderByChange("name");
-                        }}
-                      >
-                        NOMBRE
-                        {orderBy === "name" && directionOrderBy === "DESC" && (
-                          <FaArrowUp className="text-yellow" />
+            <div className="overflow-x-auto rounded-lg">
+              {clientTypes?.length > 0 ? (
+                <>
+                  <table className="w-full min-w-[600px] text-center">
+
+                    <thead className="bg-gray-100 text-gray-700">
+                      <tr>
+                        <th className="py-3 px-2 font-semibold">#</th>
+
+                        <th className="py-3 px-2">
+                          <button
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+                            onClick={() => handleOrderByChange("name")}
+                          >
+                            NOMBRE
+                            {orderBy === "name" && directionOrderBy === "DESC" && (
+                              <FaArrowUp className="text-yellow" />
+                            )}
+                            {orderBy === "name" && directionOrderBy === "ASC" && (
+                              <FaArrowDown className="text-yellow" />
+                            )}
+                          </button>
+                        </th>
+
+                        {filterByStatus && (
+                          <th className="py-3 px-2 font-semibold">ESTADO</th>
                         )}
-                        {orderBy === "name" && directionOrderBy === "ASC" && (
-                          <FaArrowDown className="text-yellow" />
-                        )}
-                      </button>
-                    </th>
 
-                    {filterByStatus && <th className="px-2">ESTADO</th>}
+                        <th className="py-3 px-2 font-semibold">ACCIONES</th>
+                      </tr>
+                    </thead>
 
-                    <th className="px-2">ACCIONES</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {clientTypes?.map((clientType, index) => (
-                    <tr key={clientType.idClientType} className="text-center">
-                      <td className="py-2">
-                        {(page - 1) * size + index + 1}
-                      </td>
-
-                      <td className="py-2">{clientType.name}</td>
-
-                      {filterByStatus && (
-                        <td className="py-2">
-                          {clientType.isDeleted ? (
-                            <button className="py-0.5 px-2 rounded-lg bg-red-500 text-white">
-                              Inactivo
-                            </button>
-                          ) : (
-                            <button className="py-0.5 px-2 rounded-lg bg-green-500 text-white">
-                              Activo
-                            </button>
-                          )}
-                        </td>
-                      )}
-
-                      <td className="flex gap-3 justify-center py-3">
-                        <button
-                          onClick={() => {
-                            getClientTypeById(clientType.idClientType);
-                            showModalForm();
-                          }}
-                          className="p-2 bg-black rounded-sm hover:bg-gray-700"
+                    <tbody className="text-sm">
+                      {clientTypes.map((clientType, index) => (
+                        <tr
+                          key={clientType.idClientType}
+                          className="border-b hover:bg-gray-50 transition"
                         >
-                          <MdModeEdit className="text-white" />
-                        </button>
+                          <td className="py-3">
+                            {(page - 1) * size + index + 1}
+                          </td>
 
-                        {clientType.isDeleted ? (
-                          <button
-                            onClick={() =>
-                              handleRestore(
-                                mapClientTypeToDataForm(clientType)
-                              )
-                            }
-                            className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                          >
-                            <MdOutlineSettingsBackupRestore className="text-white" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleDelete(clientType)}
-                            className="p-2 bg-black rounded-sm hover:bg-gray-700"
-                          >
-                            <MdOutlineDelete className="text-white" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          <td className="py-3">{clientType.name}</td>
+
+                          {filterByStatus && (
+                            <td className="py-3">
+                              {clientType.isDeleted ? (
+                                <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
+                                  Inactivo
+                                </span>
+                              ) : (
+                                <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
+                                  Activo
+                                </span>
+                              )}
+                            </td>
+                          )}
+
+                          <td className="py-3">
+                            <div className="flex justify-center gap-3">
+
+                              <button
+                                onClick={() => {
+                                  getClientTypeById(clientType.idClientType);
+                                  showModalForm();
+                                }}
+                                className="p-2 bg-black rounded hover:bg-gray-800"
+                                title="Editar"
+                              >
+                                <MdModeEdit className="text-white" />
+                              </button>
+
+                              {clientType.isDeleted ? (
+                                <button
+                                  onClick={() =>
+                                    handleRestore(mapClientTypeToDataForm(clientType))
+                                  }
+                                  className="p-2 bg-black rounded hover:bg-gray-800"
+                                  title="Restaurar"
+                                >
+                                  <MdOutlineSettingsBackupRestore className="text-white" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleDelete(clientType)}
+                                  className="p-2 bg-black rounded hover:bg-gray-800"
+                                  title="Eliminar"
+                                >
+                                  <MdOutlineDelete className="text-white" />
+                                </button>
+                              )}
+
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <NoData module="tipos de cliente" />
+              )}
             </div>
-          ) : (
-            <NoData module="tipos de cliente" />
-          )}
 
-          {/* PAGINATION */}
-          {clientTypes?.length > 0 && (
-            <div className="mt-6">
+            {clientTypes?.length > 0 && (
               <Pagination
                 page={page}
                 size={size}
@@ -235,11 +241,12 @@ function ClientTypeManagement() {
                 onSizeChange={changeSize}
                 onPageChange={changePage}
               />
-            </div>
-          )}
+            )}
+
+          </div>
         </div>
       </main>
-    </Layout>
+    </>
   );
 }
 
