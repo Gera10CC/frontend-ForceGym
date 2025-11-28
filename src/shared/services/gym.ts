@@ -1,146 +1,129 @@
-import { createHeaders } from '../utils/authentication';
-import Swal from 'sweetalert2';
+import { createHeaders } from "../utils/authentication";
+import Swal from "sweetalert2";
 
-export const getData = async (url:string) =>  {
-    const createdHeaders = createHeaders()
+export const getData = async (url: string) => {
+  const createdHeaders = createHeaders();
 
-    try{
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: createdHeaders
-        }) 
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: createdHeaders,
+    });
 
-        return manageResponse(res)
+    return manageResponse(res);
+  } catch (error: any) {
+    return { ok: false, error: error.message };
+  }
+};
 
-    } catch(error:any){
-        return error.message
+export const postData = async (url: string, dataReq: any) => {
+  const createdHeaders = createHeaders();
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: createdHeaders,
+      body: JSON.stringify(dataReq),
+    });
+
+    return manageResponse(res);
+  } catch (error: any) {
+    return { ok: false, error: error.message };
+  }
+};
+
+export const putData = async (url: string, dataReq: any) => {
+  const createdHeaders = createHeaders();
+
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: createdHeaders,
+      body: JSON.stringify(dataReq),
+    });
+
+    return manageResponse(res);
+  } catch (error: any) {
+    return { ok: false, error: error.message };
+  }
+};
+
+export const deleteData = async (url: string, dataReq: any) => {
+  const createdHeaders = createHeaders();
+
+  try {
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: createdHeaders,
+      body: JSON.stringify(dataReq),
+    });
+
+    return manageResponse(res);
+  } catch (error: any) {
+    return { ok: false, error: error.message };
+  }
+};
+
+const manageResponse = async (res: Response) => {
+  const code = res.status;
+
+  let result: any = {
+    data: "",
+    message: "",
+  };
+
+  try {
+    const text = await res.text();
+
+    if (text) {
+      const jsonRes = JSON.parse(text);
+      result = {
+        ...result,
+        data: jsonRes.data ?? "",
+        message: jsonRes.message ?? "",
+      };
     }
-}
+  } catch (error) {
+    console.warn("Error al parsear JSON:", error);
+  }
 
-export const postData = async (url:string, dataReq:any) => {
-    const createdHeaders = createHeaders()
+  if ([200, 201, 202].includes(code)) {
+    return { ...result, ok: true };
+  }
 
-    try{
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: createdHeaders,
-            body: JSON.stringify(dataReq)
-        }) 
+  if ([401, 403].includes(code)) {
+    await Swal.fire({
+      title: "Sesión expirada",
+      text: "Debe iniciar sesión",
+      icon: "error",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#CFAD04",
+    });
 
-        return manageResponse(res)
-        
-    } catch(error:any){
-        return error
-    }
-}
+    return { ...result, logout: true };
+  }
 
-export const putData = async (url:string, dataReq:any) => {
-    const createdHeaders = createHeaders()
+  if ([400, 405, 406, 407, 408].includes(code)) {
+    await Swal.fire({
+      title: "Error",
+      text: result.message || "Error en solicitud",
+      icon: "error",
+      confirmButtonColor: "#CFAD04",
+    });
 
-    try{
-        const res = await fetch(url, {
-            method: 'PUT',
-            headers: createdHeaders,
-            body: JSON.stringify(dataReq)
-        }) 
+    return { ...result, ok: false };
+  }
 
-        return manageResponse(res)
+  if ([500, 501, 502, 503, 504, 505].includes(code)) {
+    await Swal.fire({
+      title: "Error en el servidor",
+      text: result.message || "Error interno del servidor",
+      icon: "error",
+      confirmButtonColor: "#CFAD04",
+    });
 
-    } catch(error:any){
-        return error
-    }
-}
+    return { ...result, ok: false };
+  }
 
-export const deleteData = async (url:string, dataReq:any) => {
-    const createdHeaders = createHeaders()
-
-    try{
-        const res = await fetch(url, {
-            method: 'DELETE',
-            headers: createdHeaders,
-            body: dataReq
-        }) 
-
-        return manageResponse(res)
-        
-    } catch(error:any){
-        return error
-    }
-}
-
-const manageResponse = async (res: Response) => { 
-    const code = res.status
-    let result = {
-        data: '',
-        message: ''
-    }
-
-    let jsonRes
-    try {
-        const text = await res.text()
-
-        // si el cuerpo tiene contenido, intentar parsearlo como JSON
-        if (text) { 
-            jsonRes = JSON.parse(text)
-            result = {
-                ...result, 
-                data: jsonRes.data ?? '',
-                message: jsonRes.message ?? ''
-            }
-        }
-    } catch (error) {
-        console.warn("Error al parsear JSON de res:", error)
-    }
-
-    // casos de éxito
-    if ([200, 201, 202].includes(code)) {
-        return { ...result, ok: true }
-    }
-
-    // manejo de errores
-    if ([400, 405, 406, 407, 408].includes(code)) {
-        await Swal.fire({
-            title: 'Ha ocurrido un error',
-            text: 'Inténtelo de nuevo',
-            icon: 'error',
-            confirmButtonText: 'OK',
-            timer: 3000,
-            timerProgressBar: true,
-            width: 300,
-            confirmButtonColor: '#CFAD04'
-        })
-        return
-    }
-
-    // errores que ameritan logout
-    if ([401, 403].includes(code)) {
-        await Swal.fire({
-            title: 'Ha ocurrido un error',
-            text: 'Debe iniciar sesión',
-            icon: 'error',
-            confirmButtonText: 'OK',
-            timer: 3000,
-            timerProgressBar: true,
-            width: 300,
-            confirmButtonColor: '#CFAD04'
-        })
-        return { ...result, logout: true }
-    }
-
-    // errores de servidor
-    if ([500, 502, 501, 503, 504, 505, 506, 507, 508].includes(code)) {
-        await Swal.fire({
-            title: 'Ha ocurrido un error',
-            text: result.message || 'Error en el servidor',
-            icon: 'error',
-            confirmButtonText: 'OK',
-            timer: 3000,
-            timerProgressBar: true,
-            width: 300,
-            confirmButtonColor: '#CFAD04'
-        })
-        return
-    }
-
-    return
-}
+  return { ...result, ok: false };
+};
