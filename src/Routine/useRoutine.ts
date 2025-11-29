@@ -4,14 +4,15 @@ import { useRoutineStore } from "./Store";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import { useNavigate } from "react-router";
-import { exportToPDF } from "../shared/utils/pdf";
-import { exportToExcel } from "../shared/utils/excel";
+import { exportToPDFRutinas } from "../shared/utils/pdfRutinas";
+import { exportToExcelRutinas } from "../shared/utils/excelRutina";
 import { mapRoutineToDTO } from '../shared/types/mapper';
 import { useState } from 'react';
 
 export const useRoutine = () => {
     const navigate = useNavigate();
     const [refreshKey, setRefreshKey] = useState(0);
+
     const { 
         routines,
         currentRoutine,
@@ -38,16 +39,10 @@ export const useRoutine = () => {
         });
 
         if (result.isConfirmed) {
-            const loggedUser = getAuthUser();
-            if (!loggedUser?.idUser) {
-                console.error("No user ID available");
-                return;
-            }
-            
             const response = await deleteRoutine(idRoutine);
             
             if (response?.ok) {
-                await fetchRoutines(); // Asegura que las rutinas se actualicen
+                await fetchRoutines();
                 await Swal.fire({
                     title: 'Rutina eliminada',
                     text: `Ha eliminado "${name}"`,
@@ -63,7 +58,7 @@ export const useRoutine = () => {
             if (response?.logout) {
                 setAuthHeader(null);
                 setAuthUser(null);
-                navigate('/login', {replace: true});
+                navigate('/login', { replace: true });
             }
         } 
     };
@@ -73,18 +68,13 @@ export const useRoutine = () => {
         if (!loggedUser?.idUser) return;
 
         const reqRoutine = {
-            ...routine, 
-            name: routine.name,
-            difficultyRoutine: {
-                name: routine.difficultyRoutine.name,
-                idDifficultyRoutine: routine.difficultyRoutine.idDifficultyRoutine
-            },
+            ...routine,
             paramLoggedIdUser: loggedUser.idUser
         };
 
-        const mappedReqRoutine = mapRoutineToDTO(reqRoutine as Routine)
-            
-        await Swal.fire({
+        const mappedReqRoutine = mapRoutineToDTO(reqRoutine as Routine);
+
+        const result = await Swal.fire({
             title: '¿Desea restaurar la rutina?',
             text: `Estaría restaurando "${routine.name}"`,
             icon: 'question',
@@ -95,74 +85,88 @@ export const useRoutine = () => {
             confirmButtonColor: '#CFAD04',
             width: 500,
             reverseButtons: true
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                const response = await updateRoutine(mappedReqRoutine);
-                if (response?.ok) {
-                    await Swal.fire({
-                        title: 'Rutina restaurada',
-                        text: `Ha restaurado "${routine.name}"`,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        width: 500,
-                        confirmButtonColor: '#CFAD04'
-                    });
-                    await fetchRoutines();
-                }
-                if (response?.logout) {
-                    setAuthHeader(null);
-                    setAuthUser(null);
-                    navigate('/login', {replace: true});
-                }
-            } 
         });
+
+        if (result.isConfirmed) {
+            const response = await updateRoutine(mappedReqRoutine);
+
+            if (response?.ok) {
+                await fetchRoutines();
+                await Swal.fire({
+                    title: 'Rutina restaurada',
+                    text: `Ha restaurado "${routine.name}"`,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    width: 500,
+                    confirmButtonColor: '#CFAD04'
+                });
+            }
+
+            if (response?.logout) {
+                setAuthHeader(null);
+                setAuthUser(null);
+                navigate('/login', { replace: true });
+            }
+        } 
     };
 
     const getExerciseDetails = (ex: RoutineExerciseDTO) => {
         const globalExercise = allExercises.find(e => e.idExercise === ex.idExercise);
+
         return {
             name: globalExercise?.name || `Ejercicio #${ex.idExercise}`,
             series: ex.series || 0,
             repetitions: ex.repetitions || 0,
             note: ex.note || "Sin nota",
-            category: globalExercise?.exerciseCategory?.name || "Sin categoría",
+            category: globalExercise?.exerciseCategory?.name || "Otros",
         };
     };
 
     const handleExportRoutine = async () => {
         try {
-            
-            if (!currentRoutine) {
-                throw new Error('Rutina no encontrada');
-            }
+            if (!currentRoutine) throw new Error("Rutina no encontrada");
 
-            const exerciseHeaders = ["#", "Ejercicio", "Categoría", "Series", "Repeticiones", "Nota"];
-            const exerciseRows = currentRoutine.exercises?.map((ex, index) => {
+            const exerciseHeaders = [
+                "Paso",
+                "Ejercicio",
+                "Grupo Muscular",
+                "Series",
+                "Repeticiones",
+                "Indicaciones"
+            ];
+
+            let stepCounter = 1;
+
+            const exerciseRows = currentRoutine.exercises?.map((ex) => {
                 const details = getExerciseDetails(ex);
+
                 return [
-                    (index + 1).toString(),
+                    `Paso ${stepCounter++}`,
                     details.name,
                     details.category,
-                    details.series.toString(),
-                    details.repetitions.toString(),
-                    details.note
+                    `${details.series}`,
+                    `${details.repetitions}`,
+                    details.note && details.note !== "Sin nota"
+                        ? details.note
+                        : ""
                 ];
             }) || [];
 
             return {
-                exportToPDF: () => exportToPDF(
+                exportToPDF: () => exportToPDFRutinas(
                     `Rutina ${currentRoutine.name}`,
                     exerciseHeaders,
                     exerciseRows
                 ),
-                exportToExcel: () => exportToExcel(
+                exportToExcel: () => exportToExcelRutinas(
                     `Rutina ${currentRoutine.name}`,
                     exerciseHeaders,
                     exerciseRows
                 )
             };
+
         } catch (error) {
             Swal.fire({
                 title: 'Error',

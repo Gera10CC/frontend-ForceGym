@@ -97,12 +97,10 @@ function FormCategory() {
         {activeEditingId ? "Actualizar categoría" : "Registrar categoría"}
       </legend>
 
-      {/* Inputs ocultos */}
       <input type="hidden" {...register("idUser")} />
       <input type="hidden" {...register("idCategory")} />
       <input type="hidden" {...register("isDeleted")} />
 
-      {/* Campo nombre */}
       <div className="mb-5">
         <label htmlFor="name" className="text-sm uppercase font-bold">
           Nombre

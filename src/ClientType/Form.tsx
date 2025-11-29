@@ -83,7 +83,7 @@ function Form() {
             reset({
                 idClientType: 0,
                 name: '',
-                isDeleted: 0 // Nuevo registro como activo (0)
+                isDeleted: 0 
             });
         }
     }, [activeEditingId, clientTypes, setValue, reset]);
@@ -98,14 +98,12 @@ function Form() {
                 {activeEditingId ? 'Actualizar tipo de cliente' : 'Crear tipo de cliente'}
             </legend>
 
-            {/* Campo oculto para el ID */}
             <input  
                 id="idClientType" 
                 type="hidden" 
                 {...register('idClientType')}
             />
 
-            {/* Campo oculto para estado */}
             <input  
                 id="isDeleted" 
                 type="hidden" 

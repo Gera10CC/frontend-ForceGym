@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import SignatureCanvas from "react-signature-canvas";
 import ErrorForm from "../../shared/components/ErrorForm";
@@ -21,30 +21,51 @@ Con la firma del presente contrato, se aceptan los términos y condiciones estip
 export const StepContract = () => {
   const {
     setValue,
+    watch,
     formState: { errors },
   } = useFormContext();
 
   const sigCanvasRef = useRef<SignatureCanvas>(null);
+  const signatureValue = watch("signatureImage");
+
+
+useEffect(() => {
+  if (!sigCanvasRef.current) return;
+
+  if (
+    signatureValue &&
+    signatureValue !== "SIN_FIRMA"
+  ) {
+    const image =
+      signatureValue.startsWith("data:image")
+        ? signatureValue
+        : `data:image/png;base64,${signatureValue}`;
+
+    sigCanvasRef.current.clear();
+    sigCanvasRef.current.fromDataURL(image);
+  } else {
+    sigCanvasRef.current.clear();
+  }
+}, [signatureValue]);
 
   const handleClear = () => {
     sigCanvasRef.current?.clear();
-    setValue("signatureImage", "");
+    setValue("signatureImage", "SIN_FIRMA", { shouldValidate: true });
   };
 
-const handleSignatureEnd = () => {
-  if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
-    const signatureData =
-      sigCanvasRef.current.getCanvas().toDataURL("image/png");
+  const handleSignatureEnd = () => {
+    if (sigCanvasRef.current && !sigCanvasRef.current.isEmpty()) {
+      const signatureData =
+        sigCanvasRef.current.getCanvas().toDataURL("image/png");
 
-    setValue("signatureImage", signatureData);
-  } else {
-    setValue("signatureImage", "");
-  }
-};
+      setValue("signatureImage", signatureData, { shouldValidate: true });
+    } else {
+      setValue("signatureImage", "SIN_FIRMA", { shouldValidate: true });
+    }
+  };
 
   return (
     <div className="space-y-6 w-full px-1 sm:px-2">
-
 
       <div className="bg-gray-50 p-4 rounded-lg max-h-80 sm:max-h-96 overflow-y-auto border border-gray-200">
         <h2 className="text-lg sm:text-xl font-bold mb-3">

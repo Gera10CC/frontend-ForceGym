@@ -5,7 +5,6 @@ import { Plus } from "lucide-react";
 import useExerciseStore from "./Store";
 import { useExercise } from "./useExercise";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
-import { mapExerciseToDataForm } from "../shared/types/mapper";
 
 import SearchInput from "../shared/components/SearchInput";
 import ModalFilter from "../shared/components/ModalFilter";
@@ -13,10 +12,8 @@ import { FilterButton, FilterSelect } from "./Filter";
 import Modal from "../shared/components/Modal";
 import Form from "./Form";
 import ExerciseTable from "./ExerciseTable";
-import Pagination from "../shared/components/Pagination";
 import NoData from "../shared/components/NoData";
 import { useCommonDataStore } from "../shared/CommonDataStore";
-import Layout from "../shared/components/Layout";
 
 export default function ExerciseManagement() {
   const navigate = useNavigate();

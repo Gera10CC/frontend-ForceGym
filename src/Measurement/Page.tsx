@@ -5,7 +5,6 @@ import { Plus, Download } from "lucide-react";
 import Modal from "../shared/components/Modal";
 import ModalFilter from "../shared/components/ModalFilter";
 import FileTypeDecision from "../shared/components/ModalFileType";
-import Layout from "../shared/components/Layout";
 
 import { useMeasurementStore } from "./Store";
 import { useMeasurement } from "./useMeasurement";
@@ -14,8 +13,8 @@ import Form from "./Form";
 import MeasurementTable from "./MeasurementTable";
 import { FilterButton, FilterSelect } from "./Filter";
 
-import { exportToPDF } from "../shared/utils/pdf";
-import { exportToExcel } from "../shared/utils/excel";
+import { exportToPDFMedidas } from "../shared/utils/pdfMedidas";
+import { exportToExcelMedidas } from "../shared/utils/excelMedidas";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 
 export default function MeasurementManagement() {
@@ -164,15 +163,14 @@ export default function MeasurementManagement() {
                     modulo="Medidas Corporales"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDF("Medidas", tableColumn, tableRows)
+                      exportToPDFMedidas("Medidas", tableColumn, tableRows,clientData)
                     }
                     exportToExcel={() =>
-                      exportToExcel(
+                      exportToExcelMedidas(
                         "Medidas",
                         tableColumn,
                         tableRows,
-                        true,
-                        clientData
+                        clientData,
                       )
                     }
                   />

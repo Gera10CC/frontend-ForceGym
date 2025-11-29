@@ -45,7 +45,6 @@ export const useCategory = () => {
                         width: 500,
                         confirmButtonColor: '#CFAD04'
                     })
-                    // El store ya maneja el fetch automáticamente
                 }
 
                 if(response.logout){
@@ -65,11 +64,9 @@ export const useCategory = () => {
     }
 
     const handleOrderByChange = (orderByTerm : string) => {
-        // If clicking the same column, toggle direction. If switching column, default to DESC.
         if (orderByTerm === orderBy) {
             changeDirectionOrderBy(directionOrderBy === 'DESC' ? 'ASC' : 'DESC')
         } else {
-            // Use atomic setter to avoid intermediate fetch with partial state
             setOrder(orderByTerm, 'DESC')
         }
     }
@@ -108,7 +105,6 @@ export const useCategory = () => {
                         width: 500,
                         confirmButtonColor: '#CFAD04'
                     })
-                    // El store ya maneja el fetch automáticamente
                 }
 
                 if(response.logout){

@@ -10,9 +10,8 @@ import Form from "./Form";
 import { useAsset } from "./useAsset";
 import { FilterButton, FilterSelect } from "./Filter";
 import FileTypeDecision from "../shared/components/ModalFileType";
-import { exportToPDF } from "../shared/utils/pdf";
-import { exportToExcel } from "../shared/utils/excel";
-import Layout from "../shared/components/Layout";
+import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
+import { exportToExcel } from "../shared/utils/excelGeneral";
 import AssetTable from "./AssetTable";
 import NoData from "../shared/components/NoData";
 
@@ -173,7 +172,7 @@ export default function AssetManagement() {
                     modulo="Activos"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDF("Activos", pdfTableHeaders, pdfTableRows)
+                      exportToPDFGeneral("Activos", pdfTableHeaders, pdfTableRows)
                     }
                     exportToExcel={() =>
                       exportToExcel("Activos", pdfTableHeaders, pdfTableRows)

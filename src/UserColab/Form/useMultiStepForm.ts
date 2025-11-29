@@ -21,18 +21,16 @@ export const useMultiStepForm = ({ initialData, onSubmit, isUpdate }: UseMultiSt
     shouldUnregister: false
   });
 
-  // Reset form when initialData changes
   useEffect(() => {
     methods.reset(initialData);
   }, [initialData]);
 
     const submitForm = async (data: UserDataForm) => {
     try {
-        // Si es actualización y no hay cambios en la contraseña
         if (isUpdate && data.password === '') {
             data.password = undefined;
         }
-        data.confirmPassword = undefined; // Siempre eliminamos esto
+        data.confirmPassword = undefined; 
 
         await onSubmit(data);
     } catch (error) {

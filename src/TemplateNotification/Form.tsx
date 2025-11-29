@@ -103,16 +103,13 @@ function Form() {
             const start = input.selectionStart ?? 0;
             const end = input.selectionEnd ?? 0;
 
-            // Inserta el emoji en la posición del cursor y actualiza el estado
             const newText = messageValue.slice(0, start) + emoji + messageValue.slice(end);
             setMessageValue(newText);
             setValue('message', newText);
 
-            // Actualiza la posición del cursor
             const newCursorPosition = start + emoji.length;
             setCursorPosition(newCursorPosition);
 
-            // Restablece el foco y la posición del cursor
             setTimeout(() => {
                 input.focus();
                 input.setSelectionRange(newCursorPosition, newCursorPosition);

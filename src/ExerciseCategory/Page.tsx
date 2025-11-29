@@ -12,7 +12,6 @@ import { useExerciseCategory } from "./useExerciseCategory";
 import Pagination from "../shared/components/Pagination";
 import ModalFilter from "../shared/components/ModalFilter";
 import { FilterButton, FilterSelect } from "./Filter";
-import Layout from "../shared/components/Layout";
 
 function ExerciseCategoryManagement() {
     const navigate = useNavigate();
@@ -49,7 +48,6 @@ function ExerciseCategoryManagement() {
 
     return (
         <>
-            {/* HEADER */}
             <header className="
                 flex flex-col md:flex-row items-center justify-between gap-4
                 bg-yellow text-black px-4 py-4 rounded-md shadow-md
@@ -66,13 +64,11 @@ function ExerciseCategoryManagement() {
                 />
             </header>
 
-            {/* MAIN */}
             <main className="mt-6">
                 <div className="
                     bg-white rounded-lg shadow-md p-4 sm:p-6
                     overflow-hidden
                 ">
-                    {/* TOP ACTIONS */}
                     <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
                         <Modal
                             Button={() => (

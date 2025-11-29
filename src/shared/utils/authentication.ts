@@ -1,37 +1,29 @@
-import { User } from "../types"
-
-export const getAuthToken = () => {
-  return window.localStorage.getItem('auth_token');
-}
-  
-export const setAuthHeader = (token:string|null) => {
-    if (token !== null) {
-      window.localStorage.setItem("auth_token", token)
-    } else {
-      window.localStorage.removeItem("auth_token")
-    }
-}
+export const setAuthHeader = (token: string | null) => {
+  if (token) {
+    localStorage.setItem("token", token);
+  } else {
+    localStorage.removeItem("token");
+  }
+};
 
 export const getAuthUser = () => {
-  const user = window.localStorage.getItem("loggedUser")
-  return user ? (JSON.parse(user) as User) : null
-}
+  const authUser = localStorage.getItem("authUser");
+  return authUser ? JSON.parse(authUser) : null;
+};
 
-export const setAuthUser = (user: User|null) => {
-  if (user != null) {
-    window.localStorage.setItem("loggedUser", JSON.stringify(user));
+export const setAuthUser = (user: any | null) => {
+  if (user) {
+    localStorage.setItem("authUser", JSON.stringify(user));
   } else {
-    window.localStorage.removeItem("loggedUser");
+    localStorage.removeItem("authUser");
   }
-}
+};
 
 export const createHeaders = () => {
-  const requestHeaders = new Headers();
-  requestHeaders.append('Content-Type', 'application/json');
+  const token = localStorage.getItem("token");
 
-  if(getAuthToken()!=null && getAuthToken()!=''){
-    requestHeaders.append('Authorization', `Bearer ${getAuthToken()}` )
-  }
-  
-  return requestHeaders
-}
+  return {
+    "Content-Type": "application/json",
+    Authorization: token ? `Bearer ${token}` : "",
+  };
+};

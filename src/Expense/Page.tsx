@@ -8,8 +8,8 @@ import { useEconomicExpense } from "./useExpense";
 import Form from "./Form";
 import FileTypeDecision from "../shared/components/ModalFileType";
 import ExpenseDashboard from "./ExpenseDashboard";
-import { exportToPDF } from "../shared/utils/pdf";
-import { exportToExcel } from "../shared/utils/excel";
+import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
+import { exportToExcel } from "../shared/utils/excelGeneral";
 import ExpenseTable from "./ExpenseTable";
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
@@ -188,7 +188,7 @@ export default function EconomicExpenseManagement() {
                     modulo="Gastos económicos"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDF("Gastos", pdfTableHeaders, pdfTableRows)
+                      exportToPDFGeneral("Gastos", pdfTableHeaders, pdfTableRows)
                     }
                     exportToExcel={() =>
                       exportToExcel("Gastos", pdfTableHeaders, pdfTableRows)

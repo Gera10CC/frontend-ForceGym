@@ -13,16 +13,10 @@ type ModalProps = {
   closeModal: () => void;
   getDataById: (id: number) => void;
   Content: React.ComponentType<any>;
-  /**
-   * Si es true, limpia el dato activo (getDataById(0))
-   * después de que termine la animación de cierre.
-   *
-   * Útil para el modal de "Ver más".
-   */
+
   resetOnClose?: boolean;
 };
 
-// Debe ser ligeramente mayor a leave duration (150ms)
 const CLOSE_CLEANUP_DELAY = 220;
 
 export default function Modal({
@@ -34,29 +28,25 @@ export default function Modal({
   resetOnClose = false,
 }: ModalProps) {
   const handleClose = useCallback(() => {
-    // 1) Disparamos el cierre del modal (cambia el estado global)
     closeModal();
 
-    // 2) (Opcional) Limpiamos los datos DESPUÉS de la animación
     if (resetOnClose) {
       setTimeout(() => {
-        getDataById(0); // aquí reseteas activeEditingId o lo que maneje ese id
+        getDataById(0); 
       }, CLOSE_CLEANUP_DELAY);
     }
   }, [closeModal, getDataById, resetOnClose]);
 
   return (
     <>
-      {/* Botón disparador */}
       <Button />
 
       <Transition appear show={modal} as={Fragment}>
         <Dialog
-          as="div"
-          className="relative z-[999]"
-          onClose={handleClose}
-        >
-          {/* OVERLAY */}
+        as="div"
+        className="fixed inset-0 z-[9999]"
+        onClose={handleClose}
+      >
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-200"
@@ -69,7 +59,6 @@ export default function Modal({
             <div className="fixed inset-0 bg-black/60" />
           </TransitionChild>
 
-          {/* CONTENEDOR DEL MODAL */}
           <div className="fixed inset-0 overflow-y-auto z-[999]">
             <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
               <TransitionChild
@@ -91,7 +80,6 @@ export default function Modal({
                     relative
                   "
                 >
-                  {/* Botón cerrar */}
                   <button
                     onClick={handleClose}
                     className="
@@ -104,7 +92,6 @@ export default function Modal({
                     <MdOutlineCancel />
                   </button>
 
-                  {/* Contenido dinámico */}
                   <Content />
                 </DialogPanel>
               </TransitionChild>
