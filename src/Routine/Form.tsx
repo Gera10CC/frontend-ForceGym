@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import clsx from "clsx";
+import SearchSelect from "../shared/components/SearchSelect";
 
 import {
   ExerciseCategory,
@@ -411,16 +412,16 @@ function Form() {
       <input type="hidden" {...register("isDeleted")} />
 
       <div>
-        <label className="text-sm uppercase font-bold">Clientes</label>
-        <Select
-          className="mt-1"
-          options={allClients}
-          value={selectedClients}
-          onChange={(v) => setSelectedClients(v as ClientOption[])}
-          isMulti
-          placeholder="Seleccione los clientes"
-          isDisabled={loading}
-        />
+          <SearchSelect
+            label="Clientes"
+            id="clients-select"
+            options={allClients}
+            value={selectedClients}
+            onChange={(v) => setSelectedClients(v as ClientOption[])}
+            isMulti
+            placeholder="Seleccione los clientes"
+            isDisabled={loading}
+          />
       </div>
 
       <div>
