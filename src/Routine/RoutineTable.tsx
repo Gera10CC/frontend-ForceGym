@@ -56,7 +56,6 @@ function RoutineTable({
                   <th className="py-3 px-2 font-semibold">#</th>
                   <th className="py-3 px-2 font-semibold">NOMBRE</th>
                   <th className="py-3 px-2 font-semibold">DIFICULTAD</th>
-                  <th className="py-3 px-2 font-semibold">ESTADO</th>
                   <th className="py-3 px-2 font-semibold">ACCIONES</th>
                 </tr>
               </thead>
@@ -70,18 +69,6 @@ function RoutineTable({
                     <td className="py-3">{index + 1}</td>
                     <td className="py-3">{routine.name}</td>
                     <td className="py-3">{routine.difficultyRoutine.name}</td>
-
-                    <td className="py-3">
-                      {routine.isDeleted ? (
-                        <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
-                          Inactivo
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 rounded bg-green-500 text-white text-xs">
-                          Activo
-                        </span>
-                      )}
-                    </td>
 
                     <td className="py-3">
                       <div className="flex justify-center gap-3">

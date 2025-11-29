@@ -9,131 +9,200 @@ const MAXLENGTH_SECONDLASTNAME = 50;
 const MAXDATE_BIRTHDAY = new Date().toUTCString();
 
 export const PersonalInfoStep = ({ genders }: { genders: any[] }) => {
-  const { register, formState: { errors } } = useFormContext();
-  
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
   return (
-    <div className="space-y-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+
       <div>
-        <label htmlFor="identificationNumber" className="text-sm uppercase font-bold">
-          Cédula 
+        <label
+          htmlFor="identificationNumber"
+          className="text-sm uppercase font-bold block mb-1"
+        >
+          Cédula
         </label>
-        <input  
+
+        <input
           id="identificationNumber"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese la cédula" 
-          {...register('identificationNumber', {
-            required: 'La cédula es obligatoria',
+          type="text"
+          placeholder="Ingrese la cédula"
+          className="
+            w-full p-3 border border-gray-200 rounded-md
+            focus:outline-none focus:ring-2 focus:ring-yellow
+          "
+          {...register("identificationNumber", {
+            required: "La cédula es obligatoria",
             maxLength: {
               value: MAXLENGTH_IDENTIFICATIONUMBER,
-              message: `Debe ingresar una cédula de máximo ${MAXLENGTH_IDENTIFICATIONUMBER} carácteres`
-            }
+              message: `Debe ingresar una cédula de máximo ${MAXLENGTH_IDENTIFICATIONUMBER} caracteres`,
+            },
           })}
         />
-        {errors.identificationNumber && 
-          <ErrorForm>{errors.identificationNumber.message?.toString()}</ErrorForm>
-        }
+
+        {errors.identificationNumber && (
+          <ErrorForm>
+            {errors.identificationNumber.message?.toString()}
+          </ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="name" className="text-sm uppercase font-bold">
-          Nombre 
+        <label
+          htmlFor="name"
+          className="text-sm uppercase font-bold block mb-1"
+        >
+          Nombre
         </label>
-        <input  
+
+        <input
           id="name"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese el nombre" 
-          {...register('name', {
-            required: 'El nombre es obligatorio',
+          type="text"
+          placeholder="Ingrese el nombre"
+          className="
+            w-full p-3 border border-gray-200 rounded-md
+            focus:outline-none focus:ring-2 focus:ring-yellow
+          "
+          {...register("name", {
+            required: "El nombre es obligatorio",
             maxLength: {
               value: MAXLENGTH_NAME,
-              message: `Debe ingresar un nombre de máximo ${MAXLENGTH_NAME} carácteres`
-            }
+              message: `Debe ingresar un nombre de máximo ${MAXLENGTH_NAME} caracteres`,
+            },
           })}
         />
-        {errors.name && <ErrorForm>{errors.name.message?.toString()}</ErrorForm>}
+
+        {errors.name && (
+          <ErrorForm>{errors.name.message?.toString()}</ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="firstLastName" className="text-sm uppercase font-bold">
-          Primer Apellido 
+        <label
+          htmlFor="firstLastName"
+          className="text-sm uppercase font-bold block mb-1"
+        >
+          Primer Apellido
         </label>
-        <input  
+
+        <input
           id="firstLastName"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese el primer apellido" 
-          {...register('firstLastName', {
-            required: 'El primer apellido es obligatorio',
+          type="text"
+          placeholder="Ingrese el primer apellido"
+          className="
+            w-full p-3 border border-gray-200 rounded-md
+            focus:outline-none focus:ring-2 focus:ring-yellow
+          "
+          {...register("firstLastName", {
+            required: "El primer apellido es obligatorio",
             maxLength: {
               value: MAXLENGTH_FIRSTLASTNAME,
-              message: `Debe ingresar un primer apellido de máximo ${MAXLENGTH_FIRSTLASTNAME} carácteres`
-            }
+              message: `Debe ingresar un primer apellido de máximo ${MAXLENGTH_FIRSTLASTNAME} caracteres`,
+            },
           })}
         />
-        {errors.firstLastName && <ErrorForm>{errors.firstLastName.message?.toString()}</ErrorForm>}
+
+        {errors.firstLastName && (
+          <ErrorForm>{errors.firstLastName.message?.toString()}</ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="secondLastName" className="text-sm uppercase font-bold">
-          Segundo Apellido 
+        <label
+          htmlFor="secondLastName"
+          className="text-sm uppercase font-bold block mb-1"
+        >
+          Segundo Apellido
         </label>
-        <input  
+
+        <input
           id="secondLastName"
-          className="w-full p-3 border border-gray-100"  
-          type="text" 
-          placeholder="Ingrese el segundo apellido" 
-          {...register('secondLastName', {
-            required: 'El segundo apellido es obligatorio',
+          type="text"
+          placeholder="Ingrese el segundo apellido"
+          className="
+            w-full p-3 border border-gray-200 rounded-md
+            focus:outline-none focus:ring-2 focus:ring-yellow
+          "
+          {...register("secondLastName", {
+            required: "El segundo apellido es obligatorio",
             maxLength: {
               value: MAXLENGTH_SECONDLASTNAME,
-              message: `Debe ingresar un segundo apellido de máximo ${MAXLENGTH_SECONDLASTNAME} carácteres`
-            }
+              message: `Debe ingresar un segundo apellido de máximo ${MAXLENGTH_SECONDLASTNAME} caracteres`,
+            },
           })}
         />
-        {errors.secondLastName && <ErrorForm>{errors.secondLastName.message?.toString()}</ErrorForm>}
+
+        {errors.secondLastName && (
+          <ErrorForm>
+            {errors.secondLastName.message?.toString()}
+          </ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="birthday" className="text-sm uppercase font-bold">
+        <label
+          htmlFor="birthday"
+          className="text-sm uppercase font-bold block mb-1"
+        >
           Fecha de nacimiento
         </label>
-        <input  
+
+        <input
           id="birthday"
-          className="w-full p-3 border border-gray-100"  
-          type="date" 
-          {...register('birthday', {
-            required: 'La fecha de nacimiento es obligatoria',
+          type="date"
+          className="
+            w-full p-3 border border-gray-200 rounded-md
+            focus:outline-none focus:ring-2 focus:ring-yellow
+          "
+          {...register("birthday", {
+            required: "La fecha de nacimiento es obligatoria",
             max: {
               value: MAXDATE_BIRTHDAY,
-              message: `Debe ingresar una fecha de nacimiento de máximo ${formatDate(new Date())}`
-            }
+              message: `Debe ingresar una fecha de nacimiento de máximo ${formatDate(
+                new Date()
+              )}`,
+            },
           })}
         />
-        {errors.birthday && <ErrorForm>{errors.birthday.message?.toString()}</ErrorForm>}
+
+        {errors.birthday && (
+          <ErrorForm>{errors.birthday.message?.toString()}</ErrorForm>
+        )}
       </div>
 
       <div>
-        <label htmlFor="idGender" className="text-sm uppercase font-bold">
-          Género 
+        <label
+          htmlFor="idGender"
+          className="text-sm uppercase font-bold block mb-1"
+        >
+          Género
         </label>
+
         <select
           id="idGender"
-          className="w-full p-3 border border-gray-100" 
+          className="
+            w-full p-3 border border-gray-200 rounded-md
+            focus:outline-none focus:ring-2 focus:ring-yellow
+          "
           {...register("idGender", {
-            required: 'El género es obligatorio',
-            validate: value =>  Number(value) !== 0 || 'Debe seleccionar un género'
-          })}   
+            required: "El género es obligatorio",
+            validate: (value) =>
+              Number(value) !== 0 || "Debe seleccionar un género",
+          })}
         >
-          <option value = {0} >Seleccione un género</option>
+          <option value={0}>Seleccione un género</option>
           {genders.map((gender) => (
             <option key={gender.idGender} value={gender.idGender}>
               {gender.name}
             </option>
           ))}
         </select>
-        {errors.idGender && <ErrorForm>{errors.idGender.message?.toString()}</ErrorForm>}
+
+        {errors.idGender && (
+          <ErrorForm>{errors.idGender.message?.toString()}</ErrorForm>
+        )}
       </div>
     </div>
   );

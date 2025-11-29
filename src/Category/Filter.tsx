@@ -33,7 +33,6 @@ export function FilterSelect() {
     return (
         <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
             
-            {/* Botón de limpiar todos */}
             <div className="flex justify-end w-full">
                 <button
                     className="text-yellow border border-yellow px-4 py-1 rounded-md hover:bg-yellow hover:text-black transition-all text-sm sm:text-base"
@@ -43,7 +42,6 @@ export function FilterSelect() {
                 </button>
             </div>
 
-            {/* Filtro por Estado */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full max-w-full overflow-hidden">
                 <label className="w-full sm:w-28 text-sm sm:text-base font-semibold">
                     Estado

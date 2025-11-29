@@ -34,7 +34,6 @@ export function FilterSelect() {
     return (
         <div className="flex flex-col gap-4">
 
-            {/* Filtro por Estado */}
             <div className="flex items-center gap-4">
                 <label htmlFor="status" className="w-20">Estado</label>
                 <select

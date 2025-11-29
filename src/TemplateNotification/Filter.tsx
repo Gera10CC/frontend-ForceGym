@@ -45,7 +45,6 @@ export function FilterSelect() {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Botón de limpiar todos */}
             <div className="flex justify-end pr-4">
                 <button
                     className="text-yellow border border-yellow px-3 py-1 rounded-md hover:bg-yellow hover:text-black transition-all"
@@ -55,7 +54,6 @@ export function FilterSelect() {
                 </button>
             </div>
 
-            {/* Filtro por Estado */}
             <div className="flex items-center gap-4">
                 <label htmlFor="status" className="w-20">Estado</label>
                 <select
@@ -85,7 +83,6 @@ export function FilterSelect() {
                 }
             </div>
     
-            {/* Filtro por Tipo de Notificación */}
             <div className="flex items-center gap-4">
                 <label htmlFor="notificationType" className="w-20">Tipo de Notificación</label>
                 <select

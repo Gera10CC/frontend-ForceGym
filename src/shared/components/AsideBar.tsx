@@ -131,6 +131,16 @@ export default function AsideBar({
             onClick={() => setShowOptions(false)}
             userRole={userRole}
           />
+          <NavItem
+            to="/gestion/usuariocolaborador"
+            icon={<User size={18} />}
+            label="Mi perfil"
+            allowedRoles={["Colaborador"]}
+            isActive={location.pathname === "/gestion/usuarios"}
+            expanded={expanded}
+            onClick={() => setShowOptions(false)}
+            userRole={userRole}
+          />
 
           <NavItem
             to="/gestion/clientes"
@@ -208,33 +218,63 @@ export default function AsideBar({
             onClick={(e) => {
               e.stopPropagation();
               setShowOptions(!showOptions);
-              // Cerrar sidebar en mobile cuando se abre el submenú
               if (!showOptions && window.innerWidth < 768) {
                 setExpanded(false);
               }
             }}
-            className="flex items-center gap-3 px-4 py-2 hover:bg-yellow hover:text-black cursor-pointer rounded-md"
+            className="
+    flex items-center gap-3 px-4 py-2 rounded-md transition
+    hover:bg-yellow hover:text-black cursor-pointer
+  "
           >
-            <Settings2 size={18} />
-            {expanded && <span>Más opciones</span>}
+            <span className={`${expanded ? "pl-2" : ""}`}>
+              <Settings2 size={18} />
+            </span>
+
+            {expanded && <span className="truncate">Más opciones</span>}
           </div>
         </nav>
+        <div className="mt-auto mb-5 px-2">
 
-        <div className="mb-4">
-          {expanded && (
-            <p className="px-4 truncate opacity-80 text-sm">
-              {loggedUser?.username}
-            </p>
-          )}
+          <div
+            className={`
+            flex items-center gap-3 mb-3
+            ${expanded ? "px-2" : "justify-center"}
+          `}
+          >
+            <div className="w-9 h-9 flex items-center justify-center text-xs font-bold">
+              {loggedUser?.person?.name?.[0] || "U"}
+            </div>
+
+            {expanded && (
+              <div className="flex flex-col leading-tight overflow-hidden">
+                <span className="text-sm font-semibold truncate">
+                  {loggedUser?.person?.name} {loggedUser?.person?.firstLastName}
+                </span>
+                <span className="text-xs text-gray-400 truncate">
+                  {loggedUser?.role?.name}
+                </span>
+              </div>
+            )}
+          </div>
 
           <div
             onClick={() => setShowLogoutModal(true)}
-            className="flex items-center gap-3 px-4 py-2 mt-4 hover:bg-yellow hover:text-black cursor-pointer rounded-md"
+            className={`
+      flex items-center gap-3 py-2 rounded-md
+      hover:bg-yellow hover:text-black 
+      cursor-pointer transition
+      ${expanded ? "px-4" : "justify-center"}
+    `}
+            title={!expanded ? "Cerrar sesión" : undefined}
           >
             <LogOut size={20} />
             {expanded && <span>Cerrar sesión</span>}
           </div>
+
         </div>
+
+
       </aside>
 
       {showOptions && (
@@ -246,36 +286,31 @@ export default function AsideBar({
             top: (() => {
               const btnRect = optionsBtnRef.current?.getBoundingClientRect();
               if (!btnRect) return 0;
-              
-              // Altura aproximada del menú (4 items * ~40px cada uno + padding)
+
               const menuHeight = 280;
               const spaceBelow = window.innerHeight - btnRect.bottom;
-              
-              // Si no hay suficiente espacio abajo, abrir hacia arriba
+
               if (spaceBelow < menuHeight) {
                 return btnRect.top - menuHeight + 20;
               }
-              
+
               return btnRect.top - 20;
             })(),
             left: (() => {
               const btnRect = optionsBtnRef.current?.getBoundingClientRect();
               if (!btnRect) return 0;
-              
-              // Si el sidebar está expandido, posicionar a la derecha del sidebar
+
               if (expanded) {
                 return btnRect.right + 8;
               }
-              
-              // Si el sidebar está colapsado, posicionar más adentro de la pantalla
+
               const menuWidth = 256;
               const rightEdge = btnRect.right + 8 + menuWidth;
-              
-              // Si el menú se sale de la pantalla, posicionarlo desde la izquierda con margen
+
               if (rightEdge > window.innerWidth) {
-                return 60; // Margen desde la izquierda
+                return 60;
               }
-              
+
               return btnRect.right + 8;
             })()
           }}

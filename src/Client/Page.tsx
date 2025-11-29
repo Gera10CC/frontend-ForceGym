@@ -19,8 +19,8 @@ import ClientTable from "./ClientTable";
 import FileTypeDecision from "../shared/components/ModalFileType";
 
 import { FilterButton, FilterSelect } from "./Filter";
-import { exportToPDF } from "../shared/utils/pdf";
-import { exportToExcel } from "../shared/utils/excel";
+import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
+import { exportToExcel } from "../shared/utils/excelGeneral";
 
 export default function ClientManagement() {
   const {
@@ -199,7 +199,7 @@ export default function ClientManagement() {
                     modulo="Clientes"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDF("Clientes", pdfTableHeaders, pdfTableRows)
+                      exportToPDFGeneral("Clientes", pdfTableHeaders, pdfTableRows)
                     }
                     exportToExcel={() =>
                       exportToExcel("Clientes", pdfTableHeaders, pdfTableRows)

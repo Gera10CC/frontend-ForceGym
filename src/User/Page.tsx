@@ -84,7 +84,7 @@ export default function UserManagement() {
       <header
         className="
           flex flex-col md:flex-row items-center justify-between
-          bg-yellow text-black px-4 py-4 rounded-md shadow-md
+         yellow bg-yellow text-black px-4 py-4 rounded-md shadow-md
         "
       >
         <h1 className="text-3xl md:text-4xl uppercase tracking-wide">

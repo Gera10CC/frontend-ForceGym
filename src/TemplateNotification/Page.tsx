@@ -15,7 +15,6 @@ import { mapNotificationTemplateToDataForm } from "../shared/types/mapper";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import { useNavigate } from "react-router";
 import NoData from "../shared/components/NoData";
-import Layout from "../shared/components/Layout";
 
 function NotificationTemplateManagement() {
     const {

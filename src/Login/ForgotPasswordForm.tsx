@@ -15,7 +15,6 @@ function ForgotPasswordForm () {
         const emailInput = form.elements[0] as HTMLInputElement;
         const email = emailInput.value;
 
-        // Validación de correo
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             await Swal.fire({
@@ -46,7 +45,6 @@ function ForgotPasswordForm () {
             return;
         }
 
-        // Mostrar loader
         Swal.fire({
             title: 'Enviando correo...',
             html: 'Por favor espera mientras procesamos tu solicitud',
@@ -59,7 +57,6 @@ function ForgotPasswordForm () {
         try {
             const res = await postData(`${import.meta.env.VITE_URL_API}recoveryPassword?email=${encodeURIComponent(email)}`, {});
             
-            // Cerrar el loader
             Swal.close();
 
             if (res.ok) {
@@ -77,7 +74,6 @@ function ForgotPasswordForm () {
                 throw new Error('Error al enviar el correo de recuperación');
             }
         } catch (error) {
-            // Cerrar el loader si hay error
             Swal.close();
             
             await Swal.fire({

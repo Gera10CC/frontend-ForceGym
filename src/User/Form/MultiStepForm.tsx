@@ -106,18 +106,14 @@ const MultiStepForm = () => {
           {activeEditingId ? "Actualizar usuario" : "Registrar usuario"}
         </legend>
 
-        {/* Hidden inputs */}
         <input id="idUser" type="hidden" {...methods.register("idUser")} />
         <input id="idPerson" type="hidden" {...methods.register("idPerson")} />
         <input id="isDeleted" type="hidden" {...methods.register("isDeleted")} />
 
-        {/* Menú de Steps */}
         {formMenu()}
 
-        {/* Paso actual */}
         <div className="px-1 sm:px-2 space-y-5">{renderStep()}</div>
 
-        {/* Botones de navegación */}
         <div className="flex justify-between mt-5 gap-3">
           {step > 1 && (
             <button

@@ -13,8 +13,8 @@ import FileTypeDecision from "../shared/components/ModalFileType";
 import IncomeDashboard from "./IncomeDashboard";
 import IncomeTable from "./IncomeTable";
 
-import { exportToPDF } from "../shared/utils/pdf";
-import { exportToExcel } from "../shared/utils/excel";
+import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
+import { exportToExcel } from "../shared/utils/excelGeneral";
 
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
@@ -182,7 +182,7 @@ export default function EconomicIncomeManagement() {
                     modulo="Ingresos económicos"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDF("Ingresos", pdfTableHeaders, pdfTableRows)
+                      exportToPDFGeneral("Ingresos", pdfTableHeaders, pdfTableRows)
                     }
                     exportToExcel={() =>
                       exportToExcel("Ingresos", pdfTableHeaders, pdfTableRows)

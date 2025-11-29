@@ -4,7 +4,6 @@ import { Category, CategoryDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
 
 type CategoryStore = {
-    // Estados
     categories: Category[];
     modalForm: boolean;
     modalFilter: boolean;
@@ -21,7 +20,6 @@ type CategoryStore = {
     filterByStatus: string;
     isLoading: boolean;
 
-    // Acciones
     fetchCategories: () => Promise<any>;
     getCategoryById: (id: number) => void;
     addCategory: (data: CategoryDataForm) => Promise<any>;
@@ -51,7 +49,6 @@ type CategoryStore = {
 
 export const useCategoryStore = create<CategoryStore>()(
     devtools((set, get) => ({
-        // Estados iniciales
         categories: [],
         modalForm: false,
         modalFilter: false,
@@ -66,14 +63,12 @@ export const useCategoryStore = create<CategoryStore>()(
         searchType: 1,
         searchTerm: "",
         filterByStatus: "",
-        // Fetch de datos - igual que en expenses
         fetchCategories: async () => {
             set({ isLoading: true });
             try {
                 const state = get();
                 let newPage = state.page;
                 
-                // Construir parámetros como en expenses
                 const params = new URLSearchParams({
                     size: state.size.toString(),
                     page: state.page.toString(),
@@ -100,12 +95,10 @@ export const useCategoryStore = create<CategoryStore>()(
                     const totalRecords = result.data?.totalRecords || allCategories.length;
                     const totalPages = Math.max(1, Math.ceil(totalRecords / state.size));
                     
-                    // Validar que la página no esté fuera de rango
                     if (state.page > totalPages) {
                         newPage = state.page - 1;
                     }
                     
-                    // Ordenar en cliente si se especificó orderBy (asegura comportamiento aunque el API no lo respete)
                     let sortedCategories = allCategories.slice();
                     if (state.orderBy) {
                         const key = state.orderBy as keyof typeof allCategories[0];
@@ -118,14 +111,12 @@ export const useCategoryStore = create<CategoryStore>()(
                             if (typeof va === 'number' && typeof vb === 'number') {
                                 return state.directionOrderBy === 'DESC' ? vb - va : va - vb;
                             }
-                            // Fallback a comparación por string
                             return state.directionOrderBy === 'DESC'
                                 ? String(vb).localeCompare(String(va))
                                 : String(va).localeCompare(String(vb));
                         });
                     }
 
-                    // Calcular índices para el slicing de paginación
                     const startIndex = (newPage - 1) * state.size;
                     const endIndex = startIndex + state.size;
                     const paginatedCategories = sortedCategories.slice(startIndex, endIndex);
@@ -155,7 +146,6 @@ export const useCategoryStore = create<CategoryStore>()(
         addCategory: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}category/add`, data);
             if (result.ok) {
-                // Recargar datos manteniendo la página actual
                 get().fetchCategories();
             }
             return result;
@@ -164,7 +154,6 @@ export const useCategoryStore = create<CategoryStore>()(
         updateCategory: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}category/update`, data);
             if (result.ok) {
-                // Recargar datos manteniendo la página actual
                 get().fetchCategories();
             }
             return result;
@@ -173,24 +162,21 @@ export const useCategoryStore = create<CategoryStore>()(
         deleteCategory: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}category/delete/${id}`, loggedIdUser);
             if (result.ok) {
-                // Recargar datos y verificar si necesitamos ajustar la página
                 const state = get();
                 await state.fetchCategories();
                 
-                // Si la página actual está vacía después de eliminar, retroceder una página
                 if (state.categories.length === 0 && state.page > 1) {
                     set({ page: state.page - 1 });
-                    get().fetchCategories(); // Recargar con la nueva página
+                    get().fetchCategories(); 
                 }
             }
             return result;
         },
 
-        // Acciones de paginación y filtros - igual que en expenses
         changeSize: (newSize) => {
             set({ 
                 size: newSize, 
-                page: 1 // Resetear a página 1 al cambiar tamaño
+                page: 1 
             });
         },
         
@@ -201,7 +187,7 @@ export const useCategoryStore = create<CategoryStore>()(
         changeOrderBy: (newOrderBy) => {
             set({ 
                 orderBy: newOrderBy,
-                page: 1 // Resetear a página 1 al cambiar orden
+                page: 1 
             });
         },
         
@@ -215,25 +201,24 @@ export const useCategoryStore = create<CategoryStore>()(
         changeSearchType: (newSearchType) => {
             set({ 
                 searchType: newSearchType,
-                page: 1 // Resetear a página 1 al cambiar tipo de búsqueda
+                page: 1 
             });
         },
         
         changeSearchTerm: (newSearchTerm) => {
             set({ 
                 searchTerm: newSearchTerm,
-                page: 1 // Resetear a página 1 al cambiar término
+                page: 1 
             });
         },
         
         changeFilterByStatus: (newFilterByStatus) => {
             set({ 
                 filterByStatus: newFilterByStatus,
-                page: 1 // Resetear a página 1 al cambiar filtro
+                page: 1 
             });
         },
 
-        // Modal actions
         showModalForm: () => set({ modalForm: true }),
         closeModalForm: () => set({ modalForm: false }),
         showModalFilter: () => set({ modalFilter: true }),

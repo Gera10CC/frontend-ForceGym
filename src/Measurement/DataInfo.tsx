@@ -6,7 +6,7 @@ function DataInfo() {
 
   if (!activeEditingId) {
     return (
-      <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 min-h-[260px] flex items-center justify-center">
+      <section className="w-full max-w-5xl mx-auto px-4 py-10 flex items-center justify-center">
         <p className="text-gray-500 text-sm sm:text-base text-center">
           No hay una medición seleccionada para mostrar.
         </p>
@@ -20,7 +20,7 @@ function DataInfo() {
 
   if (!measurement) {
     return (
-      <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 min-h-[260px] flex items-center justify-center">
+      <section className="w-full max-w-5xl mx-auto px-4 py-10 flex items-center justify-center">
         <p className="text-gray-500 text-sm sm:text-base text-center">
           No se encontró la información de la medición seleccionada.
         </p>
@@ -29,50 +29,35 @@ function DataInfo() {
   }
 
   return (
-    <section
-      className="
-        w-full max-w-4xl mx-auto 
-        px-4 sm:px-6 py-6 
-        min-h-[260px]
-        flex flex-col gap-8
-      "
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-        <div className="flex flex-col gap-3">
-          <h1 className="text-yellow font-black text-2xl uppercase underline">
-            Medición
-          </h1>
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-8">
 
-          <div className="flex flex-col text-sm sm:text-base">
-            <p className="font-semibold uppercase text-gray-600 text-xs">
-              Fecha de Medición
-            </p>
-            <p>{formatDate(new Date(measurement.measurementDate))}</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[
+          ["Fecha", formatDate(new Date(measurement.measurementDate))],
+          ["Peso", `${measurement.weight} kg`],
+          ["Altura", `${measurement.height} cm`],
+          ["Músculo", `${measurement.muscleMass} %`],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="bg-white rounded-xl shadow-sm border p-4 flex flex-col"
+          >
+            <span className="text-[11px] uppercase font-semibold text-gray-500">
+              {label}
+            </span>
+            <span className="text-lg font-semibold text-gray-900 mt-1">
+              {value}
+            </span>
           </div>
+        ))}
+      </div>
 
-          <div className="flex flex-col text-sm sm:text-base">
-            <p className="font-semibold uppercase text-gray-600 text-xs">Peso</p>
-            <p>{measurement.weight} kg</p>
-          </div>
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <h2 className="text-yellow font-black text-xl uppercase mb-4">
+          Medidas Corporales
+        </h2>
 
-          <div className="flex flex-col text-sm sm:text-base">
-            <p className="font-semibold uppercase text-gray-600 text-xs">Altura</p>
-            <p>{measurement.height} cm</p>
-          </div>
-
-          <div className="flex flex-col text-sm sm:text-base">
-            <p className="font-semibold uppercase text-gray-600 text-xs">
-              Músculo
-            </p>
-            <p>{measurement.muscleMass} %</p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <h1 className="text-yellow font-black text-2xl uppercase underline">
-            Medidas Corporales
-          </h1>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             ["Grasa corporal", measurement.bodyFatPercentage + " %"],
             ["Grasa visceral", measurement.visceralFatPercentage + " %"],
@@ -89,11 +74,16 @@ function DataInfo() {
             ["Brazo izquierdo", measurement.leftArmSize + " cm"],
             ["Brazo derecho", measurement.rightArmSize + " cm"],
           ].map(([label, value]) => (
-            <div key={label} className="flex flex-col text-sm sm:text-base">
-              <p className="font-semibold uppercase text-gray-600 text-xs">
+            <div
+              key={label}
+              className="border rounded-lg p-3 flex flex-col bg-gray-50"
+            >
+              <span className="text-[11px] uppercase font-semibold text-gray-500">
                 {label}
-              </p>
-              <p>{value}</p>
+              </span>
+              <span className="text-base font-medium text-gray-900 mt-1">
+                {value}
+              </span>
             </div>
           ))}
         </div>

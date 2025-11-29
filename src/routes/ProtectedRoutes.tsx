@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { getAuthUser } from '../shared/utils/authentication';
 
-// Tipo para los roles permitidos
 type AppRole = 'Administrador' | 'Colaborador';
 
 interface ProtectedRouteProps {
@@ -11,7 +10,6 @@ interface ProtectedRouteProps {
   redirectPath?: string;
 }
 
-// Type guard para verificar roles
 const isAppRole = (role: any): role is AppRole => {
   return ['Administrador', 'Colaborador'].includes(role);
 };

@@ -4,62 +4,92 @@ import { ContactInfoStep } from "./StepContactInfo";
 import { AccountInfoStep } from "./StepAccountInfo";
 import { useMultiStepForm } from "./useMultiStepForm";
 import { UserDataForm } from "../../shared/types";
+import { User } from "lucide-react";
 
 interface MultiStepFormProps {
-    initialData: any;
-    onSubmit: (data: UserDataForm) => Promise<void>; 
-    isUpdate: boolean;
+  initialData: any;
+  onSubmit: (data: UserDataForm) => Promise<void>;
+  isUpdate: boolean;
 }
 
 const MultiStepForm = ({ initialData, onSubmit, isUpdate }: MultiStepFormProps) => {
-  const {
-    methods,
-    roles,
-    genders,
-    submitForm
-  } = useMultiStepForm({ initialData, onSubmit, isUpdate });
+  const { methods, roles, genders, submitForm } = useMultiStepForm({
+    initialData,
+    onSubmit,
+    isUpdate,
+  });
 
   return (
     <FormProvider {...methods}>
-      <form 
-        className="bg-white rounded-lg px-5 mb-10"
+      <form
         noValidate
         onSubmit={methods.handleSubmit(submitForm)}
+        className="
+          bg-gray-50 
+          w-full
+          px-6 sm:px-10 py-10
+          rounded-2xl shadow-lg border border-gray-200
+        "
       >
-        <legend className="uppercase text-center text-yellow text-2xl font-black border-b-2 py-2 border-yellow">
-          {isUpdate ? 'Mi Perfil' : 'Registrar usuario'}
-        </legend>
-
-        {/* Hidden inputs */}
-        <input id="idUser" type="hidden" {...methods.register('idUser')} />
-        <input id="idPerson" type="hidden" {...methods.register('idPerson')} />
-        <input id="isDeleted" type="hidden" {...methods.register('isDeleted')} />
-
-        {/* Mostrar todos los pasos juntos */}
-        <div className="space-y-8 mt-6">
-          <div className="border-b pb-4">
-            <h2 className="text-xl font-bold mb-4 text-yellow">Información Personal</h2>
-            <PersonalInfoStep genders={genders} />
+        <div className="flex flex-col items-center gap-3 mb-12">
+          <div className="
+            w-24 h-24 rounded-full 
+            bg-yellow/90 flex items-center justify-center 
+            shadow
+          ">
+            <User size={42} className="text-white" />
           </div>
 
-          <div className="border-b pb-4">
-            <h2 className="text-xl font-bold mb-4 text-yellow">Información de Contacto</h2>
-            <ContactInfoStep />
-          </div>
-
-          <div className="pb-4">
-            <h2 className="text-xl font-bold mb-4 text-yellow">Información de Cuenta</h2>
-            <AccountInfoStep roles={roles} isUpdate={isUpdate} />
-          </div>
+          <h2 className="text-2xl font-black uppercase text-gray-800">
+            Mi Perfil
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Actualiza tu información personal
+          </p>
         </div>
 
-        {/* Botón de submit */}
-        <div className="flex justify-end mt-5">
-          <input
+        <section className="bg-white rounded-xl p-6 mb-10 shadow-sm border border-gray-200">
+          <h3 className="text-yellow font-bold mb-6 uppercase">
+            Información Personal
+          </h3>
+
+          <div className="grid grid-cols-1">
+            <PersonalInfoStep genders={genders} />
+          </div>
+        </section>
+
+        <section className="bg-white rounded-xl p-6 mb-10 shadow-sm border border-gray-200">
+          <h3 className="text-yellow font-bold mb-6 uppercase">
+            Información de Contacto
+          </h3>
+
+          <div className="grid grid-cols-1">
+            <ContactInfoStep />
+          </div>
+        </section>
+
+        <section className="bg-white rounded-xl p-6 mb-10 shadow-sm border border-gray-200">
+          <h3 className="text-yellow font-bold mb-6 uppercase">
+            Información de Cuenta
+          </h3>
+
+          <div className="grid grid-cols-1">
+            <AccountInfoStep roles={roles} isUpdate={isUpdate} />
+          </div>
+        </section>
+
+        <div className="flex justify-center sm:justify-end mt-10">
+          <button
             type="submit"
-            className="bg-yellow py-2 px-6 rounded-md text-white uppercase font-bold hover:bg-amber-600 cursor-pointer transition-colors"
-            value={isUpdate ? 'Actualizar perfil' : 'Registrar'}
-          />
+            className="
+              bg-yellow px-12 py-3 rounded-md 
+              text-white uppercase font-bold 
+              hover:bg-amber-500 transition
+              shadow
+            "
+          >
+            Actualizar perfil
+          </button>
         </div>
       </form>
     </FormProvider>
