@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Modal from "../shared/components/Modal";
-import Layout from "../shared/components/Layout";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 

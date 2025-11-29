@@ -17,12 +17,10 @@ export const formatDateForParam = (date: Date): string => {
 
 export const formatCurrentDateWithHourForTitle = () => {
     const now = new Date();
-        
-    // Ajustar a hora del pais
+
     const offsetCR = -6; 
     now.setHours(now.getUTCHours() + offsetCR);
     
-    // Formatear la fecha
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
@@ -34,12 +32,10 @@ export const formatCurrentDateWithHourForTitle = () => {
 
 export const formatCurrentDateForDocument = () => {
     const now = new Date();
-        
-    // Ajustar a hora del pais
+
     const offsetCR = -6; 
     now.setHours(now.getUTCHours() + offsetCR);
     
-    // Formatear la fecha c
     const day = String(now.getDate()).padStart(2, '0');
     const month = String(now.getMonth() + 1).padStart(2, '0'); 
     const year = now.getFullYear();
@@ -49,12 +45,10 @@ export const formatCurrentDateForDocument = () => {
 
 export const formatCurrentHourForDocument = () => {
     const now = new Date();
-        
-    // Ajustar a hora del pais
+
     const offsetCR = -6; 
     now.setHours(now.getUTCHours() + offsetCR);
     
-    // Formatear la fecha 
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
         

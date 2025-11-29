@@ -99,12 +99,9 @@ function CategoryManagement() {
                 </div>
             </header>
 
-            {/* MAIN */}
             <main className="mt-6">
                 <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
-                    {/* TOP BUTTONS */}
                     <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-                        {/* AÑADIR */}
                         <Modal
                             Button={() => (
                                 <button
@@ -131,7 +128,6 @@ function CategoryManagement() {
                         />
                     </div>
 
-                    {/* TABLA */}
                     <div className="w-full mt-4">
 
                         <div className="overflow-x-auto rounded-lg">
@@ -162,7 +158,6 @@ function CategoryManagement() {
                                 <>
                                     <table className="w-full min-w-[600px] text-center">
 
-                                        {/* HEADER */}
                                         <thead className="bg-gray-100 text-gray-700">
                                             <tr>
                                                 <th className="py-3 px-2 font-semibold">#</th>
@@ -190,7 +185,6 @@ function CategoryManagement() {
                                             </tr>
                                         </thead>
 
-                                        {/* BODY */}
                                         <tbody className="text-sm">
                                             {categories.map((category, index) => (
                                                 <tr
@@ -220,7 +214,6 @@ function CategoryManagement() {
                                                     <td className="py-3">
                                                         <div className="flex justify-center gap-3">
 
-                                                            {/* EDITAR */}
                                                             <button
                                                                 onClick={() => {
                                                                     getCategoryById(category.idCategory);
@@ -232,7 +225,6 @@ function CategoryManagement() {
                                                                 <MdModeEdit className="text-white" />
                                                             </button>
 
-                                                            {/* ELIMINAR / RESTAURAR */}
                                                             {category.isDeleted ? (
                                                                 <button
                                                                     onClick={() =>
@@ -259,7 +251,6 @@ function CategoryManagement() {
                                         </tbody>
                                     </table>
 
-                                    {/* PAGINACIÓN */}
                                     <div className="mt-6">
                                         <Pagination
                                             page={page}

@@ -22,7 +22,6 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
             [name]: value
         }));
 
-        // Resetear el captcha si hay cambios después de un error
         if (recaptcha.current?.getValue()) {
             recaptcha.current.reset();
         }
@@ -31,7 +30,6 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
     return (
         <div className="flex flex-col justify-center items-center min-h-screen bg-black p-4">
             <main className="flex flex-col lg:flex-row justify-between w-full max-w-6xl bg-white rounded-lg overflow-hidden">
-                {/* Sección del formulario */}
                 <section className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col">
 
                     <header className="flex justify-center my-4 sm:my-6">
@@ -97,7 +95,6 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
                     </form>
                 </section>
             
-                {/* Sección de la imagen */}
                 <aside className="w-full lg:w-1/2 hidden sm:flex items-center justify-center bg-gray-100">
                     <div className="w-full h-full">
                         <img 
