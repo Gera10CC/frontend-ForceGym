@@ -28,6 +28,7 @@ type EconomicIncomeStore = {
     filterByClientType: number;
 
     fetchEconomicIncomes: () => Promise<any>;
+    fetchEconomicIncomeByDateRange: (start: string, end: string) => Promise<EconomicIncome[]>;
     getEconomicIncomeById: (id: number) => void;
     addEconomicIncome: (data: EconomicIncomeDataForm) => Promise<any>;
     updateEconomicIncome: (data: EconomicIncomeDataForm) => Promise<any>;
@@ -140,6 +141,18 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
 
             set({ economicIncomes: [...incomes], totalRecords: totalRecords, page: newPage });
             return result;
+        },
+        fetchEconomicIncomeByDateRange: async (start: string, end: string) => {
+            console.log('Fetching economic incomes from', start, 'to', end);
+            const url = `${import.meta.env.VITE_URL_API}economicIncome/list?filterByDateRangeMin=${start}&filterByDateRangeMax=${end}`;
+
+            const response = await getData(url);
+
+            // Cambiar "success" por "ok"
+            if (!response.ok) return [];
+
+            console.log('Incomes:', response.data?.economicIncomes);
+            return response.data?.economicIncomes || [];
         },
 
         getEconomicIncomeById: (id) => {
