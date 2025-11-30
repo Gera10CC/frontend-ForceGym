@@ -18,7 +18,7 @@ export const useEconomicExpense = () => {
         changeOrderBy,
         changeDirectionOrderBy,
         directionOrderBy,
-        fetchEconomicExpenseByDateRange
+        fetchEconomicExpenseByActiveFilters
     } = useEconomicExpenseStore();
 
     // --------------------------
@@ -181,6 +181,6 @@ export const useEconomicExpense = () => {
         pdfTableHeaders,
         pdfTableRows,
         mapExpenseToRow,
-        fetchEconomicExpenseByDateRange
+        fetchEconomicExpenseByActiveFilters
     };
 };

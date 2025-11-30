@@ -18,6 +18,7 @@ import { exportToExcel } from "../shared/utils/excelGeneral";
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
+import { EconomicExpense } from "../shared/types";
 
 export default function EconomicExpenseManagement() {
   const {
@@ -25,7 +26,6 @@ export default function EconomicExpenseManagement() {
     modalForm,
     modalFilter,
     modalInfo,
-    modalFileTypeDecision,
 
     page,
     size,
@@ -54,8 +54,6 @@ export default function EconomicExpenseManagement() {
     closeModalForm,
     closeModalFilter,
     closeModalInfo,
-    showModalFileType,
-    closeModalFileType,
     resetEditing
   } = useEconomicExpenseStore();
 
@@ -66,18 +64,17 @@ export default function EconomicExpenseManagement() {
     handleRestore,
     pdfTableHeaders,
     pdfTableRows,
-    fetchEconomicExpenseByDateRange
+    mapExpenseToRow,
+    fetchEconomicExpenseByActiveFilters
   } = useEconomicExpense();
 
   const navigate = useNavigate();
   const [showDashboard, setShowDashboard] = useState(false);
 
-  // --- Estados idénticos a INGRESOS ---
-  const [dateModalOpen, setDateModalOpen] = useState(false);
+  // Estados de exportación
   const [fileTypeModalOpen, setFileTypeModalOpen] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [filteredData, setFilteredData] = useState<typeof economicExpenses>([]);
+  const [filteredData, setFilteredData] = useState<EconomicExpense[]>([]);
+  const [filteredRows, setFilteredRows] = useState<(string | number)[][]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,36 +85,34 @@ export default function EconomicExpenseManagement() {
         navigate("/login", { replace: true });
       }
     };
-
     fetchData();
   }, [
     page, size, searchType, searchTerm,
     orderBy, directionOrderBy,
     filterByStatus, filterByAmountRangeMax, filterByAmountRangeMin,
-    filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin, filterByCategory
+    filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin,
+    filterByCategory
   ]);
 
-  const handleDateSubmit = async () => {
-    if (!startDate || !endDate || endDate < startDate) {
-      return alert("Selecciona un rango válido de fechas");
-    }
+  // Export using active filters
+  const handleExport = async () => {
+    const data = await fetchEconomicExpenseByActiveFilters();
 
-    const data = await fetchEconomicExpenseByDateRange(startDate, endDate);
+    // Datos crudos
     setFilteredData(data);
 
-    setDateModalOpen(false);
+    // Filas exportables
+    setFilteredRows(
+      data.length ? data.map(mapExpenseToRow) : pdfTableRows
+    );
+
     setFileTypeModalOpen(true);
   };
 
   return (
     <>
-      <header className="
-        flex flex-col md:flex-row items-center justify-between
-        bg-yellow text-black px-4 py-4 rounded-md shadow-md
-      ">
-        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
-          Gastos
-        </h1>
+      <header className="flex flex-col md:flex-row items-center justify-between bg-yellow text-black px-4 py-4 rounded-md shadow-md">
+        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">Gastos</h1>
 
         <SearchInput
           searchTerm={searchTerm}
@@ -145,88 +140,36 @@ export default function EconomicExpenseManagement() {
         </div>
       </header>
 
-      {/* Modal rango de fechas */}
-      <Modal
-        Button={() => <div />}
-        getDataById={() => {}}
-        modal={dateModalOpen}
-        closeModal={() => setDateModalOpen(false)}
-        Content={() => (
-          <div className="flex flex-col gap-4 p-4">
-            <h2 className="text-xl font-bold">Seleccionar rango de fechas</h2>
-
-            <div className="flex gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                className="border rounded px-2 py-1"
-                max={endDate || undefined}
-              />
-
-              <input
-                type="date"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                className="border rounded px-2 py-1"
-                min={startDate || undefined}
-              />
-            </div>
-
-            <button
-              className="bg-yellow px-4 py-2 rounded"
-              onClick={handleDateSubmit}
-            >
-              Continuar
-            </button>
-          </div>
-        )}
-      />
-
-      {/* Modal selección de tipo de archivo */}
+      {/* Export Modal */}
       <Modal
         Button={() => <div />}
         getDataById={() => {}}
         modal={fileTypeModalOpen}
-        closeModal={() => { setFileTypeModalOpen(false); setFilteredData([]); }}
+        closeModal={() => {
+          setFileTypeModalOpen(false);
+          setFilteredData([]);
+          setFilteredRows([]);
+        }}
         Content={() => (
           <FileTypeDecision
             modulo="Gastos económicos"
-            closeModal={() => { setFileTypeModalOpen(false); setFilteredData([]); }}
-
+            closeModal={() => {
+              setFileTypeModalOpen(false);
+              setFilteredData([]);
+              setFilteredRows([]);
+            }}
             exportToPDF={() =>
               exportToPDFGeneral(
                 "Gastos",
                 pdfTableHeaders,
-                filteredData.length
-                  ? filteredData.map((x, i) => [
-                      i + 1,
-                      x.voucherNumber || "No adjunto",
-                      x.registrationDate,
-                      x.amount,
-                      x.meanOfPayment.name,
-                      x.category.name,
-                      x.detail || "Sin detalle"
-                    ])
-                  : pdfTableRows
+                filteredRows
               )
             }
-
             exportToExcel={() =>
               exportToExcel(
                 "Gastos",
                 pdfTableHeaders,
-                filteredData.length
-                  ? filteredData.map((x, i) => [
-                      i + 1,
-                      x.voucherNumber || "No adjunto",
-                      x.registrationDate,
-                      x.amount,
-                      x.meanOfPayment.name,
-                      x.category.name,
-                      x.detail || "Sin detalle"
-                    ])
-                  : pdfTableRows
+                filteredRows
               )
             }
           />
@@ -236,12 +179,14 @@ export default function EconomicExpenseManagement() {
       <main className="mt-6">
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-
             <Modal
               Button={() => (
                 <button
                   type="button"
-                  onClick={() => { resetEditing(); showModalForm(); }}
+                  onClick={() => {
+                    resetEditing();
+                    showModalForm();
+                  }}
                   className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-full transition flex items-center gap-2 justify-center sm:justify-start"
                 >
                   <Plus size={18} />
@@ -256,7 +201,7 @@ export default function EconomicExpenseManagement() {
 
             {economicExpenses.length > 0 && (
               <button
-                onClick={() => setDateModalOpen(true)}
+                onClick={handleExport}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-full transition flex items-center gap-2"
               >
                 <Download size={18} />

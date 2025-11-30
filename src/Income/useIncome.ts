@@ -17,7 +17,7 @@ export const useEconomicIncome = () => {
         changeOrderBy, 
         changeDirectionOrderBy, 
         directionOrderBy, 
-        fetchEconomicIncomeByDateRange 
+        fetchEconomicIncomeByActiveFilters 
     } = useEconomicIncomeStore()
 
     // --------------------------
@@ -180,6 +180,6 @@ export const useEconomicIncome = () => {
         pdfTableHeaders,
         pdfTableRows,
         mapIncomeToRow,
-        fetchEconomicIncomeByDateRange
+        fetchEconomicIncomeByActiveFilters
     }
 }
