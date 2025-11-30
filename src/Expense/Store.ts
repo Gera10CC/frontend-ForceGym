@@ -28,7 +28,7 @@ type EconomicExpenseStore = {
     filterByCategory: number;
 
     fetchEconomicExpenses: () => Promise<any>;
-    fetchEconomicExpenseByDateRange: (start: string, end: string) => Promise<EconomicExpense[]>;
+    fetchEconomicExpenseByActiveFilters: () => Promise<EconomicExpense[]>;
     getEconomicExpenseById: (id: number) => void;
     addEconomicExpense: (data: EconomicExpenseDataForm) => Promise<any>;
     updateEconomicExpense: (data: EconomicExpenseDataForm) => Promise<any>;
@@ -142,19 +142,78 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
             return result;
         },
 
-        fetchEconomicExpenseByDateRange: async (start: string, end: string) => {
-            console.log("Fetching economic expenses from", start, "to", end);
+        fetchEconomicExpenseByActiveFilters: async () => {
+            const state = useEconomicExpenseStore.getState();
 
-            const url = `${import.meta.env.VITE_URL_API}economicExpense/list?filterByDateRangeMin=${start}&filterByDateRangeMax=${end}`;
+            const params: string[] = [];
 
-            const response = await getData(url);
+            const formatIfDate = (v: any) => {
+                if (!v) return null;
+                try {
+                    if (v instanceof Date) return format(v, 'yyyy-MM-dd');
+                    return v;
+                } catch {
+                    return v;
+                }
+            };
 
-            if (!response.ok) return [];
+            const minDate = formatIfDate(state.filterByDateRangeMin);
+            const maxDate = formatIfDate(state.filterByDateRangeMax);
 
-            console.log("Expenses:", response.data?.economicExpenses);
+            if (minDate) params.push(`filterByDateRangeMin=${minDate}`);
+            if (maxDate) params.push(`filterByDateRangeMax=${maxDate}`);
 
-            return response.data?.economicExpenses || [];
+            if (state.filterByStatus) params.push(`filterByStatus=${state.filterByStatus}`);
+
+            if (state.filterByAmountRangeMin && state.filterByAmountRangeMax) {
+                params.push(`filterByAmountRangeMin=${state.filterByAmountRangeMin}`);
+                params.push(`filterByAmountRangeMax=${state.filterByAmountRangeMax}`);
+            }
+
+            if (state.filterByMeanOfPayment && state.filterByMeanOfPayment !== 0) {
+                params.push(`filterByMeanOfPayment=${state.filterByMeanOfPayment}`);
+            }
+
+            if (state.filterByCategory !== -1) {
+                params.push(`filterByCategory=${state.filterByCategory}`);
+            }
+
+            const qs = params.length ? params.join("&") : "";
+
+            // obtener totalRecords
+            const urlCount = `${import.meta.env.VITE_URL_API}economicExpense/list?${qs}`;
+
+            const responseCount = await getData(urlCount);
+
+            if (!responseCount || !responseCount.ok) {
+                console.warn("⚠️ Backend no respondió correctamente en el conteo.");
+                return [];
+            }
+
+            const total = responseCount.data?.totalRecords ?? 0;
+            console.log("📊 Expense totalRecords:", total);
+
+            if (total === 0) return [];
+
+            // traer TODOS los registros
+            const urlAll =
+                `${import.meta.env.VITE_URL_API}economicExpense/list?page=1&size=${total}` +
+                (qs ? `&${qs}` : "");
+
+            console.log("🔗 Expense URL (all):", urlAll);
+
+            const responseAll = await getData(urlAll);
+
+            if (!responseAll || !responseAll.ok) {
+                console.warn("⚠️ Backend no respondió correctamente al traer todos los datos.");
+                return [];
+            }
+
+            const expenses = responseAll.data?.economicExpenses ?? [];
+
+            return expenses;
         },
+
 
         getEconomicExpenseById: (id) => {
             set(() => ({ activeEditingId: id }));

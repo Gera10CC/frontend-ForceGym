@@ -28,7 +28,7 @@ type EconomicIncomeStore = {
     filterByClientType: number;
 
     fetchEconomicIncomes: () => Promise<any>;
-    fetchEconomicIncomeByDateRange: (start: string, end: string) => Promise<EconomicIncome[]>;
+    fetchEconomicIncomeByActiveFilters: () => Promise<EconomicIncome[]>;
     getEconomicIncomeById: (id: number) => void;
     addEconomicIncome: (data: EconomicIncomeDataForm) => Promise<any>;
     updateEconomicIncome: (data: EconomicIncomeDataForm) => Promise<any>;
@@ -58,7 +58,6 @@ type EconomicIncomeStore = {
     closeModalFileType: () => void;
     clearAllFilters: () => void;
     resetEditing: () => void;
-
 };
 
 export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
@@ -142,18 +141,71 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
             set({ economicIncomes: [...incomes], totalRecords: totalRecords, page: newPage });
             return result;
         },
-        fetchEconomicIncomeByDateRange: async (start: string, end: string) => {
-            console.log('Fetching economic incomes from', start, 'to', end);
-            const url = `${import.meta.env.VITE_URL_API}economicIncome/list?filterByDateRangeMin=${start}&filterByDateRangeMax=${end}`;
 
-            const response = await getData(url);
+        fetchEconomicIncomeByActiveFilters: async () => {
+            const state = useEconomicIncomeStore.getState();
 
-            // Cambiar "success" por "ok"
-            if (!response.ok) return [];
+            const params: string[] = [];
 
-            console.log('Incomes:', response.data?.economicIncomes);
-            return response.data?.economicIncomes || [];
+            // helper para manejar fechas (formatea si es Date)
+            const formatIfDate = (v: any) => {
+                if (!v) return null;
+                try {
+                    // isCompleteDate ya existe en el store, pero solo necesitamos detectar Date
+                    if (v instanceof Date) return format(v, 'yyyy-MM-dd');
+                    return v;
+                } catch {
+                    return v;
+                }
+            }
+
+            const minDate = formatIfDate(state.filterByDateRangeMin);
+            const maxDate = formatIfDate(state.filterByDateRangeMax);
+
+            if (minDate) params.push(`filterByDateRangeMin=${minDate}`);
+            if (maxDate) params.push(`filterByDateRangeMax=${maxDate}`);
+
+            if (state.filterByMeanOfPayment && state.filterByMeanOfPayment !== 0)
+                params.push(`filterByMeanOfPayment=${state.filterByMeanOfPayment}`);
+
+            if (typeof state.filterByClientType === 'number' && state.filterByClientType !== -1)
+                params.push(`filterByClientType=${state.filterByClientType}`);
+
+            // si no hay parámetros, igual armamos la query string vacía
+            const qs = params.length ? params.join("&") : "";
+
+            // obtener totalRecords
+            const urlCount = `${import.meta.env.VITE_URL_API}economicIncome/list?${qs}`;
+
+            const responseCount = await getData(urlCount);
+
+            if (!responseCount || !responseCount.ok) {
+                console.warn('fetchEconomicIncomeByActiveFilters: backend returned not ok (count)');
+                return [];
+            }
+
+            const total = responseCount.data?.totalRecords ?? 0;
+
+            if (total === 0) {
+                // no hay datos
+                return [];
+            }
+
+            // 2) traer todos con size = total
+            const urlAll = `${import.meta.env.VITE_URL_API}economicIncome/list?page=1&size=${total}${qs ? `&${qs}` : ''}`;
+
+            const responseAll = await getData(urlAll);
+
+            if (!responseAll || !responseAll.ok) {
+                console.warn('fetchEconomicIncomeByActiveFilters: backend returned not ok (all)');
+                return [];
+            }
+
+            const incomes = responseAll.data?.economicIncomes ?? [];
+
+            return incomes;
         },
+
 
         getEconomicIncomeById: (id) => {
             set(() => ({ activeEditingId: id }));
@@ -173,8 +225,8 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
             const result = await deleteData(`${import.meta.env.VITE_URL_API}economicIncome/delete/${id}`, loggedIdUser);
             return result;
         },
-        resetEditing: () => set(() => ({ activeEditingId: 0 })),
 
+        resetEditing: () => set(() => ({ activeEditingId: 0 })),
 
         changeSize: (newSize) => set(() => ({ size: newSize })),
         changePage: (newPage) => set(() => ({ page: newPage })),
