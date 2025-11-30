@@ -1,20 +1,23 @@
-import { MdOutlineFileDownload } from "react-icons/md";
+import { Plus, Download } from "lucide-react";
 import Modal from "../shared/components/Modal";
 import ModalFilter from "../shared/components/ModalFilter";
 import SearchInput from "../shared/components/SearchInput";
+
 import { useEconomicExpenseStore } from "./Store";
 import { useNavigate } from "react-router";
 import { useEconomicExpense } from "./useExpense";
+
 import Form from "./Form";
 import FileTypeDecision from "../shared/components/ModalFileType";
 import ExpenseDashboard from "./ExpenseDashboard";
+import ExpenseTable from "./ExpenseTable";
+
 import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
 import { exportToExcel } from "../shared/utils/excelGeneral";
-import ExpenseTable from "./ExpenseTable";
+
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
-import { Plus, Download } from "lucide-react";
 
 export default function EconomicExpenseManagement() {
   const {
@@ -23,6 +26,7 @@ export default function EconomicExpenseManagement() {
     modalFilter,
     modalInfo,
     modalFileTypeDecision,
+
     page,
     size,
     totalRecords,
@@ -30,18 +34,21 @@ export default function EconomicExpenseManagement() {
     directionOrderBy,
     searchType,
     searchTerm,
+
     filterByStatus,
-    filterByAmountRangeMax, 
+    filterByAmountRangeMax,
     filterByAmountRangeMin,
     filterByMeanOfPayment,
     filterByDateRangeMax,
     filterByDateRangeMin,
     filterByCategory,
+
     fetchEconomicExpenses,
     getEconomicExpenseById,
     changePage,
     changeSize,
     changeSearchType,
+
     showModalForm,
     showModalInfo,
     closeModalForm,
@@ -49,7 +56,7 @@ export default function EconomicExpenseManagement() {
     closeModalInfo,
     showModalFileType,
     closeModalFileType,
-    resetEditing, 
+    resetEditing
   } = useEconomicExpenseStore();
 
   const {
@@ -59,12 +66,19 @@ export default function EconomicExpenseManagement() {
     handleRestore,
     pdfTableHeaders,
     pdfTableRows,
+    fetchEconomicExpenseByDateRange
   } = useEconomicExpense();
 
   const navigate = useNavigate();
   const [showDashboard, setShowDashboard] = useState(false);
 
-  // Fetch data when filters or pagination change
+  // --- Estados idénticos a INGRESOS ---
+  const [dateModalOpen, setDateModalOpen] = useState(false);
+  const [fileTypeModalOpen, setFileTypeModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [filteredData, setFilteredData] = useState<typeof economicExpenses>([]);
+
   useEffect(() => {
     const fetchData = async () => {
       const { logout } = await fetchEconomicExpenses();
@@ -77,30 +91,31 @@ export default function EconomicExpenseManagement() {
 
     fetchData();
   }, [
-    page,
-    size,
-    searchType,
-    searchTerm,
-    orderBy,
-    directionOrderBy,
-    filterByStatus,
-    filterByAmountRangeMax, 
-    filterByAmountRangeMin, 
-    filterByMeanOfPayment, 
-    filterByDateRangeMax, 
-    filterByDateRangeMin, 
-    filterByCategory
+    page, size, searchType, searchTerm,
+    orderBy, directionOrderBy,
+    filterByStatus, filterByAmountRangeMax, filterByAmountRangeMin,
+    filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin, filterByCategory
   ]);
+
+  const handleDateSubmit = async () => {
+    if (!startDate || !endDate || endDate < startDate) {
+      return alert("Selecciona un rango válido de fechas");
+    }
+
+    const data = await fetchEconomicExpenseByDateRange(startDate, endDate);
+    setFilteredData(data);
+
+    setDateModalOpen(false);
+    setFileTypeModalOpen(true);
+  };
 
   return (
     <>
-      <header
-        className="
-          flex flex-col md:flex-row items-center justify-between
-          bg-yellow text-black px-4 py-4 rounded-md shadow-md
-        "
-      >
-        <h1 className="text-3xl md:text-4xl  uppercase tracking-wide">
+      <header className="
+        flex flex-col md:flex-row items-center justify-between
+        bg-yellow text-black px-4 py-4 rounded-md shadow-md
+      ">
+        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
           Gastos
         </h1>
 
@@ -130,29 +145,104 @@ export default function EconomicExpenseManagement() {
         </div>
       </header>
 
+      {/* Modal rango de fechas */}
+      <Modal
+        Button={() => <div />}
+        getDataById={() => {}}
+        modal={dateModalOpen}
+        closeModal={() => setDateModalOpen(false)}
+        Content={() => (
+          <div className="flex flex-col gap-4 p-4">
+            <h2 className="text-xl font-bold">Seleccionar rango de fechas</h2>
+
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                className="border rounded px-2 py-1"
+                max={endDate || undefined}
+              />
+
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                className="border rounded px-2 py-1"
+                min={startDate || undefined}
+              />
+            </div>
+
+            <button
+              className="bg-yellow px-4 py-2 rounded"
+              onClick={handleDateSubmit}
+            >
+              Continuar
+            </button>
+          </div>
+        )}
+      />
+
+      {/* Modal selección de tipo de archivo */}
+      <Modal
+        Button={() => <div />}
+        getDataById={() => {}}
+        modal={fileTypeModalOpen}
+        closeModal={() => { setFileTypeModalOpen(false); setFilteredData([]); }}
+        Content={() => (
+          <FileTypeDecision
+            modulo="Gastos económicos"
+            closeModal={() => { setFileTypeModalOpen(false); setFilteredData([]); }}
+
+            exportToPDF={() =>
+              exportToPDFGeneral(
+                "Gastos",
+                pdfTableHeaders,
+                filteredData.length
+                  ? filteredData.map((x, i) => [
+                      i + 1,
+                      x.voucherNumber || "No adjunto",
+                      x.registrationDate,
+                      x.amount,
+                      x.meanOfPayment.name,
+                      x.category.name,
+                      x.detail || "Sin detalle"
+                    ])
+                  : pdfTableRows
+              )
+            }
+
+            exportToExcel={() =>
+              exportToExcel(
+                "Gastos",
+                pdfTableHeaders,
+                filteredData.length
+                  ? filteredData.map((x, i) => [
+                      i + 1,
+                      x.voucherNumber || "No adjunto",
+                      x.registrationDate,
+                      x.amount,
+                      x.meanOfPayment.name,
+                      x.category.name,
+                      x.detail || "Sin detalle"
+                    ])
+                  : pdfTableRows
+              )
+            }
+          />
+        )}
+      />
+
       <main className="mt-6">
-        <div
-          className="
-            bg-white rounded-lg shadow-md p-4 sm:p-6
-            overflow-hidden
-          "
-        >
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
 
             <Modal
               Button={() => (
                 <button
                   type="button"
-                  onClick={() => {
-                    resetEditing();   
-                    showModalForm();
-                  }}
-                  className="
-                    w-full sm:w-auto
-                    px-4 py-2 bg-gray-100 hover:bg-gray-300
-                    rounded-full transition flex items-center gap-2
-                    justify-center sm:justify-start
-                  "
+                  onClick={() => { resetEditing(); showModalForm(); }}
+                  className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-full transition flex items-center gap-2 justify-center sm:justify-start"
                 >
                   <Plus size={18} />
                   Añadir
@@ -164,38 +254,14 @@ export default function EconomicExpenseManagement() {
               Content={Form}
             />
 
-            {economicExpenses?.length > 0 && (
-              <Modal
-                Button={() => (
-                  <button
-                    className="
-                      w-full sm:w-auto
-                      px-4 py-2 bg-gray-100 hover:bg-gray-300
-                      rounded-full transition flex items-center gap-2
-                      justify-center sm:justify-start
-                    "
-                    onClick={showModalFileType}
-                  >
-                    <Download size={18} />
-                    Descargar
-                  </button>
-                )}
-                modal={modalFileTypeDecision}
-                closeModal={closeModalFileType}
-                getDataById={getEconomicExpenseById}
-                Content={() => (
-                  <FileTypeDecision
-                    modulo="Gastos económicos"
-                    closeModal={closeModalFileType}
-                    exportToPDF={() =>
-                      exportToPDFGeneral("Gastos", pdfTableHeaders, pdfTableRows)
-                    }
-                    exportToExcel={() =>
-                      exportToExcel("Gastos", pdfTableHeaders, pdfTableRows)
-                    }
-                  />
-                )}
-              />
+            {economicExpenses.length > 0 && (
+              <button
+                onClick={() => setDateModalOpen(true)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-full transition flex items-center gap-2"
+              >
+                <Download size={18} />
+                Descargar
+              </button>
             )}
           </div>
 

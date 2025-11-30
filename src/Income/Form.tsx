@@ -13,6 +13,7 @@ import {
   setAuthUser,
 } from "../shared/utils/authentication";
 import { useCommonDataStore } from "../shared/CommonDataStore";
+import SearchSelect from "../shared/components/SearchSelect";
 
 const MAXLENGTH_VOUCHER = 100;
 const MINLENGTH_VOUCHER = 5;
@@ -208,15 +209,17 @@ function Form() {
 
       <div>
         <label className="text-sm uppercase font-bold">Cliente</label>
-        <Select
-          id="idClient"
-          className="mt-1"
-          value={allClients.find(c => c.value === watch("idClient")) || null}
-          onChange={(opt) =>
-            opt && setValue("idClient", opt.value, { shouldValidate: true })
-          }
-          options={allClients}
-        />
+          <SearchSelect
+            id="idClient"
+            label="Seleccione un cliente"
+            options={allClients}
+            value={allClients.find(c => c.value === watch("idClient")) || null}
+            onChange={(opt) => {
+              if (opt) {
+                setValue("idClient", opt.value, { shouldValidate: true });
+              }
+            }}
+          />
         {errors.idClient && <ErrorForm>{errors.idClient.message}</ErrorForm>}
       </div>
 

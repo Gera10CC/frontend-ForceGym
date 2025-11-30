@@ -28,6 +28,7 @@ type EconomicExpenseStore = {
     filterByCategory: number;
 
     fetchEconomicExpenses: () => Promise<any>;
+    fetchEconomicExpenseByDateRange: (start: string, end: string) => Promise<EconomicExpense[]>;
     getEconomicExpenseById: (id: number) => void;
     addEconomicExpense: (data: EconomicExpenseDataForm) => Promise<any>;
     updateEconomicExpense: (data: EconomicExpenseDataForm) => Promise<any>;
@@ -78,7 +79,7 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
         filterByAmountRangeMax: 0,
         filterByAmountRangeMin: 0,
         filterByDateRangeMax: null,
-        filterByDateRangeMin: null ,
+        filterByDateRangeMin: null,
         filterByMeanOfPayment: 0,
         filterByCategory: -1,
 
@@ -88,12 +89,10 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
             filterByAmountRangeMax: 0,
             filterByAmountRangeMin: 0,
             filterByDateRangeMax: null,
-            filterByDateRangeMin: null ,
+            filterByDateRangeMin: null,
             filterByMeanOfPayment: 0,
             filterByCategory: -1,
         })),
-        
-
 
         fetchEconomicExpenses: async () => {
             const state = useEconomicExpenseStore.getState();
@@ -120,11 +119,11 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
                 const formattedDateMin = format(state.filterByDateRangeMin!, 'yyyy-MM-dd');
                 filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
             }
-            if (state.filterByMeanOfPayment != 0){
-                filters += `&filterByMeanOfPayment=${state.filterByMeanOfPayment}`
+            if (state.filterByMeanOfPayment != 0) {
+                filters += `&filterByMeanOfPayment=${state.filterByMeanOfPayment}`;
             }
-            if(state.filterByCategory != -1){
-                filters += `&filterByCategory=${state.filterByCategory}`
+            if (state.filterByCategory != -1) {
+                filters += `&filterByCategory=${state.filterByCategory}`;
             }
 
             const result = await getData(
@@ -133,14 +132,28 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
 
             const totalPages = Math.max(1, Math.ceil(result.data.totalRecords / state.size));
             if (state.page > totalPages) {
-                newPage = state.page-1; 
+                newPage = state.page - 1;
             }
 
-            const expenses = result.data?.economicExpenses ?? []
-            const totalRecords = result.data?.totalRecords ?? 0
+            const expenses = result.data?.economicExpenses ?? [];
+            const totalRecords = result.data?.totalRecords ?? 0;
 
-            set({ economicExpenses: [...expenses], totalRecords: totalRecords, page: newPage });
+            set({ economicExpenses: [...expenses], totalRecords, page: newPage });
             return result;
+        },
+
+        fetchEconomicExpenseByDateRange: async (start: string, end: string) => {
+            console.log("Fetching economic expenses from", start, "to", end);
+
+            const url = `${import.meta.env.VITE_URL_API}economicExpense/list?filterByDateRangeMin=${start}&filterByDateRangeMax=${end}`;
+
+            const response = await getData(url);
+
+            if (!response.ok) return [];
+
+            console.log("Expenses:", response.data?.economicExpenses);
+
+            return response.data?.economicExpenses || [];
         },
 
         getEconomicExpenseById: (id) => {
@@ -184,7 +197,7 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
         showModalInfo: () => set(() => ({ modalInfo: true })),
         closeModalInfo: () => set(() => ({ modalInfo: false })),
         showModalFileType: () => set(() => ({ modalFileTypeDecision: true })),
-        closeModalFileType: () => set(() => ({ modalFileTypeDecision: false }))
+        closeModalFileType: () => set(() => ({ modalFileTypeDecision: false })),
     }))
 );
 

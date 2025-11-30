@@ -67,10 +67,19 @@ export default function EconomicIncomeManagement() {
     handleRestore,
     pdfTableHeaders,
     pdfTableRows,
+    mapIncomeToRow,
+    fetchEconomicIncomeByDateRange
   } = useEconomicIncome();
 
   const navigate = useNavigate();
   const [showDashboard, setShowDashboard] = useState(false);
+
+  // --- Estados para modal de fechas y datos filtrados ---
+  const [dateModalOpen, setDateModalOpen] = useState(false);
+  const [fileTypeModalOpen, setFileTypeModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [filteredData, setFilteredData] = useState<typeof economicIncomes>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,17 +98,20 @@ export default function EconomicIncomeManagement() {
     filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin, filterByClientType
   ]);
 
+  const handleDateSubmit = async () => {
+    if (!startDate || !endDate || endDate < startDate) {
+      return alert("Selecciona un rango válido de fechas");
+    }
+    const data = await fetchEconomicIncomeByDateRange(startDate, endDate);
+    setFilteredData(data);
+    setDateModalOpen(false);
+    setFileTypeModalOpen(true);
+  };
+
   return (
     <>
-      <header
-        className="
-          flex flex-col md:flex-row items-center justify-between
-          bg-yellow text-black px-4 py-4 rounded-md shadow-md
-        "
-      >
-        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">
-          Ingresos
-        </h1>
+      <header className="flex flex-col md:flex-row items-center justify-between bg-yellow text-black px-4 py-4 rounded-md shadow-md">
+        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">Ingresos</h1>
 
         <SearchInput
           searchTerm={searchTerm}
@@ -128,25 +140,84 @@ export default function EconomicIncomeManagement() {
         </div>
       </header>
 
+      {/* Modal de selección de fechas */}
+      <Modal
+        Button={() => <div />}
+        getDataById={() => {}}
+        modal={dateModalOpen}
+        closeModal={() => setDateModalOpen(false)}
+        Content={() => (
+          <div className="flex flex-col gap-4 p-4">
+            <h2 className="text-xl font-bold">Seleccionar rango de fechas</h2>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                className="border rounded px-2 py-1"
+                max={endDate || undefined}
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                className="border rounded px-2 py-1"
+                min={startDate || undefined}
+              />
+            </div>
+            <button
+              className="bg-yellow px-4 py-2 rounded"
+              onClick={handleDateSubmit}
+            >
+              Continuar
+            </button>
+          </div>
+        )}
+      />
+
+      {/* Modal FileTypeDecision */}
+      <Modal
+        Button={() => <div />}
+        getDataById={() => {}}
+        modal={fileTypeModalOpen}
+        closeModal={() => { setFileTypeModalOpen(false); setFilteredData([]); }}
+        Content={() => (
+          <FileTypeDecision
+            modulo="Ingresos económicos"
+            closeModal={() => { setFileTypeModalOpen(false); setFilteredData([]); }}
+
+            exportToPDF={() =>
+              exportToPDFGeneral(
+                "Ingresos",
+                pdfTableHeaders,
+                filteredData.length
+                  ? filteredData.map(mapIncomeToRow)
+                  : pdfTableRows
+              )
+            }
+
+            exportToExcel={() =>
+              exportToExcel(
+                "Ingresos",
+                pdfTableHeaders,
+                filteredData.length
+                  ? filteredData.map(mapIncomeToRow)
+                  : pdfTableRows
+              )
+            }
+          />
+        )}
+      />
+
       <main className="mt-6">
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-
             <Modal
               Button={() => (
                 <button
                   type="button"
-                  onClick={() => {
-                    resetEditing();
-                    showModalForm();
-                  }}
-                  className="
-                    w-full sm:w-auto
-                    px-4 py-2 bg-gray-100 hover:bg-gray-300
-                    rounded-full transition flex items-center gap-2
-                    justify-center sm:justify-start
-                  "
+                  onClick={() => { resetEditing(); showModalForm(); }}
+                  className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-full transition flex items-center gap-2 justify-center sm:justify-start"
                 >
                   <Plus size={18} />
                   Añadir
@@ -158,38 +229,14 @@ export default function EconomicIncomeManagement() {
               Content={Form}
             />
 
-            {economicIncomes?.length > 0 && (
-              <Modal
-                Button={() => (
-                  <button
-                    onClick={showModalFileType}
-                    className="
-                      w-full sm:w-auto
-                      px-4 py-2 bg-gray-100 hover:bg-gray-300
-                      rounded-full transition flex items-center gap-2
-                      justify-center sm:justify-start
-                    "
-                  >
-                    <Download size={18} />
-                    Descargar
-                  </button>
-                )}
-                modal={modalFileTypeDecision}
-                closeModal={closeModalFileType}
-                getDataById={getEconomicIncomeById}
-                Content={() => (
-                  <FileTypeDecision
-                    modulo="Ingresos económicos"
-                    closeModal={closeModalFileType}
-                    exportToPDF={() =>
-                      exportToPDFGeneral("Ingresos", pdfTableHeaders, pdfTableRows)
-                    }
-                    exportToExcel={() =>
-                      exportToExcel("Ingresos", pdfTableHeaders, pdfTableRows)
-                    }
-                  />
-                )}
-              />
+            {economicIncomes.length > 0 && (
+              <button
+                onClick={() => setDateModalOpen(true)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-300 rounded-full transition flex items-center gap-2"
+              >
+                <Download size={18} />
+                Descargar
+              </button>
             )}
           </div>
 

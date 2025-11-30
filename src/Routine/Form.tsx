@@ -9,6 +9,7 @@ import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authent
 import useRoutineStore from "./Store";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import clsx from "clsx";
+import SearchSelect from "../shared/components/SearchSelect";
 
 type SelectedExercise = {
   idExercise: number;
@@ -518,22 +519,21 @@ function Form() {
       <input id="idRoutine" type="hidden" {...register('idRoutine')} />
       <input id="idUser" type="hidden" {...register('idUser')} />
       <input id="isDeleted" type="hidden" {...register('isDeleted')} />
-
+      
       <div className="my-5">
-        <label htmlFor="clients" className="text-sm uppercase font-bold">
-          Clientes
-        </label>
-        <Select
+        <SearchSelect
           id="clients"
-          className="w-full"
+          label="Clientes"
           options={allClients}
           value={selectedClients}
-          onChange={(selectedOptions) => setSelectedClients(selectedOptions as ClientOption[])}
+          onChange={(selectedOptions) =>
+            setSelectedClients(selectedOptions as ClientOption[])
+          }
           isMulti
           placeholder="Seleccione los clientes..."
-          noOptionsMessage={() => "No hay clientes disponibles"}
           isDisabled={loading}
         />
+
         {selectedClients.length === 0 && (
           <ErrorForm>Debe seleccionar al menos un cliente</ErrorForm>
         )}

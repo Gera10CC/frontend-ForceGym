@@ -8,9 +8,22 @@ import { formatAmountToCRC, formatDate } from "../shared/utils/format"
 
 export const useEconomicIncome = () => {
     const navigate = useNavigate()
-    const { economicIncomes, fetchEconomicIncomes, deleteEconomicIncome, updateEconomicIncome, changeSearchTerm, changeOrderBy, changeDirectionOrderBy, directionOrderBy } = useEconomicIncomeStore()
+    const { 
+        economicIncomes, 
+        fetchEconomicIncomes, 
+        deleteEconomicIncome, 
+        updateEconomicIncome, 
+        changeSearchTerm, 
+        changeOrderBy, 
+        changeDirectionOrderBy, 
+        directionOrderBy, 
+        fetchEconomicIncomeByDateRange 
+    } = useEconomicIncomeStore()
 
-    const handleDelete = async ({ idEconomicIncome, voucherNumber } : EconomicIncome) => {
+    // --------------------------
+    // DELETE
+    // --------------------------
+    const handleDelete = async ({ idEconomicIncome, voucherNumber }: EconomicIncome) => {
         await Swal.fire({
             title: '¿Desea eliminar este ingreso económico?',
             text: `Está eliminando el ingreso con comprobante N° ${voucherNumber}`,
@@ -27,7 +40,7 @@ export const useEconomicIncome = () => {
                 const loggedUser = getAuthUser()
                 const response = await deleteEconomicIncome(idEconomicIncome, loggedUser?.idUser as number)
 
-                if(response.ok){
+                if (response.ok) {
                     Swal.fire({
                         title: 'Ingreso eliminado',
                         text: `Se ha eliminado el ingreso con comprobante N° ${voucherNumber}`,
@@ -42,35 +55,44 @@ export const useEconomicIncome = () => {
                     fetchEconomicIncomes()
                 }
 
-                if(response.logout){
+                if (response.logout) {
                     setAuthHeader(null)
                     setAuthUser(null)
-                    navigate('/login', {replace: true})
+                    navigate('/login', { replace: true })
                 }
-            } 
+            }
         })
     }
 
-    const handleSearch = (e : FormEvent<HTMLFormElement>) => {
+    // --------------------------
+    // SEARCH
+    // --------------------------
+    const handleSearch = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const form = e.target as HTMLFormElement
         const { searchTerm } = Object.fromEntries(new FormData(form))
         changeSearchTerm(searchTerm.toString())
     }
 
-    const handleOrderByChange = (orderByTerm : string) => {
+    // --------------------------
+    // ORDER BY
+    // --------------------------
+    const handleOrderByChange = (orderByTerm: string) => {
         changeOrderBy(orderByTerm)
         changeDirectionOrderBy(directionOrderBy === 'DESC' ? 'ASC' : 'DESC')
     }
 
+    // --------------------------
+    // RESTORE
+    // --------------------------
     const handleRestore = async (economicIncome: EconomicIncomeDataForm) => {
         const loggedUser = getAuthUser()
         const reqEconomicIncome = {
-            ...economicIncome, 
+            ...economicIncome,
             isDeleted: 0,
             paramLoggedIdUser: loggedUser?.idUser
         }
-        
+
         await Swal.fire({
             title: '¿Desea restaurar este ingreso económico?',
             text: `Está restaurando el ingreso con comprobante N° ${economicIncome.voucherNumber}`,
@@ -86,7 +108,7 @@ export const useEconomicIncome = () => {
             if (result.isConfirmed) {
                 const response = await updateEconomicIncome(reqEconomicIncome)
 
-                if(response.ok){
+                if (response.ok) {
                     Swal.fire({
                         title: 'Ingreso restaurado',
                         text: `Se ha restaurado el ingreso con comprobante N° ${economicIncome.voucherNumber}`,
@@ -97,37 +119,67 @@ export const useEconomicIncome = () => {
                         width: 500,
                         confirmButtonColor: '#CFAD04'
                     })
-                    
+
                     fetchEconomicIncomes()
                 }
 
-                if(response.logout){
+                if (response.logout) {
                     setAuthHeader(null)
                     setAuthUser(null)
-                    navigate('/login', {replace: true})
+                    navigate('/login', { replace: true })
                 }
-            } 
+            }
         })
     }
 
-    const pdfTableHeaders = ["#", "Voucher", "Cliente", "Fecha", "Monto", "Método de Pago", "Tipo de actividad","Detalle"]; 
+    // --------------------------
+    // TABLE HEADERS
+    // --------------------------
+    const pdfTableHeaders = [
+        "#",
+        "Voucher",
+        "Cliente",
+        "Fecha",
+        "Monto",
+        "Método de Pago",
+        "Tipo de actividad",
+        "Detalle"
+    ];
+
+    // --------------------------
+    // DEFAULT TABLE ROWS (FULL LIST)
+    // --------------------------
     const pdfTableRows = economicIncomes.map((income, index) => [
         index + 1,
         income.voucherNumber !== '' ? income.voucherNumber : "No adjunto",
         `${income.client.person.name} ${income.client.person.firstLastName} ${income.client.person.secondLastName}`,
         formatDate(new Date(income.registrationDate)),
-        formatAmountToCRC(income.amount),  // Aquí formateas con ₡
+        formatAmountToCRC(income.amount),
         income.meanOfPayment.name,
-        income.activityType.name,  // Tipo de actividad
-        income.detail ? income.detail : 'Sin detalle' // Detalle del ingreso
+        income.activityType.name,
+        income.detail ? income.detail : 'Sin detalle'
     ]);
+
+    // ✔ Esta función será usada en la Page para mapear filtrados
+    const mapIncomeToRow = (income: EconomicIncome, index: number) => [
+        index + 1,
+        income.voucherNumber || "No adjunto",
+        `${income.client.person.name} ${income.client.person.firstLastName} ${income.client.person.secondLastName}`,
+        formatDate(new Date(income.registrationDate)),
+        formatAmountToCRC(income.amount),
+        income.meanOfPayment.name,
+        income.activityType.name,
+        income.detail || "Sin detalle"
+    ];
 
     return {
         handleDelete,
         handleSearch,
-        handleOrderByChange, 
-        handleRestore, 
+        handleOrderByChange,
+        handleRestore,
         pdfTableHeaders,
-        pdfTableRows
+        pdfTableRows,
+        mapIncomeToRow,
+        fetchEconomicIncomeByDateRange
     }
 }
