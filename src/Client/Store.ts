@@ -155,7 +155,7 @@ export const useClientStore = create<ClientStore>()(
             ) {
                 const formattedDateMax = format(state.filterByBirthDateRangeMax!, 'yyyy-MM-dd');
                 const formattedDateMin = format(state.filterByBirthDateRangeMin!, 'yyyy-MM-dd');
-                filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
+                filters += `&filterByDateBirthEnd=${formattedDateMax}&filterByDateBirthStart=${formattedDateMin}`;
             }
             if(state.filterByClientType != -1){
                 filters += `&filterByClientType=${state.filterByClientType}`;
