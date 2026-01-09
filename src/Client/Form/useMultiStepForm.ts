@@ -143,16 +143,23 @@ export const useMultiStepForm = () => {
       setAuthUser(null);
       navigate('/login');
     } else {
-    await Swal.fire({
-      title: 'Error al guardar',
-      text: result.error || 'Ocurrió un error inesperado al guardar el cliente.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#CFAD04',
-      timer: 3000,
-      timerProgressBar: true,
-      width: 500
-    });
+      await Swal.fire({
+        title: 'Error al guardar',
+        text: result.error || 'Ocurrió un error inesperado al guardar el cliente.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#CFAD04',
+        timer: 3000,
+        timerProgressBar: true,
+        width: 500,
+        backdrop: true,
+        didOpen: () => {
+          const container = Swal.getContainer();
+          if (container) {
+            container.style.zIndex = '9999';
+          }
+        }
+      });
   }
   };
 
