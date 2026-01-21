@@ -44,6 +44,7 @@ export default function UserManagement() {
     closeModalForm,
     closeModalFilter,
     closeModalInfo,
+    resetEditing,
   } = useUserStore();
 
   const {
@@ -56,7 +57,6 @@ export default function UserManagement() {
   const navigate = useNavigate();
   const authUser = getAuthUser();
 
-  // ✅ FETCH IGUAL QUE EXPENSES
   useEffect(() => {
     const fetchData = async () => {
       const { logout } = await fetchUsers();
@@ -122,7 +122,10 @@ export default function UserManagement() {
               Button={() => (
                 <button
                   type="button"
-                  onClick={showModalForm}
+                  onClick={() => {
+                    resetEditing();
+                    showModalForm();
+                  }}
                   className="
                     w-full sm:w-auto
                     px-4 py-2 bg-gray-100 hover:bg-gray-300
