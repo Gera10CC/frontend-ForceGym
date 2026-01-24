@@ -104,25 +104,11 @@ const manageResponse = async (res: Response) => {
   }
 
   if ([400, 405, 406, 407, 408].includes(code)) {
-    await Swal.fire({
-      title: "Error",
-      text: result.message || "Error en solicitud",
-      icon: "error",
-      confirmButtonColor: "#CFAD04",
-    });
-
-    return { ...result, ok: false };
+    return { ...result, ok: false, error: result.message || "Error en solicitud" };
   }
 
   if ([500, 501, 502, 503, 504, 505].includes(code)) {
-    await Swal.fire({
-      title: "Error en el servidor",
-      text: result.message || "Error interno del servidor",
-      icon: "error",
-      confirmButtonColor: "#CFAD04",
-    });
-
-    return { ...result, ok: false };
+    return { ...result, ok: false, error: result.message || "Error interno del servidor" };
   }
 
   return { ...result, ok: false };

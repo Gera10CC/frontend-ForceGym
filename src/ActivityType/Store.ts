@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { ActivityType } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type ActivityTypeStore = {
     activityTypes: ActivityType[]
@@ -54,11 +55,17 @@ const useActivityTypeStore = create<ActivityTypeStore>()(
 
         addActivityType: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}activityType/add`, data)
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result
         },
 
         updateActivityType: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}activityType/update`, data)
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result
         },
 
@@ -76,6 +83,7 @@ const useActivityTypeStore = create<ActivityTypeStore>()(
                             (activity) => activity.idActivityType !== id
                         ),
                     }));
+                    await useCommonDataStore.getState().refreshAllCommonData();
                 }
                 return result;
             } catch (error) {

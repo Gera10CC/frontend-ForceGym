@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { ClientType, ClientTypeDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type ClientTypeStore = {
     clientTypes: ClientType[]
@@ -92,16 +93,25 @@ const useClientTypeStore = create<ClientTypeStore>()(
 
         addClientType: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}clientType/add`, data)
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result
         },
 
         updateClientType: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}clientType/update`, data)
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result
         },
 
         deleteClientType: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}clientType/delete/${id}`, loggedIdUser)
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result
         },
 

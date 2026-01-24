@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Category, CategoryDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type CategoryStore = {
     categories: Category[];
@@ -147,6 +148,7 @@ export const useCategoryStore = create<CategoryStore>()(
             const result = await postData(`${import.meta.env.VITE_URL_API}category/add`, data);
             if (result.ok) {
                 get().fetchCategories();
+                await useCommonDataStore.getState().refreshAllCommonData();
             }
             return result;
         },
@@ -155,6 +157,7 @@ export const useCategoryStore = create<CategoryStore>()(
             const result = await putData(`${import.meta.env.VITE_URL_API}category/update`, data);
             if (result.ok) {
                 get().fetchCategories();
+                await useCommonDataStore.getState().refreshAllCommonData();
             }
             return result;
         },
@@ -169,6 +172,7 @@ export const useCategoryStore = create<CategoryStore>()(
                     set({ page: state.page - 1 });
                     get().fetchCategories(); 
                 }
+                await useCommonDataStore.getState().refreshAllCommonData();
             }
             return result;
         },

@@ -10,6 +10,7 @@ import { useCommonDataStore } from "../shared/CommonDataStore";
 import ClientManagement from "../Client/Page";
 import NotificationTemplateManagement from "../TemplateNotification/Page";
 import MeasurementManagement from "../Measurement/Page";
+import AssignedRoutines from "../Client/AssignedRoutines";
 import { ProtectedRoute } from "./ProtectedRoutes";
 import EconomicBalanceDashboard from "../Balance/Page";
 import CategoryManagement from "../Category/Page";
@@ -104,6 +105,7 @@ function PrivateRoutes() {
       <Route path="clientes" element={<ClientManagement />} />
       <Route path="tipos-cliente" element={<ClientTypeManagement />} />
       <Route path="medidas" element={<MeasurementManagement />} />
+      <Route path="rutinas-asignadas" element={<AssignedRoutines />} />
       <Route path="plantillas-notificacion" element={<NotificationTemplateManagement />} />
       <Route path="categorias" element={<CategoryManagement />} />
       <Route path="ejercicios" element={<ExerciseManagement />} />

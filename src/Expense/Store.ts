@@ -4,6 +4,7 @@ import { EconomicExpense, EconomicExpenseDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
 import { format } from 'date-fns';
 import { isCompleteDate } from "../shared/utils/validation";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type EconomicExpenseStore = {
     economicExpenses: EconomicExpense[];
@@ -222,16 +223,25 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
 
         addEconomicExpense: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}economicExpense/add`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         updateEconomicExpense: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}economicExpense/update`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         deleteEconomicExpense: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}economicExpense/delete/${id}`, loggedIdUser);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 

@@ -5,6 +5,7 @@ import { Client, ClientDataForm } from "../shared/types";
 import { formatDateForParam } from "../shared/utils/format";
 import { format } from 'date-fns';
 import { isCompleteDate } from "../shared/utils/validation";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type ClientStore = {
     clients: Client[];
@@ -193,16 +194,25 @@ export const useClientStore = create<ClientStore>()(
 
         addClient: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}client/add`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         updateClient: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}client/update`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         deleteClient: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}client/delete/${id}`, loggedIdUser);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 

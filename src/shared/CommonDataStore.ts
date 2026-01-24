@@ -28,6 +28,7 @@ type CommonDataStore = {
     fetchExercise: () => Promise<any>
     fetchDifficultyRoutines: () => Promise<any>
     fetchExerciseDifficulty: () => Promise<any>
+    refreshAllCommonData: () => Promise<void>
 }
 
 export const useCommonDataStore = create<CommonDataStore>()(
@@ -112,6 +113,24 @@ export const useCommonDataStore = create<CommonDataStore>()(
             const result = await getData(`${import.meta.env.VITE_URL_API}exercisedifficulty/list`);
             set(() => ({ exerciseDifficulty: result.data }));
             return result;
+        },
+
+        refreshAllCommonData: async () => {
+            const state = useCommonDataStore.getState();
+            await Promise.all([
+                state.fetchRoles(),
+                state.fetchMeansOfPayment(),
+                state.fetchActivityTypes(),
+                state.fetchClientTypes(),
+                state.fetchGenders(),
+                state.fetchAllClients(),
+                state.fetchCategories(),
+                state.fetchNotificationTypes(),
+                state.fetchExerciseCategories(),
+                state.fetchExercise(),
+                state.fetchDifficultyRoutines(),
+                state.fetchExerciseDifficulty()
+            ]);
         },
     })
 ))

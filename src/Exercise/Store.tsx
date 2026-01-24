@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Exercise, ExerciseDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 
 type ExerciseStore = {
@@ -116,16 +117,25 @@ export const useExerciseStore = create<ExerciseStore>()(
 
         addExercise: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}exercise/add`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         updateExercise: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}exercise/update/${data.idExercise}`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         deleteExercise: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}exercise/delete/${id}?deletedByUser=${loggedIdUser}`, null);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
         

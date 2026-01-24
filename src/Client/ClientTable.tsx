@@ -6,6 +6,7 @@ import {
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
 import { LuPencilRuler } from "react-icons/lu";
+import { Dumbbell } from "lucide-react";
 import { Link } from "react-router";
 
 import Modal from "../shared/components/Modal";
@@ -177,6 +178,7 @@ function ClientTable({
                             showModalInfo();
                           }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
+                          title="Ver detalles"
                         >
                           <IoIosMore className="text-white" />
                         </button>
@@ -187,6 +189,7 @@ function ClientTable({
                             showModalForm();
                           }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
+                          title="Editar"
                         >
                           <MdModeEdit className="text-white" />
                         </button>
@@ -195,8 +198,18 @@ function ClientTable({
                           to="/gestion/medidas"
                           state={{ idClient: client.idClient }}
                           className="p-2 bg-black rounded hover:bg-gray-800"
+                          title="Ver medidas"
                         >
                           <LuPencilRuler className="text-white" />
+                        </Link>
+
+                        <Link
+                          to="/gestion/rutinas-asignadas"
+                          state={{ idClient: client.idClient }}
+                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          title="Ver rutinas asignadas"
+                        >
+                          <Dumbbell className="text-white" size={18} />
                         </Link>
 
                         {client.isDeleted ? (
@@ -205,6 +218,7 @@ function ClientTable({
                               handleRestore(mapClientToDataForm(client))
                             }
                             className="p-2 bg-black rounded hover:bg-gray-800"
+                            title="Restaurar"
                           >
                             <MdOutlineSettingsBackupRestore className="text-white" />
                           </button>
@@ -212,6 +226,7 @@ function ClientTable({
                           <button
                             onClick={() => handleDelete(client)}
                             className="p-2 bg-black rounded hover:bg-gray-800"
+                            title="Eliminar"
                           >
                             <MdOutlineDelete className="text-white" />
                           </button>

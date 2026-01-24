@@ -31,9 +31,12 @@ export const exportToPDFRutinas = (
   const logo = "/Logo.webp";
   doc.addImage(logo, "WEBP", 13, 8, 35, 15);
 
+  // Título a la derecha del logo
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text(`Reporte de ${title}`, 105, 18, { align: "center" });
+  doc.setFontSize(12);
+  const titleText = `Reporte de ${title}`;
+  const splitTitle = doc.splitTextToSize(titleText, 140);
+  doc.text(splitTitle, 53, 13);
 
   doc.setLineWidth(0.1);
   doc.setDrawColor(200, 200, 200);

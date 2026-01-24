@@ -4,6 +4,7 @@ import { Measurement, MeasurementDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
 import { format } from 'date-fns';
 import { isCompleteDate } from "../shared/utils/validation";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type MeasurementStore = {
     idClient: number;
@@ -131,16 +132,25 @@ export const useMeasurementStore = create<MeasurementStore>()(
 
         addMeasurement: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}measurement/add`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         updateMeasurement: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}measurement/update`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         deleteMeasurement: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}measurement/delete/${id}`, loggedIdUser);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
