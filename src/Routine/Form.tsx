@@ -650,8 +650,8 @@ function Form() {
                               type="number"
                               min="1"
                               className="w-full p-2 border border-gray-300 rounded text-center h-[38px]"
-                              value={ex.series || "0"}
-                              onChange={(e) => updateExerciseField(index, 'series', Math.max(1, Number(e.target.value)))}
+                              value={ex.series || ""}
+                              onChange={(e) => updateExerciseField(index, 'series', e.target.value === "" ? 0 : Number(e.target.value))}
                               disabled={loading}
                             />
                             {ex.idExercise > 0 && ex.series <= 0 && (
@@ -669,8 +669,8 @@ function Form() {
                               type="number"
                               min="1"
                               className="w-full p-2 border border-gray-300 rounded text-center h-[38px]"
-                              value={ex.repetitions || "0"}
-                              onChange={(e) => updateExerciseField(index, 'repetitions', Math.max(1, Number(e.target.value)))}
+                              value={ex.repetitions || ""}
+                              onChange={(e) => updateExerciseField(index, 'repetitions', e.target.value === "" ? 0 : Number(e.target.value))}
                               disabled={loading}
                             />
                             {ex.idExercise > 0 && ex.repetitions <= 0 && (

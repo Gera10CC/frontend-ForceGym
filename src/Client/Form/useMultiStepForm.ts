@@ -105,6 +105,8 @@ export const useMultiStepForm = () => {
 
     const reqClient: ClientDataForm & { paramLoggedIdUser?: number } = {
       ...data,
+      nameEmergencyContact: data.nameEmergencyContact?.trim() || 'no hay',
+      phoneNumberContactEmergency: data.phoneNumberContactEmergency?.trim() || '00000000',
       idUser: loggedUser?.idUser || 1,
       paramLoggedIdUser: loggedUser?.idUser
     };
@@ -145,18 +147,25 @@ export const useMultiStepForm = () => {
     } else {
       await Swal.fire({
         title: 'Error al guardar',
-        text: result.error || 'Ocurrió un error inesperado al guardar el cliente.',
+        text: result.error || result.message || 'Ocurrió un error inesperado al guardar el cliente.',
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#CFAD04',
-        timer: 3000,
-        timerProgressBar: true,
         width: 500,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
         backdrop: true,
+        customClass: {
+          container: 'swal-high-zindex'
+        },
         didOpen: () => {
           const container = Swal.getContainer();
           if (container) {
-            container.style.zIndex = '9999';
+            container.style.zIndex = '99999';
+          }
+          const backdrop = document.querySelector('.swal2-container') as HTMLElement;
+          if (backdrop) {
+            backdrop.style.zIndex = '99999';
           }
         }
       });

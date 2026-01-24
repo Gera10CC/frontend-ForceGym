@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { Routine, RoutineWithExercisesDTO } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
 import { getAuthUser } from "../shared/utils/authentication";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type RoutineStore = {
     routines: Routine[];
@@ -112,7 +113,10 @@ export const useRoutineStore = create<RoutineStore>()(
                 );
                 
                 if (result?.logout) return { logout: true };
-                if (result?.ok) await get().fetchRoutines();
+                if (result?.ok) {
+                    await get().fetchRoutines();
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
                 
                 return result;
             } catch (error) {
@@ -132,7 +136,10 @@ export const useRoutineStore = create<RoutineStore>()(
                 );
                 
                 if (result?.logout) return { logout: true };
-                if (result?.ok) await get().fetchRoutines();
+                if (result?.ok) {
+                    await get().fetchRoutines();
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
                 
                 return result;
             } catch (error) {
@@ -157,6 +164,7 @@ export const useRoutineStore = create<RoutineStore>()(
                 if (result?.logout) return { logout: true };
                 if (result?.ok) {
                     await get().fetchRoutines();
+                    await useCommonDataStore.getState().refreshAllCommonData();
                     return result;
                 }
                 
@@ -181,7 +189,10 @@ export const useRoutineStore = create<RoutineStore>()(
                 );
                 
                 if (result?.logout) return { logout: true };
-                if (result?.ok) await get().fetchRoutines();
+                if (result?.ok) {
+                    await get().fetchRoutines();
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
                 
                 return result;
             } catch (error) {

@@ -24,6 +24,7 @@ export const StepContactInfo = () => {
           type="text" 
           placeholder="Ingrese el número de teléfono" 
           {...register("phoneNumber", {
+            required: 'El número de teléfono es obligatorio',
             minLength: {
               value: MINLENGTH_PHONENUMBER,
               message: `Debe ingresar un número de teléfono de mínimo ${MINLENGTH_PHONENUMBER} carácteres`
@@ -51,6 +52,7 @@ export const StepContactInfo = () => {
           type="email" 
           placeholder="Ingrese el email" 
           {...register("email", {
+            required: 'El email es obligatorio',
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
               message: 'Email no válido'
@@ -72,7 +74,7 @@ export const StepContactInfo = () => {
           id="nameEmergencyContact"
           className="w-full p-3 border border-gray-100"  
           type="text" 
-          placeholder="Ingrese el nombre del contacto de emergencia" 
+          placeholder="Ingrese el nombre del contacto de emergencia (opcional)" 
           {...register("nameEmergencyContact", {
             minLength: {
               value: MINLENGTH_NAME,
@@ -99,7 +101,7 @@ export const StepContactInfo = () => {
           id="phoneNumberContactEmergency"
           className="w-full p-3 border border-gray-100"  
           type="text" 
-          placeholder="Ingrese el número del contacto de emergencia" 
+          placeholder="Ingrese el número del contacto de emergencia (opcional)" 
           {...register("phoneNumberContactEmergency", {
             minLength: {
               value: MINLENGTH_PHONENUMBER,

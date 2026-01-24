@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { User, UserDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type UserStore = {
   users: User[];
@@ -122,17 +123,32 @@ const useUserStore = create<UserStore>()(
     getUserById: (id) => set(() => ({ activeEditingId: id })),
     resetEditing: () => set(() => ({ activeEditingId: 0 })),
 
-    addUser: async (data) =>
-      await postData(`${import.meta.env.VITE_URL_API}user/add`, data),
+    addUser: async (data) => {
+      const result = await postData(`${import.meta.env.VITE_URL_API}user/add`, data);
+      if (result?.ok) {
+        await useCommonDataStore.getState().refreshAllCommonData();
+      }
+      return result;
+    },
 
-    updateUser: async (data) =>
-      await putData(`${import.meta.env.VITE_URL_API}user/update`, data),
+    updateUser: async (data) => {
+      const result = await putData(`${import.meta.env.VITE_URL_API}user/update`, data);
+      if (result?.ok) {
+        await useCommonDataStore.getState().refreshAllCommonData();
+      }
+      return result;
+    },
 
-    deleteUser: async (id, loggedIdUser) =>
-      await deleteData(
+    deleteUser: async (id, loggedIdUser) => {
+      const result = await deleteData(
         `${import.meta.env.VITE_URL_API}user/delete/${id}`,
         loggedIdUser
-      ),
+      );
+      if (result?.ok) {
+        await useCommonDataStore.getState().refreshAllCommonData();
+      }
+      return result;
+    },
 
     changeSize: (size) => set(() => ({ size })),
     changePage: (page) => set(() => ({ page })),

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { ExerciseCategory } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type ExerciseCategoryStore = {
     categories: ExerciseCategory[];
@@ -70,16 +71,25 @@ export const useExerciseCategoryStore = create<ExerciseCategoryStore>()(
 
         addExerciseCategory: async (data) => {
             const result = await postData(`${import.meta.env.VITE_URL_API}exerciseCategory/add`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         updateExerciseCategory: async (data) => {
             const result = await putData(`${import.meta.env.VITE_URL_API}exerciseCategory/update`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 
         deleteExerciseCategory: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}exerciseCategory/delete/${id}`, loggedIdUser);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
             return result;
         },
 

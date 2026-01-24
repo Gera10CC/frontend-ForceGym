@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Asset, AssetDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
+import { useCommonDataStore } from "../shared/CommonDataStore";
 
 type AssetStore = {
     assets: Asset[];
@@ -139,15 +140,27 @@ export const useAssetStore = create<AssetStore>()(
 
 
         addAsset: async (data) => {
-            return await postData(`${import.meta.env.VITE_URL_API}asset/add`, data);
+            const result = await postData(`${import.meta.env.VITE_URL_API}asset/add`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
+            return result;
         },
 
         updateAsset: async (data) => {
-            return await putData(`${import.meta.env.VITE_URL_API}asset/update`, data);
+            const result = await putData(`${import.meta.env.VITE_URL_API}asset/update`, data);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
+            return result;
         },
 
         deleteAsset: async (id, loggedIdUser) => {
-            return await deleteData(`${import.meta.env.VITE_URL_API}asset/delete/${id}`, loggedIdUser);
+            const result = await deleteData(`${import.meta.env.VITE_URL_API}asset/delete/${id}`, loggedIdUser);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
+            return result;
         },
 
         changeSize: (v) => { set({ size: v }); },
