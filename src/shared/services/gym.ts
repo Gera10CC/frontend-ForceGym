@@ -141,15 +141,12 @@ const manageResponse = async (res: Response, url: string = '') => {
   }
 
   if ([400, 405, 406, 407, 408].includes(code)) {
-    console.warn('⚠️ Error en solicitud:', code, result.message);
     return { ...result, ok: false, error: result.message || "Error en solicitud" };
   }
 
   if ([500, 501, 502, 503, 504, 505].includes(code)) {
-    console.error('💥 Error del servidor:', code, result.message);
     return { ...result, ok: false, error: result.message || "Error interno del servidor" };
   }
 
-  console.warn('❓ Código de respuesta no manejado:', code);
   return { ...result, ok: false };
 };
