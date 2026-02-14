@@ -93,6 +93,7 @@ function FormExercise() {
         setValue("idExercise", exercise.idExercise);
         setValue("name", exercise.name);
         setValue("description", exercise.description);
+        setValue("videoUrl", exercise.videoUrl || "");
         setValue("idExerciseDifficulty", exercise.exerciseDifficulty?.idExerciseDifficulty);
         setValue("idExerciseCategory", exercise.exerciseCategory?.idExerciseCategory);
         setValue("isDeleted", exercise.isDeleted);
@@ -156,6 +157,27 @@ function FormExercise() {
           })}
         />
         {errors.description && <ErrorForm>{errors.description.message}</ErrorForm>}
+      </div>
+
+      <div>
+        <label className="text-sm uppercase font-bold">
+          URL del Video <span className="text-gray-500 text-xs normal-case">(Opcional)</span>
+        </label>
+        <input
+          type="text"
+          placeholder="https://www.youtube.com/watch?v=... o https://vimeo.com/..."
+          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          {...register("videoUrl", {
+            pattern: {
+              value: /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|vimeo\.com\/|dai\.ly\/|dailymotion\.com\/video\/)[^\s]+$/,
+              message: "URL inválida. Use YouTube, Vimeo o Dailymotion"
+            },
+          })}
+        />
+        {errors.videoUrl && <ErrorForm>{errors.videoUrl.message}</ErrorForm>}
+        <p className="text-xs text-gray-500 mt-1">
+          Puedes agregar un enlace a un video tutorial del ejercicio
+        </p>
       </div>
 
       <div>

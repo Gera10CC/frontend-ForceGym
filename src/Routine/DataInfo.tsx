@@ -26,6 +26,7 @@ function DataInfo() {
       series: ex.series || 0,
       repetitions: ex.repetitions || 0,
       note: ex.note || "Sin nota",
+      category: globalExercise?.exerciseCategory?.name || "Otros",
     };
   };
 
@@ -37,6 +38,18 @@ function DataInfo() {
   };
 
   const exercises = routineToEdit.exercises || [];
+
+  // Agrupar ejercicios por día
+  const exercisesByDay = exercises.reduce((acc, ex) => {
+    const day = ex.dayNumber || 1;
+    if (!acc[day]) acc[day] = [];
+    acc[day].push(ex);
+    return acc;
+  }, {} as Record<number, RoutineExerciseDTO[]>);
+
+  const days = Object.keys(exercisesByDay)
+    .map(Number)
+    .sort((a, b) => a - b);
 
   return (
     <section
@@ -87,33 +100,58 @@ function DataInfo() {
           </h1>
 
           {exercises.length > 0 ? (
-            <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2">
-              {exercises.map((ex, index) => {
-                const details = getExerciseDetails(ex);
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+              {days.map((day) => {
+                // Agrupar ejercicios del día por categoría
+                const exercisesByCategory = exercisesByDay[day].reduce((acc, ex) => {
+                  const details = getExerciseDetails(ex);
+                  const category = details.category;
+                  if (!acc[category]) acc[category] = [];
+                  acc[category].push({ exercise: ex, details });
+                  return acc;
+                }, {} as Record<string, Array<{ exercise: RoutineExerciseDTO; details: ReturnType<typeof getExerciseDetails> }>>);
+
+                const categories = Object.keys(exercisesByCategory).sort();
 
                 return (
-                  <div
-                    key={`${ex.idExercise}-${index}`}
-                    className="bg-gray-50 p-3 rounded-md border flex flex-col gap-2"
-                  >
-                    <h4 className="font-medium text-sm sm:text-base text-gray-800 break-words">
-                      {details.name}
-                    </h4>
+                  <div key={day} className="space-y-3 border-l-4 border-yellow pl-3">
+                    <h3 className="font-bold text-yellow text-lg">
+                      Día {day}
+                    </h3>
+                    {categories.map((category) => (
+                      <div key={category} className="space-y-2">
+                        <h4 className="font-semibold text-gray-700 text-sm uppercase">
+                          {category}
+                        </h4>
+                        <div className="space-y-2 ml-3">
+                          {exercisesByCategory[category].map(({ exercise: ex, details }, index) => (
+                            <div
+                              key={`${ex.idExercise}-${index}`}
+                              className="bg-gray-50 p-3 rounded-md border flex flex-col gap-2"
+                            >
+                              <h5 className="font-medium text-sm sm:text-base text-gray-800 break-words">
+                                {details.name}
+                              </h5>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-                      <div>
-                        <span className="font-medium">Series:</span>{" "}
-                        {details.series}
+                              <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+                                <div>
+                                  <span className="font-medium">Series:</span>{" "}
+                                  {details.series}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Repeticiones:</span>{" "}
+                                  {details.repetitions}
+                                </div>
+                                <div className="col-span-2">
+                                  <span className="font-medium">Nota:</span>{" "}
+                                  {details.note}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-medium">Repeticiones:</span>{" "}
-                        {details.repetitions}
-                      </div>
-                      <div className="col-span-2">
-                        <span className="font-medium">Nota:</span>{" "}
-                        {details.note}
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 );
               })}

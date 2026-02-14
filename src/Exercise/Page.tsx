@@ -97,8 +97,8 @@ export default function ExerciseManagement() {
           handleSearch={handleSearch}
           changeSearchType={changeSearchType}
         >
-          <option value={1}>Nombre</option>
-          <option value={2}>Descripción</option>
+          <option value={2}>Nombre</option>
+          <option value={3}>Descripción</option>
         </SearchInput>
 
         <ModalFilter

@@ -101,6 +101,12 @@ function DataInfo() {
           </div>
 
           <div className="flex flex-col text-xs sm:text-sm md:text-base">
+            <p className="font-semibold uppercase text-gray-600 text-xs">Correo electrónico</p>
+            <p>{client.person.email}</p>
+          </div>
+
+
+          <div className="flex flex-col text-xs sm:text-sm md:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Número de emergencia
             </p>

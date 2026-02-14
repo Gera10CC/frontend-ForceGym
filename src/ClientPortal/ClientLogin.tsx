@@ -1,23 +1,17 @@
-import { useRef } from "react";
-import type { CredencialUser } from "../shared/types/index";
-import PasswordInput from "../shared/components/PasswordInput";
-import ReCAPTCHA from 'react-google-recaptcha';
-import { Link } from "react-router-dom";
+import { useRef } from 'react';
+import { useClientLogin } from './useClientLogin';
+import PasswordInput from '../shared/components/PasswordInput';
+import { Link } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import ReCAPTCHA from 'react-google-recaptcha';
 
-type LoginProps = {
-    credencialUser: CredencialUser;
-    setCredencialUser: React.Dispatch<React.SetStateAction<CredencialUser>>;
-    handleLoginSubmit: (e: React.FormEvent, refReCaptcha: React.RefObject<ReCAPTCHA>) => void;
-    isSubmitting: boolean;
-};
-
-function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitting }: LoginProps) {
+function ClientLogin() {
     const recaptcha = useRef<ReCAPTCHA>(null);
+    const { credentials, setCredentials, handleLoginSubmit, isSubmitting } = useClientLogin();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setCredencialUser(prev => ({
+        setCredentials(prev => ({
             ...prev,
             [name]: value
         }));
@@ -31,40 +25,50 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
         <div className="flex flex-col justify-center items-center min-h-screen bg-black p-4">
             <main className="flex flex-col lg:flex-row justify-between w-full max-w-6xl bg-white rounded-lg overflow-hidden">
                 <section className="w-full lg:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col">
-
+                
                     <header className="flex justify-center my-4 sm:my-6">
                         <img 
-                            src="Logo.webp" 
+                            src="/Logo.webp" 
                             alt="Logo de Force GYM" 
                             className="w-40 sm:w-52 h-auto"
                         />
                     </header>
 
+                    <div className="text-center mb-6">
+                        <h1 className="text-2xl sm:text-3xl font-bold">Portal del Cliente</h1>
+                        <p className="text-gray-600 mt-2">Accede a tus rutinas y medidas</p>
+                    </div>
+
                     <form 
                         className="flex flex-col gap-4 mt-4"
                         onSubmit={(e) => handleLoginSubmit(e, recaptcha)}
                     >
-                        <label htmlFor='username' className="text-lg sm:text-xl font-bold">Usuario</label>
+                        <label htmlFor='identificationNumber' className="text-lg sm:text-xl font-bold ">
+                            Usuario
+                        </label>
                         <input 
                             type="text" 
-                            name="username" 
-                            id="username" 
-                            value={credencialUser.username} 
+                            name="identificationNumber" 
+                            id="identificationNumber" 
+                            value={credentials.identificationNumber} 
                             onChange={handleInputChange}
-                            placeholder="Ingresar usuario" 
                             required 
+                            placeholder="Ingresa tu usuario"
                             className="p-2 outline-1 border border-gray-300 rounded"
                             disabled={isSubmitting}
+
                         />
 
-                        <label htmlFor="password" className="text-lg sm:text-xl font-bold">Contraseña</label>
+                        <label htmlFor="password" className="text-lg sm:text-xl font-bold">
+                            Contraseña
+                        </label>
                         <PasswordInput
                             id="password"
                             name="password"
-                            value={credencialUser.password}
+                            value={credentials.password}
                             onChange={handleInputChange}
-                            placeholder="Ingresar contraseña"
                             required
+                            placeholder="Ingresa tu contraseña"
                             disabled={isSubmitting}
                             className="border border-gray-300 rounded"
                         />
@@ -90,20 +94,10 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
 
                         <div className="text-center mt-2">
                             <Link
-                                to="/forgot-password"
+                                to="/portal-cliente/recuperar-contrasena"
                                 className="text-sm sm:text-base text-gray-600 hover:underline hover:text-yellow"
                             >
-                                ¿Olvidó su contraseña?
-                            </Link>
-                        </div>
-
-                        <div className="text-center mt-4 pt-4 border-t border-gray-300">
-                            <Link
-                                to="/portal-cliente"
-                                className="text-sm sm:text-base text-black font-semibold hover:text-yellow flex items-center justify-center gap-2"
-                            >
-                                <span>¿Eres cliente del gimnasio?</span>
-                                <span className="underline">Ingresa aquí</span>
+                                ¿Olvidaste tu contraseña?
                             </Link>
                         </div>
                     </form>
@@ -112,9 +106,9 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
                 <aside className="w-full lg:w-1/2 hidden sm:flex items-center justify-center bg-gray-100">
                     <div className="w-full h-full">
                         <img 
-                            src="gym copy.webp" 
-                            alt="Imagen del equipo de Force GYM" 
-                            className="w-full h-full object-cover object-center"
+                             src="/gym copy.webp" 
+                            alt="Imagen del gimnasio" 
+                            className="w-full h-full object-cover"
                         />
                     </div>
                 </aside>
@@ -123,4 +117,4 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
     );
 }
 
-export default Login;
+export default ClientLogin;

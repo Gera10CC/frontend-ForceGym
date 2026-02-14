@@ -90,33 +90,37 @@ function ForgotPasswordForm () {
     };
 
     return (
-        <div className="flex flex-col justify-center items-center h-screen bg-black">
-            <main className="self-center text-center justify-center h-[70vh] gap-16 p-12 w-[80vh] bg-white rounded-lg">
-                <header className="flex between gap-4 items-center mb-8">
+        <div className="flex flex-col justify-center items-center min-h-screen bg-black py-4 px-3 sm:py-8 sm:px-4">
+            <main className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl bg-white rounded-lg shadow-2xl p-4 sm:p-6 md:p-8">
+                <header className="flex items-center gap-3 mb-4 sm:mb-6">
                     <Link
                         to={"/login"}
-                        className="hover:text-yellow "
+                        className="hover:text-yellow transition-colors flex-shrink-0"
                     >
-                        <MdArrowBackIosNew/>
+                        <MdArrowBackIosNew size={20} className="sm:w-6 sm:h-6" />
                     </Link>
 
-                    <h1 className="font-bold text-xl">Recuperación de contraseña</h1>
+                    <h1 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl">Recuperación de contraseña</h1>
                 </header>
 
-                <section className="flex flex-col h-full gap-4">
-                    <form className="flex flex-col gap-4" onSubmit={(e) => {handleSubmit(e)}}>
-                        <label htmlFor='email' className="text-start text-1xl font-bold">Correo electrónico</label>
+                <section className="flex flex-col">
+                    <form className="flex flex-col gap-3 sm:gap-4" onSubmit={(e) => {handleSubmit(e)}}>
+                        <label htmlFor='email' className="text-start text-xs sm:text-sm font-bold text-gray-700">Correo electrónico</label>
                         <input 
-                            type="text" 
+                            type="email" 
                             name="email" 
                             id="email" 
-                            placeholder="Ingresar email" 
+                            placeholder="tu.email@ejemplo.com" 
                             required 
-                            className="p-2 outline-1"
+                            className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm sm:text-base"
                         />
 
-                        <ReCAPTCHA ref={recaptcha} sitekey={`${import.meta.env.VITE_RECAPTCHA_SITE_KEY}`} />
-                        <button type="submit" className="text-1xl mt-4 py-2 bg-black text-white rounded-4xl transition-all hover:bg-yellow hover:text-black hover:cursor-pointer">Enviar</button>
+                        <div className="flex justify-center sm:justify-start w-full">
+                            <div className="transform scale-[0.85] origin-left sm:scale-100">
+                                <ReCAPTCHA ref={recaptcha} sitekey={`${import.meta.env.VITE_RECAPTCHA_SITE_KEY}`} />
+                            </div>
+                        </div>
+                        <button type="submit" className="w-full text-sm sm:text-base md:text-lg mt-2 sm:mt-4 py-2.5 sm:py-3 bg-black text-white rounded-lg transition-all hover:bg-yellow hover:text-black hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">Enviar enlace de recuperación</button>
                     </form>                    
                 </section>
             </main>

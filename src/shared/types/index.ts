@@ -233,6 +233,7 @@ export type Exercise = {
     idExercise: number;
     name: string;
     description: string;
+    videoUrl?: string;
     difficulty: string;
     series: number;
     repetitions: number;
@@ -269,6 +270,7 @@ export type RoutineExercise = {
     repetitions: number;
     note: string;
     categoryOrder: number;
+    dayNumber?: number;
 };
 
 export type RoutineAssignment = {
@@ -298,6 +300,7 @@ export type RoutineExerciseDTO = {
     repetitions: number;
     note: string;
     categoryOrder: number;
+    dayNumber?: number;
 };
 
 export type RoutineAssignmentDTO = {
@@ -337,4 +340,26 @@ export type RoutineDataForm = {
         idClient: number;
         assignmentDate?: string;
     }[];
+};
+
+// -----------------------------------------------------
+// Client Portal Types
+// -----------------------------------------------------
+
+export type ClientCredentials = {
+    identificationNumber: string;
+    password: string;
+    recaptchaToken: string;
+};
+
+export type ClientLogin = {
+    idClient: number;
+    person: Person;
+    token: string;
+};
+
+export type ClientRoutine = {
+    idRoutineAssignment: number;
+    routine: Routine;
+    assignmentDate: Date;
 };

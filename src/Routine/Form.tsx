@@ -19,6 +19,7 @@ type SelectedExercise = {
   note: string;
   category: string;
   categoryId: number;
+  dayNumber: number;
 };
 
 type ClientOption = {
@@ -60,6 +61,8 @@ function Form() {
   const [draggedCategoryId, setDraggedCategoryId] = useState<number | null>(null);
   const [dragOverCategoryId, setDragOverCategoryId] = useState<number | null>(null);
   const [orderedCategories, setOrderedCategories] = useState<ExerciseCategory[]>([]);
+  const [numberOfDays, setNumberOfDays] = useState<number>(1);
+  const [activeDay, setActiveDay] = useState<number>(1);
   const handleDragStart = (categoryId: number) => {
     setDraggedCategoryId(categoryId);
   };
@@ -137,7 +140,8 @@ function Form() {
         repetitions: 0,
         note: "",
         category: category.name,
-        categoryId: category.idExerciseCategory
+        categoryId: category.idExerciseCategory,
+        dayNumber: 1
       }));
       setSelectedExercises(initialExercises);
     }
@@ -213,19 +217,27 @@ function Form() {
             repetitions: ex.repetitions || 0,
             note: ex.note || "Sin nota",
             category: category?.name || "Sin categoría",
-            categoryId: category?.idExerciseCategory || 0
+            categoryId: category?.idExerciseCategory || 0,
+            dayNumber: ex.dayNumber || 1
           };
         });
 
-        const emptyCategories = unusedCategories.map(cat => ({
-          idExercise: 0,
-          name: "",
-          series: 0,
-          repetitions: 0,
-          note: "",
-          category: cat.name,
-          categoryId: cat.idExerciseCategory
-        }));
+        // Calcular el número máximo de días
+        const maxDay = Math.max(...loadedExercises.map(ex => ex.dayNumber), 1);
+        setNumberOfDays(maxDay);
+
+        const emptyCategories = unusedCategories.flatMap(cat => 
+          Array.from({ length: maxDay }, (_, i) => ({
+            idExercise: 0,
+            name: "",
+            series: 0,
+            repetitions: 0,
+            note: "",
+            category: cat.name,
+            categoryId: cat.idExerciseCategory,
+            dayNumber: i + 1
+          }))
+        );
 
         setSelectedExercises([...loadedExercises, ...emptyCategories]);
       }
@@ -307,7 +319,8 @@ function Form() {
             series: ex.series,
             repetitions: ex.repetitions,
             note: ex.note,
-            categoryOrder: index 
+            categoryOrder: index,
+            dayNumber: ex.dayNumber
           }));
       }),
       assignments: selectedClients.map(client => ({
@@ -384,10 +397,13 @@ function Form() {
           repetitions: 0,
           note: "",
           category: category.name,
-          categoryId: category.idExerciseCategory
+          categoryId: category.idExerciseCategory,
+          dayNumber: 1
         }))
       );
     }
+    setNumberOfDays(1);
+    setActiveDay(1);
   };
 
   const handleLogout = () => {
@@ -480,7 +496,8 @@ function Form() {
         repetitions: 0,
         note: "",
         category: category.name,
-        categoryId: category.idExerciseCategory
+        categoryId: category.idExerciseCategory,
+        dayNumber: activeDay
       }
     ]);
   };
@@ -503,7 +520,44 @@ function Form() {
   const getExercisesForCategory = (categoryId: number) => {
     return selectedExercises
       .map((ex, index) => ({ ...ex, index }))
-      .filter(ex => ex.categoryId === categoryId);
+      .filter(ex => ex.categoryId === categoryId && ex.dayNumber === activeDay);
+  };
+
+  const addDay = () => {
+    const newDayNumber = numberOfDays + 1;
+    setNumberOfDays(newDayNumber);
+    
+    // Agregar ejercicios vacíos para el nuevo día
+    const newExercises = exerciseCategories.map(category => ({
+      idExercise: 0,
+      name: "",
+      series: 0,
+      repetitions: 0,
+      note: "",
+      category: category.name,
+      categoryId: category.idExerciseCategory,
+      dayNumber: newDayNumber
+    }));
+    
+    setSelectedExercises(prev => [...prev, ...newExercises]);
+    setActiveDay(newDayNumber);
+  };
+
+  const removeDay = (dayToRemove: number) => {
+    if (numberOfDays <= 1) return;
+    
+    // Eliminar todos los ejercicios del día
+    setSelectedExercises(prev => prev.filter(ex => ex.dayNumber !== dayToRemove));
+    
+    // Actualizar el número de días
+    setNumberOfDays(numberOfDays - 1);
+    
+    // Si el día activo era el que se eliminó, cambiar al día 1
+    if (activeDay === dayToRemove) {
+      setActiveDay(1);
+    } else if (activeDay > dayToRemove) {
+      setActiveDay(activeDay - 1);
+    }
   };
 
   return (
@@ -584,9 +638,66 @@ function Form() {
         {errors.name && <ErrorForm>{errors.name.message}</ErrorForm>}
       </div>
 
+      {/* Tabs de días */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-yellow">Días de Entrenamiento</h2>
+          <button
+            type="button"
+            onClick={addDay}
+            className="bg-yellow text-black px-4 py-2 rounded hover:bg-amber-600 transition-colors text-sm font-semibold"
+            disabled={loading}
+          >
+            + Agregar Día
+          </button>
+        </div>
+        
+        <div className="flex gap-2 flex-wrap">
+          {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
+            <div key={day} className="relative group">
+              <button
+                type="button"
+                onClick={() => setActiveDay(day)}
+                className={`px-6 py-3 rounded-t-lg font-semibold transition-all ${
+                  activeDay === day
+                    ? 'bg-yellow text-black'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+                disabled={loading}
+              >
+                Día {day}
+              </button>
+              {numberOfDays > 1 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    Swal.fire({
+                      title: '¿Eliminar día?',
+                      text: `Se eliminarán todos los ejercicios del Día ${day}`,
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Eliminar',
+                      cancelButtonText: 'Cancelar',
+                      confirmButtonColor: '#CFAD04'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        removeDay(day);
+                      }
+                    });
+                  }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs hover:bg-red-600"
+                  disabled={loading}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="mb-8">
-        <h2 className="text-lg font-bold mb-4 text-yellow">Ejercicios</h2>
+        <h2 className="text-lg font-bold mb-4 text-yellow">Ejercicios - Día {activeDay}</h2>
         {orderedCategories.map((category) => {
           const categoryExercises = getExercisesForCategory(category.idExerciseCategory);
           const isDragged = draggedCategoryId === category.idExerciseCategory;
