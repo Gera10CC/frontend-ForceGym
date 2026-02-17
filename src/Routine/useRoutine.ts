@@ -129,30 +129,58 @@ export const useRoutine = () => {
             if (!currentRoutine) throw new Error("Rutina no encontrada");
 
             const exerciseHeaders = [
+                "Día",
+                "Categoría",
                 "Paso",
                 "Ejercicio",
-                "Grupo Muscular",
                 "Series",
                 "Repeticiones",
                 "Indicaciones"
             ];
 
-            let stepCounter = 1;
+            // Agrupar ejercicios por día
+            const exercisesByDay = currentRoutine.exercises?.reduce((acc, ex) => {
+                const day = ex.dayNumber || 1;
+                if (!acc[day]) acc[day] = [];
+                acc[day].push(ex);
+                return acc;
+            }, {} as Record<number, RoutineExerciseDTO[]>) || {};
 
-            const exerciseRows = currentRoutine.exercises?.map((ex) => {
-                const details = getExerciseDetails(ex);
+            const days = Object.keys(exercisesByDay)
+                .map(Number)
+                .sort((a, b) => a - b);
 
-                return [
-                    `Paso ${stepCounter++}`,
-                    details.name,
-                    details.category,
-                    `${details.series}`,
-                    `${details.repetitions}`,
-                    details.note && details.note !== "Sin nota"
-                        ? details.note
-                        : ""
-                ];
-            }) || [];
+            const exerciseRows: string[][] = [];
+            
+            days.forEach((day) => {
+                // Agrupar ejercicios del día por categoría
+                const exercisesByCategory = exercisesByDay[day].reduce((acc, ex) => {
+                    const details = getExerciseDetails(ex);
+                    const category = details.category;
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push({ exercise: ex, details });
+                    return acc;
+                }, {} as Record<string, Array<{ exercise: RoutineExerciseDTO; details: ReturnType<typeof getExerciseDetails> }>>);
+
+                const categories = Object.keys(exercisesByCategory).sort();
+
+                categories.forEach((category) => {
+                    let stepCounter = 1;
+                    exercisesByCategory[category].forEach(({ details }) => {
+                        exerciseRows.push([
+                            `Día ${day}`,
+                            category,
+                            `Paso ${stepCounter++}`,
+                            details.name,
+                            `${details.series}`,
+                            `${details.repetitions}`,
+                            details.note && details.note !== "Sin nota"
+                                ? details.note
+                                : ""
+                        ]);
+                    });
+                });
+            });
 
             return {
                 exportToPDF: () => exportToPDFRutinas(

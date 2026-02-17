@@ -60,7 +60,7 @@ export const useExerciseStore = create<ExerciseStore>()(
         totalRecords: 0,
         orderBy: "",
         directionOrderBy: "DESC",
-        searchType: 1,
+        searchType: 2,
         searchTerm: "",
         filterByStatus: "",
         filterByDifficulty: "",

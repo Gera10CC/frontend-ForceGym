@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useCallback, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type PaginationProps = {
@@ -18,6 +18,8 @@ export default function Pagination({
   onPageChange,
   isLoading = false,
 }: PaginationProps) {
+  const isChangingRef = useRef(false);
+
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(totalRecords / size)),
     [totalRecords, size]
@@ -37,16 +39,35 @@ export default function Pagination({
 
   const handlePageChange = useCallback(
     (newPage: number) => {
-      if (isLoading) return;
+      // Prevenir múltiples clics rápidos
+      if (isLoading || isChangingRef.current) return;
+      
       const validPage = Math.min(Math.max(newPage, 1), totalPages);
-      if (validPage !== currentPage) onPageChange(validPage);
+      if (validPage !== currentPage) {
+        isChangingRef.current = true;
+        onPageChange(validPage);
+        
+        // Resetear después de un breve delay para permitir el siguiente cambio
+        setTimeout(() => {
+          isChangingRef.current = false;
+        }, 300);
+      }
     },
     [currentPage, totalPages, onPageChange, isLoading]
   );
 
   const handleSizeChange = useCallback(
     (newSize: number) => {
-      if (!isLoading) onSizeChange(newSize);
+      // Prevenir múltiples cambios rápidos
+      if (!isLoading && !isChangingRef.current) {
+        isChangingRef.current = true;
+        onSizeChange(newSize);
+        
+        // Resetear después de un breve delay
+        setTimeout(() => {
+          isChangingRef.current = false;
+        }, 300);
+      }
     },
     [onSizeChange, isLoading]
   );

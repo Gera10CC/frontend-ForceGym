@@ -51,73 +51,108 @@ export const exportToPDFRutinas = (
   doc.line(13, 50, 195, 50);
 
   /* ======================================
-     ✅ AGRUPAR POR GRUPO MUSCULAR
+     ✅ AGRUPAR POR DÍA Y CATEGORÍA
   ====================================== */
-  const muscleColors: Record<string, [number, number, number]> = {
-    "Pecho": [40, 167, 69],
-    "Pierna": [0, 123, 255],
-    "Espalda": [255, 159, 64],
-    "Bíceps": [111, 66, 193],
-    "Tríceps": [220, 53, 69],
-    "Hombro": [23, 162, 184],
-    "Abdomen": [255, 193, 7],
-    "Otros": [108, 117, 125],
-  };
+  const dayColors: [number, number, number][] = [
+    [207, 173, 4],   // Día 1 - Amarillo (yellow del sistema)
+    [0, 123, 255],   // Día 2 - Azul
+    [40, 167, 69],   // Día 3 - Verde
+    [255, 159, 64],  // Día 4 - Naranja
+    [111, 66, 193],  // Día 5 - Púrpura
+    [220, 53, 69],   // Día 6 - Rojo
+    [23, 162, 184],  // Día 7 - Cian
+  ];
 
-  const grouped: Record<string, any[][]> = {};
+  // Estructura: { "Día 1": { "Pierna": [...], "Glúteo": [...] }, "Día 2": { ... } }
+  const groupedByDay: Record<string, Record<string, any[][]>> = {};
 
   tableRows.forEach(row => {
-    const grupo = row[2] || "Otros"; // Grupo Muscular
-    if (!grouped[grupo]) grouped[grupo] = [];
-    grouped[grupo].push(row);
+    const dia = row[0] || "Día 1";        // Columna: Día
+    const categoria = row[1] || "Otros";  // Columna: Categoría
+    
+    if (!groupedByDay[dia]) groupedByDay[dia] = {};
+    if (!groupedByDay[dia][categoria]) groupedByDay[dia][categoria] = [];
+    
+    groupedByDay[dia][categoria].push(row);
   });
 
   /* ======================================
-     ✅ TABLAS POR GRUPO (MISMA HOJA)
+     ✅ TABLAS POR DÍA Y CATEGORÍA
   ====================================== */
   let currentY = 60;
 
-  Object.entries(grouped).forEach(([grupo, rows]) => {
-    const color = muscleColors[grupo] || muscleColors["Otros"];
-
+  Object.entries(groupedByDay).forEach(([dia, categorias]) => {
     // ✅ Si no cabe, nueva hoja
-    if (currentY > 240) {
+    if (currentY > 230) {
       doc.addPage();
       currentY = 30;
     }
 
-    // ✅ Título del grupo
+    // ✅ Título del día (más grande y destacado)
+    const dayNumber = parseInt(dia.replace(/\D/g, '')) || 1;
+    const dayColor = dayColors[(dayNumber - 1) % dayColors.length];
+    
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor(...color);
-    doc.text(`Grupo Muscular: ${grupo}`, 13, currentY);
-
+    doc.setFontSize(16);
+    doc.setTextColor(...dayColor);
+    doc.text(dia.toUpperCase(), 13, currentY);
+    
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(...dayColor);
+    doc.line(13, currentY + 2, 195, currentY + 2);
+    
     doc.setTextColor(0, 0, 0);
-    currentY += 5;
+    currentY += 10;
 
-    // ✅ Tabla del grupo
-    autoTable(doc, {
-      startY: currentY,
-      head: [tableColumn],
-      body: rows,
-      theme: "striped",
-      styles: {
-        fontSize: 9,
-        halign: "center",
-        cellPadding: 2,
-      },
-      headStyles: {
-        fillColor: color,
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245],
-      },
-      margin: { left: 10, right: 10 },
+    // ✅ Iterar por categorías dentro del día
+    Object.entries(categorias).forEach(([categoria, rows]) => {
+      // ✅ Usar el color del día para todas las categorías
+      const categoryColor = dayColor;
+
+      // ✅ Si no cabe, nueva hoja
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 30;
+      }
+
+      // ✅ Título de la categoría (subcategoría dentro del día)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...categoryColor);
+      doc.text(`Categoría: ${categoria}`, 20, currentY);
+
+      doc.setTextColor(0, 0, 0);
+      currentY += 5;
+
+      // ✅ Tabla de ejercicios de esta categoría (sin columnas Día y Categoría)
+      const filteredColumns = tableColumn.slice(2); // Omitir "Día" y "Categoría"
+      const filteredRows = rows.map(row => row.slice(2)); // Omitir primeras 2 columnas
+      
+      autoTable(doc, {
+        startY: currentY,
+        head: [filteredColumns],
+        body: filteredRows,
+        theme: "striped",
+        styles: {
+          fontSize: 9,
+          halign: "center",
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: categoryColor,
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+        margin: { left: 15, right: 10 },
+      });
+
+      currentY = (doc as any).lastAutoTable.finalY + 8;
     });
 
-    currentY = (doc as any).lastAutoTable.finalY + 12;
+    currentY += 5; // Espaciado extra entre días
   });
 
   /* ======================================

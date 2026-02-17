@@ -1,4 +1,5 @@
 import useExerciseStore from "./Store";
+import { FaVideo } from "react-icons/fa";
 
 function DataInfo() {
   const { exercises, activeEditingId } = useExerciseStore();
@@ -76,6 +77,23 @@ function DataInfo() {
             </p>
             <p>{exercise.exerciseCategory.name}</p>
           </div>
+
+          {exercise.videoUrl && (
+            <div className="flex flex-col text-sm sm:text-base">
+              <p className="font-semibold uppercase text-gray-600 text-xs mb-2">
+                Video Tutorial
+              </p>
+              <a
+                href={exercise.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-yellow text-black px-4 py-2 rounded-lg hover:bg-amber-500 transition-colors w-fit"
+              >
+                <FaVideo />
+                Ver Video
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </section>
