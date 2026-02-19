@@ -32,6 +32,7 @@ export type Fee = {
 export type ActivityType = {
     idActivityType: number
     name: string
+    durationDays: number
     fees: Fee[]
     isDeleted: number
 }
@@ -356,10 +357,19 @@ export type ClientLogin = {
     idClient: number;
     person: Person;
     token: string;
+    expirationMembershipDate?: Date | string;
+    registrationDate?: Date | string;
 };
 
 export type ClientRoutine = {
     idRoutineAssignment: number;
     routine: Routine;
     assignmentDate: Date;
+};
+
+export type ClientExerciseNote = {
+    idClientExerciseNote?: number;
+    idClient: number;
+    idRoutineExercise: number;
+    personalNote: string;
 };

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { clientPortalService } from './clientPortalService';
 import type { ClientLogin, ClientRoutine, Measurement } from '../shared/types';
 import Swal from 'sweetalert2';
-import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle, FaVideo, FaPlay } from 'react-icons/fa';
+import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle, FaVideo, FaPlay, FaCalendarAlt, FaCheckCircle, FaClock } from 'react-icons/fa';
 import ChangePasswordModal from './ChangePasswordModal';
 
 function ClientDashboard() {
@@ -25,10 +25,35 @@ function ClientDashboard() {
             return;
         }
 
+        // Cargar datos iniciales del localStorage mientras se obtienen los actualizados
         setClientData(JSON.parse(storedClientData));
         loadData();
+        loadUpdatedProfile();
         checkProvisionalPassword();
     }, [navigate]);
+
+    const loadUpdatedProfile = async () => {
+        try {
+            // Obtener datos actualizados del perfil (incluye fecha de vencimiento actualizada)
+            const updatedProfile = await clientPortalService.getMyProfile();
+            const clientToken = localStorage.getItem('clientToken');
+            
+            if (updatedProfile && clientToken) {
+                // Mantener el token del localStorage pero actualizar los demás datos
+                const updatedClientData: ClientLogin = {
+                    ...updatedProfile,
+                    token: clientToken
+                };
+                
+                // Actualizar localStorage y estado
+                localStorage.setItem('clientData', JSON.stringify(updatedClientData));
+                setClientData(updatedClientData);
+            }
+        } catch (error) {
+            console.error('Error obteniendo perfil actualizado:', error);
+            // No mostrar error al usuario, simplemente usar los datos del localStorage
+        }
+    };
 
     const checkProvisionalPassword = async () => {
         try {
@@ -200,6 +225,37 @@ function ClientDashboard() {
         });
     };
 
+    const getMembershipStatus = () => {
+        if (!clientData?.expirationMembershipDate) {
+            return { status: 'unknown', daysRemaining: 0 };
+        }
+        
+        console.log('=== DEBUG Membresía ===');
+        console.log('Fecha expiración (raw):', clientData.expirationMembershipDate);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        console.log('Hoy:', today.toISOString());
+        
+        const expirationDate = new Date(clientData.expirationMembershipDate);
+        console.log('Fecha expiración (parsed):', expirationDate.toISOString());
+        expirationDate.setHours(0, 0, 0, 0);
+        
+        const diffTime = expirationDate.getTime() - today.getTime();
+        const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        console.log('Días restantes:', daysRemaining);
+        
+        if (daysRemaining < 0) {
+            return { status: 'expired', daysRemaining: Math.abs(daysRemaining) };
+        } else if (daysRemaining <= 7) {
+            return { status: 'warning', daysRemaining };
+        } else {
+            return { status: 'active', daysRemaining };
+        }
+    };
+
+    const membershipStatus = getMembershipStatus();
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -266,6 +322,78 @@ function ClientDashboard() {
                                 Cambiar ahora
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Tarjeta de estado de membresía */}
+            {clientData?.expirationMembershipDate && (
+                <div className="container mx-auto px-3 md:px-8 pt-3 md:pt-4">
+                    <div className={`rounded-lg shadow-lg p-4 md:p-6 ${
+                        membershipStatus.status === 'expired' 
+                            ? 'bg-red-100 border-l-4 border-red-500' 
+                            : membershipStatus.status === 'warning'
+                                ? 'bg-orange-100 border-l-4 border-orange-500'
+                                : 'bg-green-100 border-l-4 border-green-500'
+                    }`}>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="flex items-start gap-3">
+                                {membershipStatus.status === 'expired' ? (
+                                    <FaExclamationTriangle className="text-red-500 text-2xl md:text-3xl mt-1 flex-shrink-0" />
+                                ) : membershipStatus.status === 'warning' ? (
+                                    <FaClock className="text-orange-500 text-2xl md:text-3xl mt-1 flex-shrink-0" />
+                                ) : (
+                                    <FaCheckCircle className="text-green-500 text-2xl md:text-3xl mt-1 flex-shrink-0" />
+                                )}
+                                <div>
+                                    <h3 className={`font-bold text-lg md:text-xl ${
+                                        membershipStatus.status === 'expired' 
+                                            ? 'text-red-700' 
+                                            : membershipStatus.status === 'warning'
+                                                ? 'text-orange-700'
+                                                : 'text-green-700'
+                                    }`}>
+                                        {membershipStatus.status === 'expired' 
+                                            ? 'Membresía Vencida' 
+                                            : membershipStatus.status === 'warning'
+                                                ? 'Membresía por Vencer'
+                                                : 'Membresía Activa'}
+                                    </h3>
+                                    <p className={`text-sm md:text-base ${
+                                        membershipStatus.status === 'expired' 
+                                            ? 'text-red-600' 
+                                            : membershipStatus.status === 'warning'
+                                                ? 'text-orange-600'
+                                                : 'text-green-600'
+                                    }`}>
+                                        {membershipStatus.status === 'expired' 
+                                            ? `Tu membresía venció hace ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''}.` 
+                                            : membershipStatus.status === 'warning'
+                                                ? `Te quedan ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''} antes de que venza.`
+                                                : `Te quedan ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''} de membresía.`}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-start sm:items-end">
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <FaCalendarAlt />
+                                    <span className="text-xs md:text-sm font-medium">Fecha de vencimiento:</span>
+                                </div>
+                                <span className="text-base md:text-lg font-bold text-gray-800">
+                                    {formatDate(clientData.expirationMembershipDate)}
+                                </span>
+                            </div>
+                        </div>
+                        {membershipStatus.status === 'expired' && (
+                            <p className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded">
+                                Por favor, acércate a recepción para renovar tu membresía y continuar disfrutando de nuestros servicios.
+                            </p>
+                        )}
+                        {membershipStatus.status === 'warning' && (
+                            <p className="mt-3 text-sm text-orange-600 bg-orange-50 p-2 rounded">
+                                Recuerda renovar tu membresía antes de la fecha de vencimiento para no perder acceso al gimnasio.
+                            </p>
+                        )}
                     </div>
                 </div>
             )}

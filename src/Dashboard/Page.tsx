@@ -6,6 +6,7 @@ import { formatAmountToCRC } from "../shared/utils/format";
 import { useEconomicBalanceStore } from '../Balance/Store';
 import { useNavigate } from "react-router";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
+import MembershipCalendar from "./MembershipCalendar";
 
 function DashboardManagement() {
   const {
@@ -184,6 +185,9 @@ function DashboardManagement() {
             </div>
           </div>
         </div>
+
+        {/* Calendario de Vencimientos */}
+        <MembershipCalendar />
       </main>
 
       {/* Notificaciones Modal */}

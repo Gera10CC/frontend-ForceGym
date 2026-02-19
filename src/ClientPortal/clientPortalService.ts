@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ClientCredentials, ClientLogin, ClientRoutine, Measurement } from '../shared/types';
+import type { ClientCredentials, ClientExerciseNote, ClientLogin, ClientRoutine, Measurement } from '../shared/types';
 import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -110,5 +110,34 @@ export const clientPortalService = {
             newPassword,
             confirmPassword
         });
+    },
+
+    // Obtener perfil actualizado del cliente (con fecha de vencimiento actualizada)
+    getMyProfile: async (): Promise<ClientLogin> => {
+        const response = await api.get('/my-profile');
+        return response.data?.data?.profile;
+    },
+
+    // Notas personales de ejercicios
+    getExerciseNotes: async (idRoutine: number): Promise<ClientExerciseNote[]> => {
+        const response = await api.get(`/exercise-notes/${idRoutine}`);
+        return response.data?.data?.notes || [];
+    },
+
+    getAllExerciseNotes: async (): Promise<ClientExerciseNote[]> => {
+        const response = await api.get('/exercise-notes');
+        return response.data?.data?.notes || [];
+    },
+
+    saveExerciseNote: async (idRoutineExercise: number, personalNote: string): Promise<ClientExerciseNote> => {
+        const response = await api.post('/exercise-notes', {
+            idRoutineExercise,
+            personalNote
+        });
+        return response.data?.data?.note;
+    },
+
+    deleteExerciseNote: async (idRoutineExercise: number): Promise<void> => {
+        await api.post(`/exercise-notes/delete/${idRoutineExercise}`);
     }
 };
