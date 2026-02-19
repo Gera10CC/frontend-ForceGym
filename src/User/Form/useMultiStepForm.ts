@@ -113,6 +113,14 @@ export const useMultiStepForm = () => {
       setAuthHeader(null);
       setAuthUser(null);
       navigate('/login');
+    } else {
+      await Swal.fire({
+        title: 'Error',
+        text: result.error || result.message || 'Ocurrió un error al guardar el usuario',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#CFAD04'
+      });
     }
   };
 

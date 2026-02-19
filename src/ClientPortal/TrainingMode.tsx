@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clientPortalService } from './clientPortalService';
-import type { ClientRoutine, RoutineExercise } from '../shared/types';
-import { FaArrowLeft, FaChevronLeft, FaChevronRight, FaCheckCircle, FaList } from 'react-icons/fa';
+import type { ClientExerciseNote, ClientRoutine, RoutineExercise } from '../shared/types';
+import { FaArrowLeft, FaChevronLeft, FaChevronRight, FaCheckCircle, FaList, FaStickyNote, FaSave } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
 function TrainingMode() {
@@ -14,10 +14,28 @@ function TrainingMode() {
     const [showPlaylist, setShowPlaylist] = useState(false);
     const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set());
     const [loading, setLoading] = useState(true);
+    
+    // Estados para notas personales
+    const [personalNotes, setPersonalNotes] = useState<Map<number, string>>(new Map());
+    const [currentPersonalNote, setCurrentPersonalNote] = useState<string>('');
+    const [savingNote, setSavingNote] = useState(false);
+    const [showNoteInput, setShowNoteInput] = useState(false);
 
     useEffect(() => {
         loadRoutine();
     }, [idRoutineAssignment]);
+
+    // Cargar nota personal cuando cambia el ejercicio actual
+    useEffect(() => {
+        const currentExercise = getCurrentExercise();
+        if (currentExercise?.idRoutineExercise) {
+            const savedNote = personalNotes.get(currentExercise.idRoutineExercise) || '';
+            setCurrentPersonalNote(savedNote);
+        } else {
+            setCurrentPersonalNote('');
+        }
+        setShowNoteInput(false);
+    }, [currentExerciseIndex, selectedDay, personalNotes]);
 
     const loadRoutine = async () => {
         try {
@@ -27,6 +45,19 @@ function TrainingMode() {
             
             if (foundRoutine) {
                 setRoutine(foundRoutine);
+                
+                // Cargar notas personales para esta rutina
+                try {
+                    const notes = await clientPortalService.getExerciseNotes(foundRoutine.routine.idRoutine);
+                    const notesMap = new Map<number, string>();
+                    notes.forEach((note: ClientExerciseNote) => {
+                        notesMap.set(note.idRoutineExercise, note.personalNote);
+                    });
+                    setPersonalNotes(notesMap);
+                } catch (noteError) {
+                    console.error('Error cargando notas personales:', noteError);
+                    // No mostrar error al usuario, simplemente no habrá notas
+                }
             } else {
                 await Swal.fire({
                     icon: 'error',
@@ -114,6 +145,46 @@ function TrainingMode() {
             newCompleted.add(currentExerciseIndex);
         }
         setCompletedExercises(newCompleted);
+    };
+
+    const handleSavePersonalNote = async () => {
+        const currentExercise = getCurrentExercise();
+        if (!currentExercise?.idRoutineExercise) return;
+
+        setSavingNote(true);
+        try {
+            await clientPortalService.saveExerciseNote(
+                currentExercise.idRoutineExercise,
+                currentPersonalNote
+            );
+            
+            // Actualizar el mapa de notas localmente
+            const newNotes = new Map(personalNotes);
+            if (currentPersonalNote.trim()) {
+                newNotes.set(currentExercise.idRoutineExercise, currentPersonalNote);
+            } else {
+                newNotes.delete(currentExercise.idRoutineExercise);
+            }
+            setPersonalNotes(newNotes);
+            setShowNoteInput(false);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Nota guardada',
+                text: 'Tu nota personal ha sido guardada exitosamente',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            console.error('Error guardando nota:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo guardar la nota'
+            });
+        } finally {
+            setSavingNote(false);
+        }
     };
 
     const getVideoEmbedUrl = (url: string): string | null => {
@@ -299,13 +370,71 @@ function TrainingMode() {
                                         </div>
                                     </div>
 
-                                    {/* Notas */}
+                                    {/* Notas del entrenador */}
                                     {currentExercise.note && currentExercise.note !== '-' && (
                                         <div className="bg-gray-700 border-l-4 border-yellow p-4 rounded">
-                                            <h4 className="font-semibold mb-2 text-yellow">Notas:</h4>
+                                            <h4 className="font-semibold mb-2 text-yellow">Indicaciones del entrenador:</h4>
                                             <p className="text-gray-300">{currentExercise.note}</p>
                                         </div>
                                     )}
+
+                                    {/* Notas personales del cliente */}
+                                    <div className="bg-gray-700 border-l-4 border-blue-500 p-4 rounded">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="font-semibold text-blue-400 flex items-center gap-2">
+                                                <FaStickyNote /> Mis notas personales:
+                                            </h4>
+                                            {!showNoteInput && (
+                                                <button
+                                                    onClick={() => setShowNoteInput(true)}
+                                                    className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                                                >
+                                                    {currentPersonalNote ? 'Editar' : 'Agregar nota'}
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        {showNoteInput ? (
+                                            <div className="space-y-3">
+                                                <textarea
+                                                    value={currentPersonalNote}
+                                                    onChange={(e) => setCurrentPersonalNote(e.target.value)}
+                                                    placeholder="Ej: Usé 20kg en mancuernas, próxima vez subir a 22.5kg..."
+                                                    className="w-full p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                                                    rows={3}
+                                                />
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={handleSavePersonalNote}
+                                                        disabled={savingNote}
+                                                        className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                                    >
+                                                        <FaSave /> {savingNote ? 'Guardando...' : 'Guardar nota'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowNoteInput(false);
+                                                            const currentEx = getCurrentExercise();
+                                                            if (currentEx?.idRoutineExercise) {
+                                                                setCurrentPersonalNote(personalNotes.get(currentEx.idRoutineExercise) || '');
+                                                            }
+                                                        }}
+                                                        className="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-500 transition-colors"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-300">
+                                                {currentPersonalNote || (
+                                                    <span className="text-gray-500 italic">
+                                                        Sin notas. Agrega una nota para recordar el peso, observaciones, etc.
+                                                    </span>
+                                                )}
+                                            </p>
+                                        )}
+                                    </div>
 
                                     {/* Botón completar */}
                                     <button
@@ -374,9 +503,14 @@ function TrainingMode() {
                                                     {ex.series}x{ex.repetitions}
                                                 </div>
                                             </div>
-                                            {completedExercises.has(index) && (
-                                                <FaCheckCircle className="text-green-400" />
-                                            )}
+                                            <div className="flex items-center gap-1">
+                                                {ex.idRoutineExercise && personalNotes.has(ex.idRoutineExercise) && (
+                                                    <FaStickyNote className={`text-blue-400 ${index === currentExerciseIndex ? 'text-blue-600' : ''}`} title="Tiene nota personal" />
+                                                )}
+                                                {completedExercises.has(index) && (
+                                                    <FaCheckCircle className="text-green-400" />
+                                                )}
+                                            </div>
                                         </div>
                                     </button>
                                 ))}

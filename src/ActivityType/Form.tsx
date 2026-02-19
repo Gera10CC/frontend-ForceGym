@@ -106,6 +106,7 @@ function Form() {
                 reset({
                     idActivityType: activeActivityType.idActivityType,
                     name: activeActivityType.name,
+                    durationDays: activeActivityType.durationDays || 0,
                     isDeleted: activeActivityType.isDeleted
                 });
                 
@@ -125,6 +126,7 @@ function Form() {
             reset({
                 idActivityType: 0,
                 name: '',
+                durationDays: 0,
                 isDeleted: 0 
             });
             setFeeLines([{ id: 1, fee: { idClientType: [], amount: 0 } }]);
@@ -228,6 +230,31 @@ function Form() {
                     })}
                 />
                 {errors.name && <ErrorForm>{errors.name.message}</ErrorForm>}
+            </div>
+
+            <div className="my-5">
+                <label htmlFor="durationDays" className="text-sm uppercase font-bold">
+                    Duración en días (para membresías)
+                </label>
+                <input  
+                    id="durationDays"
+                    className="w-full p-3 border border-gray-100"  
+                    type="number" 
+                    min="0"
+                    placeholder="Ej: 30 para mensual, 15 para quincenal, 7 para semanal" 
+                    {...register('durationDays', {
+                        min: {
+                            value: 0,
+                            message: 'La duración no puede ser negativa'
+                        },
+                        max: {
+                            value: 365,
+                            message: 'La duración no puede exceder 365 días'
+                        }
+                    })}
+                />
+                {errors.durationDays && <ErrorForm>{errors.durationDays.message}</ErrorForm>}
+                <p className="text-xs text-gray-500 mt-1">Si es 0, no actualizará la fecha de expiración del cliente al registrar pagos</p>
             </div>
             
             <div className="mb-5">

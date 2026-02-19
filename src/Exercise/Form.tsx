@@ -82,6 +82,14 @@ function FormExercise() {
       setAuthHeader(null);
       setAuthUser(null);
       navigate("/login");
+    } else {
+      Swal.fire({
+        title: "Error al guardar",
+        text: result.error || result.message || "Ocurrió un error al guardar el ejercicio.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#CFAD04",
+      });
     }
   };
 
