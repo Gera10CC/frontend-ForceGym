@@ -55,7 +55,10 @@ function ForgotPasswordForm () {
         });
 
         try {
-            const res = await postData(`${import.meta.env.VITE_URL_API}recoveryPassword?email=${encodeURIComponent(email)}`, {});
+            const res = await postData(`${import.meta.env.VITE_URL_API}recoveryPassword`, {
+                email: email,
+                recaptchaToken: captchaValue
+            });
             
             Swal.close();
 
