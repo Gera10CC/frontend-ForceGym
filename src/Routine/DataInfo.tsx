@@ -47,6 +47,13 @@ function DataInfo() {
     return acc;
   }, {} as Record<number, RoutineExerciseDTO[]>);
 
+  // Ordenar ejercicios dentro de cada día por categoryOrder
+  Object.keys(exercisesByDay).forEach((day) => {
+    exercisesByDay[Number(day)].sort((a, b) => {
+      return (a.categoryOrder || 0) - (b.categoryOrder || 0);
+    });
+  });
+
   const days = Object.keys(exercisesByDay)
     .map(Number)
     .sort((a, b) => a - b);
@@ -102,7 +109,7 @@ function DataInfo() {
           {exercises.length > 0 ? (
             <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
               {days.map((day) => {
-                // Agrupar ejercicios del día por categoría
+                // Agrupar ejercicios del día por categoría manteniendo el orden de categoryOrder
                 const exercisesByCategory = exercisesByDay[day].reduce((acc, ex) => {
                   const details = getExerciseDetails(ex);
                   const category = details.category;
@@ -111,7 +118,10 @@ function DataInfo() {
                   return acc;
                 }, {} as Record<string, Array<{ exercise: RoutineExerciseDTO; details: ReturnType<typeof getExerciseDetails> }>>);
 
-                const categories = Object.keys(exercisesByCategory).sort();
+                // Mantener el orden de aparición de las categorías según categoryOrder, no alfabético
+                const categories = Array.from(new Set(
+                  exercisesByDay[day].map(ex => getExerciseDetails(ex).category)
+                ));
 
                 return (
                   <div key={day} className="space-y-3 border-l-4 border-yellow pl-3">

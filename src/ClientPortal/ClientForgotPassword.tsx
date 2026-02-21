@@ -58,7 +58,10 @@ function ClientForgotPassword() {
         try {
             const response = await axios.post(
                 `${API_URL}/client-portal/forgot-password`,
-                { email }
+                { 
+                    email,
+                    recaptchaToken: captchaValue
+                }
             );
             
             Swal.close();

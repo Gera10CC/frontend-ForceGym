@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import Select from 'react-select';
+import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { ExerciseCategory, RoutineDataForm, RoutineWithExercisesDTO } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
@@ -20,6 +21,7 @@ type SelectedExercise = {
   category: string;
   categoryId: number;
   dayNumber: number;
+  categoryOrder?: number;
 };
 
 type ClientOption = {
@@ -58,58 +60,77 @@ function Form() {
   const [selectedExercises, setSelectedExercises] = useState<SelectedExercise[]>([]);
   const [selectedClients, setSelectedClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [draggedCategoryId, setDraggedCategoryId] = useState<number | null>(null);
-  const [dragOverCategoryId, setDragOverCategoryId] = useState<number | null>(null);
   const [orderedCategories, setOrderedCategories] = useState<ExerciseCategory[]>([]);
   const [numberOfDays, setNumberOfDays] = useState<number>(1);
   const [activeDay, setActiveDay] = useState<number>(1);
-  const handleDragStart = (categoryId: number) => {
-    setDraggedCategoryId(categoryId);
-  };
+  // Estado para trackear qué categorías están agregadas a cada día
+  const [categoriesByDay, setCategoriesByDay] = useState<Record<number, number[]>>({ 1: [] });
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, categoryId: number) => {
-    e.preventDefault();
-    if (categoryId !== dragOverCategoryId) {
-      setDragOverCategoryId(categoryId);
-    }
-  };
-
-  const handleDragLeave = () => {
-    setDragOverCategoryId(null);
-  };
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetCategoryId: number) => {
-    e.preventDefault();
-
-    if (!draggedCategoryId || draggedCategoryId === targetCategoryId) {
-      setDragOverCategoryId(null);
-      setDraggedCategoryId(null);
+  // Agregar categoría a un día específico
+  const addCategoryToDay = (dayNumber: number, categoryId: number) => {
+    const currentCategories = categoriesByDay[dayNumber] || [];
+    
+    // Verificar si la categoría ya está agregada
+    if (currentCategories.includes(categoryId)) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Categoría ya agregada',
+        text: 'Esta categoría ya está en este día',
+        confirmButtonColor: '#CFAD04'
+      });
       return;
     }
 
-    setOrderedCategories(prev => {
-      const draggedIndex = prev.findIndex(c => c.idExerciseCategory === draggedCategoryId);
-      const targetIndex = prev.findIndex(c => c.idExerciseCategory === targetCategoryId);
+    // Agregar categoría al día
+    setCategoriesByDay(prev => ({
+      ...prev,
+      [dayNumber]: [...currentCategories, categoryId]
+    }));
 
-      if (draggedIndex === -1 || targetIndex === -1) return prev;
+    // Agregar ejercicio vacío para esta categoría en este día
+    const category = exerciseCategories.find(c => c.idExerciseCategory === categoryId);
+    if (category) {
+      const categoryOrder = currentCategories.length; // El nuevo índice es la longitud actual
+      const newExercise: SelectedExercise = {
+        idExercise: 0,
+        name: "",
+        series: 0,
+        repetitions: 0,
+        note: "",
+        category: category.name,
+        categoryId: category.idExerciseCategory,
+        dayNumber: dayNumber,
+        categoryOrder: categoryOrder
+      };
+      
+      setSelectedExercises(prev => [...prev, newExercise]);
+    }
+  };
 
-      const newCategories = [...prev];
-      const [removed] = newCategories.splice(draggedIndex, 1);
-      newCategories.splice(targetIndex, 0, removed);
+  // Remover categoría de un día específico
+  const removeCategoryFromDay = (dayNumber: number, categoryId: number) => {
+    Swal.fire({
+      title: '¿Eliminar categoría?',
+      text: 'Se eliminarán todos los ejercicios de esta categoría en este día',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#CFAD04'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Remover categoría del tracking
+        setCategoriesByDay(prev => ({
+          ...prev,
+          [dayNumber]: (prev[dayNumber] || []).filter(id => id !== categoryId)
+        }));
 
-      setSelectedExercises(currentExercises =>
-        currentExercises.map(ex => {
-          const newCategoryOrder = newCategories.findIndex(
-            cat => cat.idExerciseCategory === ex.categoryId
-          );
-          return newCategoryOrder >= 0 ? { ...ex, categoryOrder: newCategoryOrder } : ex;
-        })
-      );
-
-      return newCategories;
+        // Remover ejercicios de esta categoría en este día
+        setSelectedExercises(prev =>
+          prev.filter(ex => !(ex.categoryId === categoryId && ex.dayNumber === dayNumber))
+        );
+      }
     });
-
-    setDragOverCategoryId(null);
-    setDraggedCategoryId(null);
   };
 
   useEffect(() => {
@@ -131,25 +152,7 @@ function Form() {
     loadData();
   }, [fetchExerciseCategories, fetchAllClients, fetchRoutines]);
 
-  useEffect(() => {
-    if (exerciseCategories.length > 0) {
-      const initialExercises = exerciseCategories.map(category => ({
-        idExercise: 0,
-        name: "",
-        series: 0,
-        repetitions: 0,
-        note: "",
-        category: category.name,
-        categoryId: category.idExerciseCategory,
-        dayNumber: 1
-      }));
-      setSelectedExercises(initialExercises);
-    }
-  }, [exerciseCategories]);
-
-  useEffect(() => {
-    setOrderedCategories(exerciseCategories);
-  }, [exerciseCategories]);
+  // Ya no agregamos categorías automáticamente
   useEffect(() => {
     if (activeEditingId && !loading && routineToEdit && exercise.length > 0) {
       setValue('idRoutine', routineToEdit.idRoutine);
@@ -218,7 +221,8 @@ function Form() {
             note: ex.note || "Sin nota",
             category: category?.name || "Sin categoría",
             categoryId: category?.idExerciseCategory || 0,
-            dayNumber: ex.dayNumber || 1
+            dayNumber: ex.dayNumber || 1,
+            categoryOrder: ex.categoryOrder
           };
         });
 
@@ -226,20 +230,33 @@ function Form() {
         const maxDay = Math.max(...loadedExercises.map(ex => ex.dayNumber), 1);
         setNumberOfDays(maxDay);
 
-        const emptyCategories = unusedCategories.flatMap(cat => 
-          Array.from({ length: maxDay }, (_, i) => ({
-            idExercise: 0,
-            name: "",
-            series: 0,
-            repetitions: 0,
-            note: "",
-            category: cat.name,
-            categoryId: cat.idExerciseCategory,
-            dayNumber: i + 1
-          }))
-        );
+        // Configurar categoriesByDay basado en las categorías usadas por día, ordenadas por categoryOrder
+        const categoriesPerDay: Record<number, number[]> = {};
+        for (let day = 1; day <= maxDay; day++) {
+          const exercisesInDay = loadedExercises.filter(ex => ex.dayNumber === day);
+          
+          // Obtener las categorías únicas con su categoryOrder mínimo
+          const categoryOrderMap = new Map<number, number>();
+          exercisesInDay.forEach(ex => {
+            const currentMin = categoryOrderMap.get(ex.categoryId);
+            if (currentMin === undefined || ex.categoryOrder! < currentMin) {
+              categoryOrderMap.set(ex.categoryId, ex.categoryOrder!);
+            }
+          });
+          
+          // Ordenar las categorías por su categoryOrder
+          const sortedCategories = Array.from(categoryOrderMap.entries())
+            .sort((a, b) => a[1] - b[1])
+            .map(entry => entry[0]);
+          
+          categoriesPerDay[day] = sortedCategories;
+        }
+        setCategoriesByDay(categoriesPerDay);
 
-        setSelectedExercises([...loadedExercises, ...emptyCategories]);
+        // Ordenar las categorías según su uso
+        setOrderedCategories(sortedUsedCategories);
+
+        setSelectedExercises(loadedExercises);
       }
     } else if (
       !activeEditingId &&
@@ -311,17 +328,19 @@ function Form() {
       difficultyRoutine: {
         idDifficultyRoutine: data.idDifficultyRoutine
       },
-      exercises: orderedCategories.flatMap((category, index) => { 
-        return selectedExercises
-          .filter(ex => ex.categoryId === category.idExerciseCategory && ex.idExercise > 0)
-          .map(ex => ({
-            idExercise: ex.idExercise,
-            series: ex.series,
-            repetitions: ex.repetitions,
-            note: ex.note,
-            categoryOrder: index,
-            dayNumber: ex.dayNumber
-          }));
+      exercises: Object.entries(categoriesByDay).flatMap(([day, categoryIds]) => {
+        return categoryIds.flatMap((categoryId, categoryIndex) => {
+          return selectedExercises
+            .filter(ex => ex.categoryId === categoryId && ex.idExercise > 0 && ex.dayNumber === Number(day))
+            .map(ex => ({
+              idExercise: ex.idExercise,
+              series: ex.series,
+              repetitions: ex.repetitions,
+              note: ex.note,
+              categoryOrder: categoryIndex,
+              dayNumber: Number(day)
+            }));
+        });
       }),
       assignments: selectedClients.map(client => ({
         idClient: client.value,
@@ -386,24 +405,10 @@ function Form() {
       isDeleted: 0
     });
     setSelectedClients([]);
-
-    if (exerciseCategories.length > 0) {
-      setOrderedCategories([...exerciseCategories]); 
-      setSelectedExercises(
-        exerciseCategories.map(category => ({
-          idExercise: 0,
-          name: "",
-          series: 0,
-          repetitions: 0,
-          note: "",
-          category: category.name,
-          categoryId: category.idExerciseCategory,
-          dayNumber: 1
-        }))
-      );
-    }
+    setSelectedExercises([]);
     setNumberOfDays(1);
     setActiveDay(1);
+    setCategoriesByDay({ 1: [] });
   };
 
   const handleLogout = () => {
@@ -497,7 +502,8 @@ function Form() {
         note: "",
         category: category.name,
         categoryId: category.idExerciseCategory,
-        dayNumber: activeDay
+        dayNumber: activeDay,
+        categoryOrder: (categoriesByDay[activeDay] || []).indexOf(categoryId)
       }
     ]);
   };
@@ -527,19 +533,12 @@ function Form() {
     const newDayNumber = numberOfDays + 1;
     setNumberOfDays(newDayNumber);
     
-    // Agregar ejercicios vacíos para el nuevo día
-    const newExercises = exerciseCategories.map(category => ({
-      idExercise: 0,
-      name: "",
-      series: 0,
-      repetitions: 0,
-      note: "",
-      category: category.name,
-      categoryId: category.idExerciseCategory,
-      dayNumber: newDayNumber
+    // Inicializar categorías vacías para el nuevo día
+    setCategoriesByDay(prev => ({
+      ...prev,
+      [newDayNumber]: []
     }));
     
-    setSelectedExercises(prev => [...prev, ...newExercises]);
     setActiveDay(newDayNumber);
   };
 
@@ -548,6 +547,13 @@ function Form() {
     
     // Eliminar todos los ejercicios del día
     setSelectedExercises(prev => prev.filter(ex => ex.dayNumber !== dayToRemove));
+    
+    // Eliminar las categorías del día
+    setCategoriesByDay(prev => {
+      const newCategoriesByDay = { ...prev };
+      delete newCategoriesByDay[dayToRemove];
+      return newCategoriesByDay;
+    });
     
     // Actualizar el número de días
     setNumberOfDays(numberOfDays - 1);
@@ -697,31 +703,141 @@ function Form() {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-lg font-bold mb-4 text-yellow">Ejercicios - Día {activeDay}</h2>
-        {orderedCategories.map((category) => {
-          const categoryExercises = getExercisesForCategory(category.idExerciseCategory);
-          const isDragged = draggedCategoryId === category.idExerciseCategory;
-          const isDragOver = dragOverCategoryId === category.idExerciseCategory;
-
-          return (
-            <div
-              key={category.idExerciseCategory}
-              className={`mb-8 border rounded-lg p-4 w-full max-w-[1000px] mx-auto transition-all duration-200 ${isDragged ? 'opacity-10 bg-gray-300' :
-                  isDragOver ? 'border-yellow-500 border-2 bg-yellow-50' :
-                    'border-gray-300 bg-gray-50'
-                }`}
-              draggable
-              onDragStart={() => handleDragStart(category.idExerciseCategory)}
-              onDragOver={(e) => handleDragOver(e, category.idExerciseCategory)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, category.idExerciseCategory)}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold text-yellow">Ejercicios - Día {activeDay}</h2>
+          
+          {/* Selector para agregar categorías */}
+          <div className="flex gap-2 items-center">
+            <select
+              className="p-2 border border-gray-300 rounded text-sm bg-white"
+              value=""
+              onChange={(e) => {
+                if (e.target.value) {
+                  addCategoryToDay(activeDay, Number(e.target.value));
+                  e.target.value = "";
+                }
+              }}
+              disabled={loading}
             >
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="text-md font-bold text-gray-700 flex items-center">
-                  <span className="mr-2 cursor-move">↕</span>
-                  {category.name}
-                </h3>
-              </div>
+              <option value="">+ Agregar Categoría</option>
+              {exerciseCategories
+                .filter(cat => !(categoriesByDay[activeDay] || []).includes(cat.idExerciseCategory))
+                .map(cat => (
+                  <option key={cat.idExerciseCategory} value={cat.idExerciseCategory}>
+                    {cat.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Mostrar solo las categorías agregadas a este día */}
+        {(categoriesByDay[activeDay] || []).length === 0 ? (
+          <div className="text-center py-8 text-gray-500 border border-dashed border-gray-300 rounded-lg">
+            <p>No hay categorías agregadas a este día.</p>
+            <p className="text-sm mt-2">Usa el selector de arriba para agregar categorías.</p>
+          </div>
+        ) : (
+          (categoriesByDay[activeDay] || []).map((categoryId, index) => {
+            const category = exerciseCategories.find(c => c.idExerciseCategory === categoryId);
+            if (!category) return null;
+
+            const categoryExercises = getExercisesForCategory(category.idExerciseCategory);
+            const isFirst = index === 0;
+            const isLast = index === (categoriesByDay[activeDay] || []).length - 1;
+
+            return (
+              <div
+                key={category.idExerciseCategory}
+                className="mb-8 border rounded-lg p-4 w-full max-w-[1000px] mx-auto transition-all duration-200 border-gray-300 bg-gray-50"
+              >
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-md font-bold text-gray-700 flex items-center">
+                    {category.name}
+                  </h3>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentCategoriesInDay = categoriesByDay[activeDay] || [];
+                        const currentIndex = currentCategoriesInDay.indexOf(categoryId);
+                        if (currentIndex > 0) {
+                          const newCategories = [...currentCategoriesInDay];
+                          [newCategories[currentIndex], newCategories[currentIndex - 1]] = 
+                            [newCategories[currentIndex - 1], newCategories[currentIndex]];
+                          setCategoriesByDay(prev => ({
+                            ...prev,
+                            [activeDay]: newCategories
+                          }));
+                          
+                          // Actualizar categoryOrder en los ejercicios de este día
+                          setSelectedExercises(currentExercises =>
+                            currentExercises.map(ex => {
+                              if (ex.dayNumber === activeDay) {
+                                const newCategoryOrder = newCategories.indexOf(ex.categoryId);
+                                return newCategoryOrder >= 0 ? { ...ex, categoryOrder: newCategoryOrder } : ex;
+                              }
+                              return ex;
+                            })
+                          );
+                        }
+                      }}
+                      disabled={isFirst}
+                      className={`p-2 rounded transition-colors ${
+                        isFirst
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-yellow hover:bg-yellow-600 text-white hover:shadow-md'
+                      }`}
+                      title="Subir categoría"
+                    >
+                      <FaChevronUp size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentCategoriesInDay = categoriesByDay[activeDay] || [];
+                        const currentIndex = currentCategoriesInDay.indexOf(categoryId);
+                        if (currentIndex < currentCategoriesInDay.length - 1) {
+                          const newCategories = [...currentCategoriesInDay];
+                          [newCategories[currentIndex], newCategories[currentIndex + 1]] = 
+                            [newCategories[currentIndex + 1], newCategories[currentIndex]];
+                          setCategoriesByDay(prev => ({
+                            ...prev,
+                            [activeDay]: newCategories
+                          }));
+                          
+                          // Actualizar categoryOrder en los ejercicios de este día
+                          setSelectedExercises(currentExercises =>
+                            currentExercises.map(ex => {
+                              if (ex.dayNumber === activeDay) {
+                                const newCategoryOrder = newCategories.indexOf(ex.categoryId);
+                                return newCategoryOrder >= 0 ? { ...ex, categoryOrder: newCategoryOrder } : ex;
+                              }
+                              return ex;
+                            })
+                          );
+                        }
+                      }}
+                      disabled={isLast}
+                      className={`p-2 rounded transition-colors ${
+                        isLast
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-yellow hover:bg-yellow-600 text-white hover:shadow-md'
+                      }`}
+                      title="Bajar categoría"
+                    >
+                      <FaChevronDown size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeCategoryFromDay(activeDay, categoryId)}
+                      className="p-2 rounded bg-red-500 hover:bg-red-600 text-white transition-colors hover:shadow-md"
+                      title="Eliminar categoría"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
 
               {categoryExercises.map(({ index, ...ex }) => {
                 const exercisesForSelect = getAvailableExercises(category.idExerciseCategory, ex.idExercise);
@@ -853,7 +969,8 @@ function Form() {
                 )}
             </div>
           );
-        })}
+        })
+        )}
       </div>
 
       <input
