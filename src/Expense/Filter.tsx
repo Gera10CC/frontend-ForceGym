@@ -25,8 +25,8 @@ export function FilterButton() {
   return (
     <button
       className={`
-        flex items-center gap-3 text-base sm:text-lg uppercase py-2 px-4 
-        rounded-lg transition-all
+        w-full sm:w-auto flex items-center justify-center gap-2 text-sm uppercase py-2 px-3 sm:px-4 
+        rounded-lg transition-all whitespace-nowrap
         ${hasFilters ? "bg-white border border-yellow text-yellow" : "bg-gray-200"}
         hover:bg-gray-300
       `}

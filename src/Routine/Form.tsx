@@ -841,32 +841,38 @@ function Form() {
 
               {categoryExercises.map(({ index, ...ex }) => {
                 const exercisesForSelect = getAvailableExercises(category.idExerciseCategory, ex.idExercise);
+                
+                // Convertir ejercicios a formato de opciones para SearchSelect
+                const exerciseOptions = exercisesForSelect.map(opt => ({
+                  value: opt.idExercise,
+                  label: opt.name
+                }));
+                
+                // Valor actual del ejercicio seleccionado
+                const selectedExerciseOption = ex.idExercise > 0
+                  ? exerciseOptions.find(opt => opt.value === ex.idExercise) || null
+                  : null;
 
                 return (
                   <div key={index} className="mb-4">
                     <div className="flex flex-wrap items-end gap-4">
-                      <div className="flex-1 min-w-[200px]">
-                        <select
-                          className={clsx(
-                            "w-full p-2 rounded text-sm h-[38px] transition-colors duration-150",
-                            ex.idExercise > 0
-                              ? "border border-yellow-400 bg-yellow-50"
-                              : "border border-gray-300 bg-white"
-                          )}
-                          value={ex.idExercise}
-                          onChange={(e) => handleExerciseChange(index, Number(e.target.value))}
-                          disabled={loading}
-                        >
-                          <option value="0">Escoja un ejercicio</option>
-                          {exercisesForSelect.map(opt => (
-                            <option
-                              key={opt.idExercise}
-                              value={opt.idExercise}
-                            >
-                              {opt.name}
-                            </option>
-                          ))}
-                        </select>
+                      <div className={clsx(
+                        "flex-1 min-w-[200px]",
+                        ex.idExercise > 0 && "rounded border-2 border-yellow-400 bg-yellow-50 p-1"
+                      )}>
+                        <SearchSelect
+                          id={`exercise-${index}`}
+                          label="Ejercicio *"
+                          options={exerciseOptions}
+                          value={selectedExerciseOption}
+                          onChange={(selectedOption) => {
+                            const exerciseId = selectedOption ? (selectedOption as { value: number }).value : 0;
+                            handleExerciseChange(index, exerciseId);
+                          }}
+                          placeholder="Buscar ejercicio..."
+                          isDisabled={loading}
+                          isClearable={false}
+                        />
                       </div>
 
                       <div className="flex items-end gap-3">

@@ -1,18 +1,16 @@
-import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { formatAmountToCRC, formatDate } from "../shared/utils/format";
+import { MdOutlineDelete, MdModeEdit, MdOutlineSettingsBackupRestore } from "react-icons/md";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
-import { mapEconomicExpenseToDataForm } from "../shared/types/mapper";
-import DataInfo from "./DataInfo";
 import Modal from "../shared/components/Modal";
-import { EconomicExpense } from "../shared/types";
-import NoData from "../shared/components/NoData";
 import Pagination from "../shared/components/Pagination";
+import NoData from "../shared/components/NoData";
+import DataInfo from "./DataInfo";
+import { mapNotificationTemplateToDataForm } from "../shared/types/mapper";
+import { NotificationTemplate } from "../shared/types";
 
-interface ExpenseTableProps {
-  economicExpenses: EconomicExpense[];
+interface TemplateNotificationTableProps {
+  notificationTemplates: NotificationTemplate[];
   modalInfo: boolean;
-  modalForm: boolean;
   orderBy: string;
   directionOrderBy: string;
   filterByStatus: boolean;
@@ -20,18 +18,18 @@ interface ExpenseTableProps {
   size: number;
   totalRecords: number;
   handleOrderByChange: (field: string) => void;
-  getEconomicExpenseById: (id: number) => void;
+  getNotificationTemplateById: (id: number) => void;
   showModalInfo: () => void;
   closeModalInfo: () => void;
   showModalForm: () => void;
-  handleDelete: (expense: EconomicExpense) => void;
-  handleRestore: (expense: any) => void;
+  handleDelete: (template: NotificationTemplate) => void;
+  handleRestore: (template: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
 }
 
-function ExpenseTable({
-  economicExpenses,
+function TemplateNotificationTable({
+  notificationTemplates,
   modalInfo,
   orderBy,
   directionOrderBy,
@@ -40,36 +38,36 @@ function ExpenseTable({
   size,
   totalRecords,
   handleOrderByChange,
-  getEconomicExpenseById,
+  getNotificationTemplateById,
   showModalInfo,
   closeModalInfo,
   showModalForm,
   handleDelete,
   handleRestore,
   changePage,
-  changeSize
-}: ExpenseTableProps) {
+  changeSize,
+}: TemplateNotificationTableProps) {
   return (
     <div className="w-full mt-4">
 
       <div className="overflow-x-auto rounded-lg">
-        {economicExpenses?.length > 0 ? (
+        {notificationTemplates?.length > 0 ? (
           <>
             <table className="w-full text-center">
               <thead className="bg-gray-100 text-gray-700">
                 <tr>
                   <th className="py-3 px-2 font-semibold hidden lg:table-cell">#</th>
 
-                  <th className="py-3 px-2 hidden lg:table-cell">
+                  <th className="py-3 px-2">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("voucherNumber")}
+                      onClick={() => handleOrderByChange("message")}
                     >
-                      VOUCHER
-                      {orderBy === "voucherNumber" && directionOrderBy === "DESC" && (
+                      MENSAJE
+                      {orderBy === "message" && directionOrderBy === "DESC" && (
                         <FaArrowUp className="text-yellow" />
                       )}
-                      {orderBy === "voucherNumber" && directionOrderBy === "ASC" && (
+                      {orderBy === "message" && directionOrderBy === "ASC" && (
                         <FaArrowDown className="text-yellow" />
                       )}
                     </button>
@@ -78,75 +76,49 @@ function ExpenseTable({
                   <th className="py-3 px-2 hidden md:table-cell">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("registrationDate")}
+                      onClick={() => handleOrderByChange("notificationType")}
                     >
-                      FECHA
-                      {orderBy === "registrationDate" && directionOrderBy === "DESC" && (
+                      TIPO
+                      {orderBy === "notificationType" && directionOrderBy === "DESC" && (
                         <FaArrowUp className="text-yellow" />
                       )}
-                      {orderBy === "registrationDate" && directionOrderBy === "ASC" && (
+                      {orderBy === "notificationType" && directionOrderBy === "ASC" && (
                         <FaArrowDown className="text-yellow" />
                       )}
                     </button>
                   </th>
 
-                  <th className="py-3 px-2">
-                    <button
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
-                      onClick={() => handleOrderByChange("amount")}
-                    >
-                      MONTO
-                      {orderBy === "amount" && directionOrderBy === "DESC" && (
-                        <FaArrowUp className="text-yellow" />
-                      )}
-                      {orderBy === "amount" && directionOrderBy === "ASC" && (
-                        <FaArrowDown className="text-yellow" />
-                      )}
-                    </button>
-                  </th>
-
-                  <th className="py-3 px-2 font-semibold hidden md:table-cell">PAGO</th>
-                  <th className="py-3 px-2 font-semibold">CATEGORÍA</th>
-
-                  {filterByStatus && <th className="py-3 px-2 font-semibold hidden lg:table-cell">ESTADO</th>}
+                  {filterByStatus && (
+                    <th className="py-3 px-2 font-semibold hidden md:table-cell">ESTADO</th>
+                  )}
 
                   <th className="py-3 px-2 font-semibold">ACCIONES</th>
                 </tr>
               </thead>
 
               <tbody className="text-sm">
-                {economicExpenses.map((economicExpense, index) => (
+                {notificationTemplates.map((notificationTemplate, index) => (
                   <tr
-                    key={economicExpense.idEconomicExpense}
+                    key={notificationTemplate.idNotificationTemplate}
                     className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="py-3 hidden lg:table-cell">{index + 1}</td>
-
                     <td className="py-3 hidden lg:table-cell">
-                      {economicExpense.voucherNumber !== ""
-                        ? economicExpense.voucherNumber
-                        : "No adjunto"}
+                      {(page - 1) * size + index + 1}
                     </td>
 
-                    <td className="py-3 hidden md:table-cell">
-                      {formatDate(new Date(economicExpense.registrationDate))}
-                    </td>
-
-                    <td className="py-3">
-                      {formatAmountToCRC(economicExpense.amount)}
-                    </td>
-
-                    <td className="py-3 hidden md:table-cell">{economicExpense.meanOfPayment.name}</td>
-
-                    <td className="py-3 truncate px-2">
-                      <span className="truncate inline-block max-w-full">
-                        {economicExpense.category.name}
+                    <td className="py-3 px-2">
+                      <span className="truncate inline-block max-w-[200px] sm:max-w-[300px] lg:max-w-[400px]">
+                        {notificationTemplate.message}
                       </span>
                     </td>
 
+                    <td className="py-3 hidden md:table-cell">
+                      {notificationTemplate.notificationType.name}
+                    </td>
+
                     {filterByStatus && (
-                      <td className="py-3 hidden lg:table-cell">
-                        {economicExpense.isDeleted ? (
+                      <td className="py-3 hidden md:table-cell">
+                        {notificationTemplate.isDeleted ? (
                           <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
                             Inactivo
                           </span>
@@ -163,7 +135,9 @@ function ExpenseTable({
 
                         <button
                           onClick={() => {
-                            getEconomicExpenseById(economicExpense.idEconomicExpense);
+                            getNotificationTemplateById(
+                              notificationTemplate.idNotificationTemplate
+                            );
                             showModalInfo();
                           }}
                           className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
@@ -174,7 +148,9 @@ function ExpenseTable({
 
                         <button
                           onClick={() => {
-                            getEconomicExpenseById(economicExpense.idEconomicExpense);
+                            getNotificationTemplateById(
+                              notificationTemplate.idNotificationTemplate
+                            );
                             showModalForm();
                           }}
                           className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
@@ -183,10 +159,12 @@ function ExpenseTable({
                           <MdModeEdit className="text-white text-sm sm:text-base" />
                         </button>
 
-                        {economicExpense.isDeleted ? (
+                        {notificationTemplate.isDeleted ? (
                           <button
                             onClick={() =>
-                              handleRestore(mapEconomicExpenseToDataForm(economicExpense))
+                              handleRestore(
+                                mapNotificationTemplateToDataForm(notificationTemplate)
+                              )
                             }
                             className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
                             title="Restaurar"
@@ -195,13 +173,14 @@ function ExpenseTable({
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleDelete(economicExpense)}
+                            onClick={() => handleDelete(notificationTemplate)}
                             className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
                             title="Eliminar"
                           >
                             <MdOutlineDelete className="text-white text-sm sm:text-base" />
                           </button>
                         )}
+
                       </div>
                     </td>
                   </tr>
@@ -210,39 +189,29 @@ function ExpenseTable({
             </table>
           </>
         ) : (
-          <NoData module="gastos económicos" />
+          <NoData module="plantillas de notificación" />
         )}
       </div>
 
-      {economicExpenses?.length > 0 && (
-        <>
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h3 className="text-lg font-bold">
-              Total de Gastos:{" "}
-              {formatAmountToCRC(
-                economicExpenses.reduce((total, item) => total + item.amount, 0)
-              )}
-            </h3>
-          </div>
-
-          <Pagination
-            page={page}
-            size={size}
-            totalRecords={totalRecords}
-            onSizeChange={changeSize}
-            onPageChange={changePage}
-          />
-        </>
+      {notificationTemplates?.length > 0 && (
+        <Pagination
+          page={page}
+          size={size}
+          totalRecords={totalRecords}
+          onSizeChange={changeSize}
+          onPageChange={changePage}
+        />
       )}
-    <Modal
-    Button={() => <></>} 
-    modal={modalInfo}
-    closeModal={closeModalInfo}
-    getDataById={getEconomicExpenseById}
-    Content={DataInfo}
-  />
+
+      <Modal
+        Button={() => <></>}
+        modal={modalInfo}
+        closeModal={closeModalInfo}
+        getDataById={getNotificationTemplateById}
+        Content={DataInfo}
+      />
     </div>
   );
 }
 
-export default ExpenseTable;
+export default TemplateNotificationTable;
