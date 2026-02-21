@@ -53,10 +53,10 @@ function ExerciseTable({
       <div className="overflow-x-auto rounded-lg">
         {exercises?.length > 0 ? (
           <>
-            <table className="w-full min-w-[900px] text-center">
+            <table className="w-full text-center">
               <thead className="bg-gray-100 text-gray-700">
                 <tr>
-                  <th className="py-3 px-2 font-semibold">#</th>
+                  <th className="py-3 px-2 font-semibold hidden lg:table-cell">#</th>
 
                   <th className="py-3 px-2">
                     <button
@@ -73,14 +73,14 @@ function ExerciseTable({
                     </button>
                   </th>
 
-                  <th className="py-3 px-2 font-semibold">DESCRIPCIÓN</th>
+                  <th className="py-3 px-2 font-semibold hidden lg:table-cell">DESCRIPCIÓN</th>
 
-                  <th className="py-3 px-2 font-semibold">DIFICULTAD</th>
+                  <th className="py-3 px-2 font-semibold hidden md:table-cell">DIFICULTAD</th>
 
-                  <th className="py-3 px-2 font-semibold">CATEGORÍA</th>
+                  <th className="py-3 px-2 font-semibold hidden md:table-cell">CATEGORÍA</th>
 
                   {filterByStatus && (
-                    <th className="py-3 px-2 font-semibold">ESTADO</th>
+                    <th className="py-3 px-2 font-semibold hidden md:table-cell">ESTADO</th>
                   )}
 
                   <th className="py-3 px-2 font-semibold">ACCIONES</th>
@@ -93,18 +93,22 @@ function ExerciseTable({
                     key={exercise.idExercise}
                     className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="py-3">{index + 1}</td>
+                    <td className="py-3 hidden lg:table-cell">{index + 1}</td>
 
-                    <td className="py-3">{exercise.name}</td>
+                    <td className="py-3 truncate px-2">
+                      <span className="truncate inline-block max-w-full">
+                        {exercise.name}
+                      </span>
+                    </td>
 
-                    <td className="py-3">{exercise.description}</td>
+                    <td className="py-3 hidden lg:table-cell">{exercise.description}</td>
 
-                    <td className="py-3">{exercise.exerciseDifficulty?.difficulty}</td>
+                    <td className="py-3 hidden md:table-cell">{exercise.exerciseDifficulty?.difficulty}</td>
 
-                    <td className="py-3">{exercise.exerciseCategory?.name}</td>
+                    <td className="py-3 hidden md:table-cell">{exercise.exerciseCategory?.name}</td>
 
                     {filterByStatus && (
-                      <td className="py-3">
+                      <td className="py-3 hidden md:table-cell">
                         {exercise.isDeleted ? (
                           <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
                             Inactivo
@@ -118,15 +122,15 @@ function ExerciseTable({
                     )}
 
                     <td className="py-3">
-                      <div className="flex justify-center gap-3">
+                      <div className="flex justify-center gap-1 sm:gap-2 lg:gap-3 flex-wrap">
                         <button
                           onClick={() => {
                             getExerciseById(exercise.idExercise);
                             showModalInfo();
                           }}
-                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
                         >
-                          <IoIosMore className="text-white" />
+                          <IoIosMore className="text-white text-sm sm:text-base" />
                         </button>
 
                         <button
@@ -134,9 +138,9 @@ function ExerciseTable({
                             getExerciseById(exercise.idExercise);
                             showModalForm();
                           }}
-                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
                         >
-                          <MdModeEdit className="text-white" />
+                          <MdModeEdit className="text-white text-sm sm:text-base" />
                         </button>
 
                         {exercise.isDeleted ? (
@@ -144,16 +148,16 @@ function ExerciseTable({
                             onClick={() =>
                               handleRestore(mapExerciseToDataForm(exercise))
                             }
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
                           >
-                            <MdOutlineSettingsBackupRestore className="text-white" />
+                            <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDelete(exercise)}
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
                           >
-                            <MdOutlineDelete className="text-white" />
+                            <MdOutlineDelete className="text-white text-sm sm:text-base" />
                           </button>
                         )}
                       </div>

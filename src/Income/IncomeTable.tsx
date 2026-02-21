@@ -55,12 +55,12 @@ function IncomeTable({
       <div className="overflow-x-auto rounded-lg">
         {economicIncomes?.length > 0 ? (
           <>
-            <table className="w-full min-w-[900px] text-center">
+            <table className="w-full text-center">
               <thead className="bg-gray-100 text-gray-700">
                 <tr>
-                  <th className="py-3 px-2 font-semibold">#</th>
+                  <th className="py-3 px-2 font-semibold hidden lg:table-cell">#</th>
 
-                  <th className="py-3 px-2">
+                  <th className="py-3 px-2 hidden lg:table-cell">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
                       onClick={() => handleOrderByChange("voucherNumber")}
@@ -77,7 +77,7 @@ function IncomeTable({
 
                   <th className="py-3 px-2 font-semibold">CLIENTE</th>
 
-                  <th className="py-3 px-2">
+                  <th className="py-3 px-2 hidden md:table-cell">
                     <button
                       className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
                       onClick={() => handleOrderByChange("registrationDate")}
@@ -107,11 +107,11 @@ function IncomeTable({
                     </button>
                   </th>
 
-                  <th className="py-3 px-2 font-semibold">PAGO</th>
+                  <th className="py-3 px-2 font-semibold hidden md:table-cell">PAGO</th>
 
-                  <th className="py-3 px-2 font-semibold">CLIENTE TIPO</th>
+                  <th className="py-3 px-2 font-semibold hidden lg:table-cell">CLIENTE TIPO</th>
 
-                  {filterByStatus && <th className="py-3 px-2 font-semibold">ESTADO</th>}
+                  {filterByStatus && <th className="py-3 px-2 font-semibold hidden lg:table-cell">ESTADO</th>}
 
                   <th className="py-3 px-2 font-semibold">ACCIONES</th>
                 </tr>
@@ -123,32 +123,34 @@ function IncomeTable({
                     key={income.idEconomicIncome}
                     className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="py-3">{index + 1}</td>
+                    <td className="py-3 hidden lg:table-cell">{index + 1}</td>
 
-                    <td className="py-3">
+                    <td className="py-3 hidden lg:table-cell">
                       {income.voucherNumber !== "" ? income.voucherNumber : "No adjunto"}
                     </td>
 
-                    <td className="py-3">
-                      {income.client.person.name +
-                        " " +
-                        income.client.person.firstLastName +
-                        " " +
-                        income.client.person.secondLastName}
+                    <td className="py-3 truncate px-2">
+                      <span className="truncate inline-block max-w-full">
+                        {income.client.person.name +
+                          " " +
+                          income.client.person.firstLastName +
+                          " " +
+                          income.client.person.secondLastName}
+                      </span>
                     </td>
 
-                    <td className="py-3">
+                    <td className="py-3 hidden md:table-cell">
                       {formatDate(new Date(income.registrationDate))}
                     </td>
 
                     <td className="py-3">{formatAmountToCRC(income.amount)}</td>
 
-                    <td className="py-3">{income.meanOfPayment.name}</td>
+                    <td className="py-3 hidden md:table-cell">{income.meanOfPayment.name}</td>
 
-                    <td className="py-3">{income.client.clientType.name}</td>
+                    <td className="py-3 hidden lg:table-cell">{income.client.clientType.name}</td>
 
                     {filterByStatus && (
-                      <td className="py-3">
+                      <td className="py-3 hidden lg:table-cell">
                         {income.isDeleted ? (
                           <span className="px-2 py-1 rounded bg-red-500 text-white text-xs">
                             Inactivo
@@ -162,16 +164,17 @@ function IncomeTable({
                     )}
 
                     <td className="py-3">
-                      <div className="flex justify-center gap-3">
+                      <div className="flex justify-center gap-1 sm:gap-2 lg:gap-3 flex-wrap">
 
                         <button
                           onClick={() => {
                             getEconomicIncomeById(income.idEconomicIncome);
                             showModalInfo();
                           }}
-                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                          title="Ver detalles"
                         >
-                          <IoIosMore className="text-white" />
+                          <IoIosMore className="text-white text-sm sm:text-base" />
                         </button>
 
                         <button
@@ -179,9 +182,10 @@ function IncomeTable({
                             getEconomicIncomeById(income.idEconomicIncome);
                             showModalForm();
                           }}
-                          className="p-2 bg-black rounded hover:bg-gray-800"
+                          className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                          title="Editar"
                         >
-                          <MdModeEdit className="text-white" />
+                          <MdModeEdit className="text-white text-sm sm:text-base" />
                         </button>
 
                         {income.isDeleted ? (
@@ -189,16 +193,18 @@ function IncomeTable({
                             onClick={() =>
                               handleRestore(mapEconomicIncomeToDataForm(income))
                             }
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            title="Restaurar"
                           >
-                            <MdOutlineSettingsBackupRestore className="text-white" />
+                            <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDelete(income)}
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            title="Eliminar"
                           >
-                            <MdOutlineDelete className="text-white" />
+                            <MdOutlineDelete className="text-white text-sm sm:text-base" />
                           </button>
                         )}
                       </div>

@@ -111,32 +111,41 @@ export default function EconomicExpenseManagement() {
 
   return (
     <>
-      <header className="flex flex-col md:flex-row items-center justify-between bg-yellow text-black px-4 py-4 rounded-md shadow-md">
-        <h1 className="text-3xl md:text-4xl uppercase tracking-wide">Gastos</h1>
+      <header className="bg-yellow text-black px-4 py-4 rounded-md shadow-md">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Título */}
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl uppercase tracking-wide text-center lg:text-left">
+            Gastos
+          </h1>
 
-        <SearchInput
-          searchTerm={searchTerm}
-          handleSearch={handleSearch}
-          changeSearchType={changeSearchType}
-        >
-          <option value={1}>Voucher</option>
-          <option value={2}>Detalle</option>
-        </SearchInput>
+          {/* SearchInput */}
+          <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md">
+            <SearchInput
+              searchTerm={searchTerm}
+              handleSearch={handleSearch}
+              changeSearchType={changeSearchType}
+            >
+              <option value={1}>Voucher</option>
+              <option value={2}>Detalle</option>
+            </SearchInput>
+          </div>
 
-        <div className="flex gap-3 mt-4 md:mt-0">
-          <button
-            onClick={() => setShowDashboard(!showDashboard)}
-            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-          >
-            {showDashboard ? "Ver Tabla" : "Ver Dashboard"}
-          </button>
+          {/* Botones */}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto sm:justify-center lg:justify-end">
+            <button
+              onClick={() => setShowDashboard(!showDashboard)}
+              className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 transition whitespace-nowrap"
+            >
+              {showDashboard ? "Ver Tabla" : "Ver Dashboard"}
+            </button>
 
-          <ModalFilter
-            modalFilter={modalFilter}
-            closeModalFilter={closeModalFilter}
-            FilterButton={FilterButton}
-            FilterSelect={FilterSelect}
-          />
+            <ModalFilter
+              modalFilter={modalFilter}
+              closeModalFilter={closeModalFilter}
+              FilterButton={FilterButton}
+              FilterSelect={FilterSelect}
+            />
+          </div>
         </div>
       </header>
 

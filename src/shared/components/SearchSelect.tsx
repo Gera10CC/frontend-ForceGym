@@ -16,6 +16,8 @@ type Props = {
   isMulti?: boolean;
   placeholder?: string;
   isDisabled?: boolean;
+  isClearable?: boolean;
+  menuPlacement?: "auto" | "bottom" | "top";
 };
 
 export default function SearchSelect({
@@ -27,6 +29,8 @@ export default function SearchSelect({
   isMulti = false,
   placeholder = "Buscar...",
   isDisabled = false,
+  isClearable = false,
+  menuPlacement = "bottom",
 }: Props) {
   return (
     <div>
@@ -42,6 +46,8 @@ export default function SearchSelect({
         isSearchable={true}
         placeholder={placeholder}
         isDisabled={isDisabled}
+        isClearable={isClearable}
+        menuPlacement={menuPlacement}
         noOptionsMessage={() => "No hay resultados"}
         filterOption={(option, input) => {
           const text = input.toLowerCase();
