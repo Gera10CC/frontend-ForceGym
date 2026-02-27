@@ -70,7 +70,6 @@ export const useClientLogin = () => {
             });
             navigate('/portal-cliente/dashboard');
         } catch (error: any) {
-            console.error('Error en login:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',

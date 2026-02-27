@@ -2,10 +2,10 @@ import axios from 'axios';
 import type { ClientCredentials, ClientExerciseNote, ClientLogin, ClientRoutine, Measurement } from '../shared/types';
 import Swal from 'sweetalert2';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_URL_API || 'http://localhost:8080/';
 
 const api = axios.create({
-    baseURL: `${API_URL}/client-portal`,
+    baseURL: `${API_URL}client-portal`,
 });
 
 // Interceptor para agregar el token a todas las peticiones
@@ -13,9 +13,6 @@ api.interceptors.request.use((config) => {
     const token = localStorage.getItem('clientToken');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('🔑 Token enviado al backend:', token.substring(0, 20) + '...');
-    } else {
-        console.warn('⚠️ No hay token de cliente en localStorage');
     }
     return config;
 }, (error) => {
@@ -25,15 +22,10 @@ api.interceptors.request.use((config) => {
 // Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
     (response) => {
-        console.log('✅ Respuesta exitosa del backend');
         return response;
     },
     (error) => {
-        console.error('❌ Error en respuesta del backend:', error.response?.status, error.response?.data);
-        
         if (error.response?.status === 401) {
-            console.error('🚫 Error 401: Token inválido o expirado');
-            
             // Limpiar datos del cliente
             localStorage.removeItem('clientData');
             localStorage.removeItem('clientToken');
@@ -57,19 +49,13 @@ api.interceptors.response.use(
 
 export const clientPortalService = {
     login: async (credentials: ClientCredentials): Promise<ClientLogin> => {
-        console.log('🔐 Intentando login de cliente...');
-        const response = await axios.post(`${API_URL}/client-portal/login`, credentials);
+        const response = await axios.post(`${API_URL}client-portal/login`, credentials);
         const clientData = response.data.data.loggedClient;
-        console.log('✅ Login exitoso, token recibido:', clientData.token.substring(0, 20) + '...');
         return clientData;
     },
 
     getMyRoutines: async (): Promise<ClientRoutine[]> => {
         const response = await api.get('/my-routines');
-        console.log('=== FRONTEND: Full response:', response);
-        console.log('=== FRONTEND: response.data:', response.data);
-        console.log('=== FRONTEND: response.data.data:', response.data?.data);
-        console.log('=== FRONTEND: response.data.data.routines:', response.data?.data?.routines);
         return response.data?.data?.routines || [];
     },
 

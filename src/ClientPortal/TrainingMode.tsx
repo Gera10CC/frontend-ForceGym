@@ -55,7 +55,6 @@ function TrainingMode() {
                     });
                     setPersonalNotes(notesMap);
                 } catch (noteError) {
-                    console.error('Error cargando notas personales:', noteError);
                     // No mostrar error al usuario, simplemente no habrá notas
                 }
             } else {
@@ -67,7 +66,6 @@ function TrainingMode() {
                 navigate('/portal-cliente/dashboard');
             }
         } catch (error) {
-            console.error('Error cargando rutina:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -176,7 +174,6 @@ function TrainingMode() {
                 showConfirmButton: false
             });
         } catch (error) {
-            console.error('Error guardando nota:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
