@@ -50,7 +50,6 @@ function ClientDashboard() {
                 setClientData(updatedClientData);
             }
         } catch (error) {
-            console.error('Error obteniendo perfil actualizado:', error);
             // No mostrar error al usuario, simplemente usar los datos del localStorage
         }
     };
@@ -78,7 +77,7 @@ function ClientDashboard() {
                 }, 1500);
             }
         } catch (error) {
-            console.error('Error verificando contraseña:', error);
+            // Error silencioso - no afecta la experiencia del usuario
         }
     };
 
@@ -89,8 +88,6 @@ function ClientDashboard() {
                 clientPortalService.getMyRoutines(),
                 clientPortalService.getMyMeasurements()
             ]);
-            console.log('Rutinas recibidas:', routinesData);
-            console.log('Medidas recibidas:', measurementsData);
             
             // Ordenar rutinas por fecha de asignación (más reciente primero)
             const sortedRoutines = [...routinesData].sort((a, b) => {
@@ -102,7 +99,6 @@ function ClientDashboard() {
             setRoutines(sortedRoutines);
             setMeasurements(measurementsData);
         } catch (error) {
-            console.error('Error cargando datos:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -154,7 +150,6 @@ function ClientDashboard() {
                 showConfirmButton: false
             });
         } catch (error) {
-            console.error('Error descargando PDF:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -181,7 +176,6 @@ function ClientDashboard() {
                 showConfirmButton: false
             });
         } catch (error) {
-            console.error('Error descargando PDF:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -208,7 +202,6 @@ function ClientDashboard() {
                 showConfirmButton: false
             });
         } catch (error) {
-            console.error('Error descargando PDF:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -230,20 +223,14 @@ function ClientDashboard() {
             return { status: 'unknown', daysRemaining: 0 };
         }
         
-        console.log('=== DEBUG Membresía ===');
-        console.log('Fecha expiración (raw):', clientData.expirationMembershipDate);
-        
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        console.log('Hoy:', today.toISOString());
         
         const expirationDate = new Date(clientData.expirationMembershipDate);
-        console.log('Fecha expiración (parsed):', expirationDate.toISOString());
         expirationDate.setHours(0, 0, 0, 0);
         
         const diffTime = expirationDate.getTime() - today.getTime();
         const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        console.log('Días restantes:', daysRemaining);
         
         if (daysRemaining < 0) {
             return { status: 'expired', daysRemaining: Math.abs(daysRemaining) };

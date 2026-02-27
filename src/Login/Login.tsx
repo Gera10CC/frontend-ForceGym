@@ -97,8 +97,7 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
                             </Link>
                         </div>
 
-                        {/* Portal del cliente - DESHABILITADO (pendiente de pago) */}
-                        {/* <div className="text-center mt-4 pt-4 border-t border-gray-300">
+                        <div className="text-center mt-4 pt-4 border-t border-gray-300">
                             <Link
                                 to="/portal-cliente"
                                 className="text-sm sm:text-base text-black font-semibold hover:text-yellow flex items-center justify-center gap-2"
@@ -106,7 +105,7 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
                                 <span>¿Eres cliente del gimnasio?</span>
                                 <span className="underline">Ingresa aquí</span>
                             </Link>
-                        </div> */}
+                        </div> 
                     </form>
                 </section>
             

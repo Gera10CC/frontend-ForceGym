@@ -5,7 +5,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_URL_API || 'http://localhost:8080/';
 
 function ClientForgotPassword() {
     const recaptcha = useRef<ReCAPTCHA>(null);
@@ -57,7 +57,7 @@ function ClientForgotPassword() {
 
         try {
             const response = await axios.post(
-                `${API_URL}/client-portal/forgot-password`,
+                `${API_URL}client-portal/forgot-password`,
                 { 
                     email,
                     recaptchaToken: captchaValue

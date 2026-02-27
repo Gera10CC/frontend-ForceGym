@@ -67,7 +67,6 @@ function TrainingMode() {
                 navigate('/portal-cliente/dashboard');
             }
         } catch (error) {
-            console.error('Error cargando rutina:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -176,7 +175,6 @@ function TrainingMode() {
                 showConfirmButton: false
             });
         } catch (error) {
-            console.error('Error guardando nota:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
