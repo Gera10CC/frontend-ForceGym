@@ -24,7 +24,7 @@ function DataInfo() {
     return {
       name: globalExercise?.name || `Ejercicio #${ex.idExercise}`,
       series: ex.series || 0,
-      repetitions: ex.repetitions || 0,
+      repetitions: ex.repetitions === 0 || ex.repetitions === '' ? 0 : ex.repetitions,
       note: ex.note || "Sin nota",
       category: globalExercise?.exerciseCategory?.name || "Otros",
     };
