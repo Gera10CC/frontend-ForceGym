@@ -221,8 +221,8 @@ export const useRoutine = () => {
     const pdfTableRows = routines.map((routine) => {
         const totals = routine.routineExercises?.reduce((acc, ex) => ({
             series: acc.series + (ex.series || 0),
-            reps: acc.reps + (ex.repetitions || 0),
-            nots: acc.nots + (ex.note || "")
+            reps: acc.reps + (Number(ex.repetitions) || 0),
+            nots: acc.nots + String(ex.note || "")
         }), { series: 0, reps: 0, nots: "" }) || { series: 0, reps: 0, nots: "" };
 
         return [
