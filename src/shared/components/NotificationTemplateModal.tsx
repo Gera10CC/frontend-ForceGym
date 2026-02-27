@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState, useCallback } from "react";
+import { Fragment, useEffect, useState, useCallback, useMemo } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { IoIosClose } from "react-icons/io";
 import useNotificationTemplateStore from "../../TemplateNotification/Store";
@@ -6,6 +6,7 @@ import { NotificationTemplate } from "../types";
 import { postData } from "../services/gym";
 import Swal from "sweetalert2";
 import { ClientNotification } from "./NotificationsModal";
+import { getAuthUser } from "../utils/authentication";
 
 // Colores centralizados para fácil mantenimiento
 const gymColors = {
@@ -13,6 +14,13 @@ const gymColors = {
   secondary: "#000000",
   accent: "#FFFFFF",
   error: "#E53E3E",
+};
+
+// Mapa de tipo de notificación a ID
+const NOTIFICATION_TYPE_MAP: Record<string, number> = {
+  mensualidades: 1,  // Vencimiento de membresía
+  cumpleanos: 2,     // Cumpleaños
+  aniversarios: 3,   // Aniversario
 };
 
 interface NotificationTemplateModalProps {
@@ -39,6 +47,18 @@ export function NotificationTemplateModal({
   const [availableClients, setAvailableClients] = useState<ClientNotification[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // -----------------------------------------
+  // FILTRAR PLANTILLAS POR TIPO DE NOTIFICACIÓN
+  // -----------------------------------------
+  const filteredTemplates = useMemo(() => {
+    const typeId = NOTIFICATION_TYPE_MAP[notificationType];
+    if (!typeId) return notificationTemplates;
+    
+    return notificationTemplates.filter(
+      (template) => !template.isDeleted && template.notificationType.idNotificationType === typeId
+    );
+  }, [notificationTemplates, notificationType]);
 
   // -----------------------------------------
   // CARGAR CLIENTES Y TEMPLATES AL ABRIR MODAL
@@ -76,18 +96,21 @@ export function NotificationTemplateModal({
   const handleSend = async () => {
     setErrorMsg(null);
 
-    const selectedClient = availableClients.find((c) => c.idClient === selectedClientId);
+    const selectedClient = availableClients.find((c) => String(c.idClient) === String(selectedClientId));
 
     if (!selectedTemplate) return setErrorMsg("Debes seleccionar una plantilla");
     if (!message.trim()) return setErrorMsg("El mensaje no puede estar vacío");
     if (!selectedClient) return setErrorMsg("Cliente no válido");
-    if (!selectedClient.email && !selectedClient.phoneNumber)
-      return setErrorMsg("El cliente no tiene email ni WhatsApp registrado");
+    if (!selectedClient.phoneNumber)
+      return setErrorMsg("El cliente no tiene WhatsApp registrado");
 
     setIsSending(true);
 
     try {
       await onSend(message, selectedClient);
+
+      // Obtener usuario logueado
+      const loggedUser = getAuthUser();
 
       // Registrar notificación en DB
       const result = await postData(
@@ -95,6 +118,7 @@ export function NotificationTemplateModal({
         {
           idClient: selectedClient.idClient,
           idNotificationType: selectedTemplate.notificationType.idNotificationType,
+          paramLoggedIdUser: loggedUser?.idUser,
         }
       );
 
@@ -227,12 +251,17 @@ export function NotificationTemplateModal({
                     style={{ borderColor: gymColors.primary }}
                   >
                     <option value="">Selecciona una plantilla</option>
-                    {notificationTemplates.map((template) => (
+                    {filteredTemplates.map((template) => (
                       <option key={template.idNotificationTemplate} value={template.idNotificationTemplate}>
                         {template.message}
                       </option>
                     ))}
                   </select>
+                  {filteredTemplates.length === 0 && (
+                    <p className="text-sm mt-1 text-gray-600">
+                      No hay plantillas disponibles para este tipo de notificación
+                    </p>
+                  )}
                 </div>
 
                 {/* MENSAJE */}
