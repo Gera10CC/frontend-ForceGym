@@ -16,7 +16,7 @@ type SelectedExercise = {
   idExercise: number;
   name: string;
   series: number;
-  repetitions: number;
+  repetitions: number | string;
   note: string;
   category: string;
   categoryId: number;
@@ -293,15 +293,18 @@ function Form() {
       return;
     }
 
-    const invalidExercises = validExercises.filter(ex =>
-      ex.series <= 0 || ex.repetitions <= 0
-    );
+    const invalidExercises = validExercises.filter(ex => {
+      const hasInvalidSeries = ex.series <= 0;
+      const hasInvalidReps = typeof ex.repetitions === 'number' ? ex.repetitions <= 0 : ex.repetitions.trim() === '';
+      return hasInvalidSeries || hasInvalidReps;
+    });
 
     if (invalidExercises.length > 0) {
       const htmlList = invalidExercises.map(ex => {
         const errors = [];
         if (ex.series <= 0) errors.push('Series');
-        if (ex.repetitions <= 0) errors.push('Repeticiones');
+        const hasInvalidReps = typeof ex.repetitions === 'number' ? ex.repetitions <= 0 : ex.repetitions.trim() === '';
+        if (hasInvalidReps) errors.push('Repeticiones');
         return `<strong>${ex.name}</strong>: ${errors.join(' y ')}`;
       }).join('<br>');
 
@@ -899,16 +902,22 @@ function Form() {
                           <label className="text-xs text-gray-500 mb-1">Repeticiones</label>
                           <div className="relative">
                             <input
-                              type="number"
-                              min="1"
+                              type="text"
                               className="w-full p-2 border border-gray-300 rounded text-center h-[38px]"
                               value={ex.repetitions || ""}
-                              onChange={(e) => updateExerciseField(index, 'repetitions', e.target.value === "" ? 0 : Number(e.target.value))}
+                              onChange={(e) => {
+                                const value = e.target.value.trim();
+                                // Permitir *, números o vacío
+                                if (value === '' || value === '*' || /^\d+$/.test(value)) {
+                                  updateExerciseField(index, 'repetitions', value === '' ? 0 : (value === '*' ? '*' : Number(value)));
+                                }
+                              }}
+                              placeholder="# o *"
                               disabled={loading}
                             />
-                            {ex.idExercise > 0 && ex.repetitions <= 0 && (
+                            {ex.idExercise > 0 && (typeof ex.repetitions === 'number' ? ex.repetitions <= 0 : ex.repetitions === '') && (
                               <span className="absolute -bottom-5 left-0 right-0 text-xs text-red-500 text-center whitespace-nowrap">
-                                Mínimo 1
+                                Requerido
                               </span>
                             )}
                           </div>

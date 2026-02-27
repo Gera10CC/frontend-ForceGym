@@ -7,7 +7,7 @@ import { getData } from "../shared/services/gym";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import NoData from "../shared/components/NoData";
-import { formatDate } from "../shared/utils/format";
+import { formatDate, formatDateFromString } from "../shared/utils/format";
 import { exportToPDFRutinas } from "../shared/utils/pdfRutinas";
 
 interface AssignedRoutine {
@@ -285,7 +285,7 @@ export default function AssignedRoutines() {
                       <Calendar size={16} className="text-gray-500" />
                       <span>
                         <strong>Asignada:</strong>{" "}
-                        {formatDate(new Date(assignment.assignmentDate))}
+                        {formatDateFromString(assignment.assignmentDate)}
                       </span>
                     </div>
 
@@ -293,7 +293,7 @@ export default function AssignedRoutines() {
                       <FileText size={16} className="text-gray-500" />
                       <span>
                         <strong>Creada:</strong>{" "}
-                        {formatDate(new Date(assignment.routine.date))}
+                        {formatDateFromString(assignment.routine.date)}
                       </span>
                     </div>
 

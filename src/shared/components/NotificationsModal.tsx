@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState, useCallback } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { NotificationTemplateModal } from "./NotificationTemplateModal";
+import { getData } from "../services/gym";
 
 export type ClientNotification = {
   idClient: string;
@@ -48,8 +49,6 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
     setError(null);
 
     try {
-      const token = localStorage.getItem("auth_token");
-
       const endpoints = [
         ["aniversarios", 3],
         ["cumpleanos", 2],
@@ -58,22 +57,24 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
 
       const responses = await Promise.all(
         endpoints.map(([_, filter]) =>
-          fetch(`${import.meta.env.VITE_URL_API}client/filter?filterType=${filter}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
+          getData(`${import.meta.env.VITE_URL_API}client/filter?filterType=${filter}`)
         )
       );
+
+      // Verificar si alguna respuesta indica logout (401/403)
+      if (responses.some((res) => res.logout)) {
+        setError("Sesión expirada");
+        return;
+      }
 
       if (!responses.every((res) => res.ok)) {
         throw new Error("Error al cargar las notificaciones");
       }
 
-      const data = await Promise.all(responses.map((res) => res.json()));
-
       setNotifications({
-        aniversarios: data[0]?.data?.clients || [],
-        cumpleanos: data[1]?.data?.clients || [],
-        mensualidades: data[2]?.data?.clients || [],
+        aniversarios: responses[0]?.data?.clients || [],
+        cumpleanos: responses[1]?.data?.clients || [],
+        mensualidades: responses[2]?.data?.clients || [],
       });
     } catch (err) {
       console.error(err);
@@ -88,44 +89,11 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
   }, [isOpen, fetchNotifications]);
 
   // --------------------------------------------
-  // SEND EMAIL + WHATSAPP
+  // SEND WHATSAPP ONLY
   // --------------------------------------------
-  const sendEmail = async (clients: ClientNotification[], subject: string, message: string) => {
-    const token = localStorage.getItem("auth_token");
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_URL_API}mail/send`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          toUsers: clients.map((c) => c.email),
-          subject,
-          message,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Email error: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error enviando email:", error);
-      throw error;
-    }
-  };
-
   const handleSendNotification = async (message: string, client: ClientNotification) => {
     try {
-      // Email
-      if (client.email) {
-        await sendEmail([client], "Notificación de ForceGym", message);
-      }
-
-      // WhatsApp
+      // WhatsApp only
       if (client.phoneNumber) {
         const encodedMessage = encodeURIComponent(message);
         const phone = client.phoneNumber.startsWith("506")
@@ -275,7 +243,11 @@ export function NotificationsModal({ isOpen, onClose }: NotificationsModalProps)
         notificationType={notificationType}
         onSend={handleSendNotification}
         isOpen={templateModalOpen}
-        onClose={() => setTemplateModalOpen(false)}
+        onClose={() => {
+          setTemplateModalOpen(false);
+          // Refrescar notificaciones después de cerrar el modal de plantilla
+          fetchNotifications();
+        }}
       />
     </>
   );

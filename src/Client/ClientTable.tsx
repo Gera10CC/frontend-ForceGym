@@ -15,7 +15,7 @@ import NoData from "../shared/components/NoData";
 import Pagination from "../shared/components/Pagination";
 
 import { mapClientToDataForm } from "../shared/types/mapper";
-import { formatDate } from "../shared/utils/format";
+import { formatDate, formatDateFromString } from "../shared/utils/format";
 
 interface ClientTableProps {
   clients: any[];
@@ -152,7 +152,7 @@ function ClientTable({
                     </td>
 
                     <td className="py-3 hidden lg:table-cell">
-                      {formatDate(new Date(client.registrationDate))}
+                      {formatDateFromString(client.registrationDate)}
                     </td>
 
                     <td className="py-3 hidden md:table-cell">{client.clientType.name}</td>

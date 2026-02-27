@@ -183,7 +183,7 @@ export type Client = {
     clientType: ClientType
     healthQuestionnaire: HealthQuestionnaire
     registrationDate: Date
-    expirationMembershipDate: string | Date
+    expirationMembershipDate: string | Date | null
     phoneNumberContactEmergency: string
     nameEmergencyContact: string
     signatureImage: string
@@ -268,7 +268,7 @@ export type RoutineExercise = {
     idRoutineExercise?: number;
     exercise: Exercise;
     series: number;
-    repetitions: number;
+    repetitions: number | string;
     note: string;
     categoryOrder: number;
     dayNumber?: number;
@@ -298,7 +298,7 @@ export type Routine = {
 export type RoutineExerciseDTO = {
     idExercise: number; 
     series: number;
-    repetitions: number;
+    repetitions: number | string;
     note: string;
     categoryOrder: number;
     dayNumber?: number;
@@ -333,7 +333,7 @@ export type RoutineDataForm = {
     exercises: {
         idExercise: number;
         series: number;
-        repetitions: number;
+        repetitions: number | string;
         note: string;
         categoryOrder: number;
     }[];

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { formatDate, formatNullable } from "../shared/utils/format";
+import { formatDate, formatNullable, formatDateFromString } from "../shared/utils/format";
 import useClientStore from "./Store";
 import { CiCircleCheck } from "react-icons/ci";
 import { MdOutlineCancel } from "react-icons/md";
@@ -88,7 +88,7 @@ function DataInfo() {
 
           <div className="flex flex-col text-xs sm:text-sm md:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">Fecha de nacimiento</p>
-            <p>{formatDate(new Date(client.person.birthday))}</p>
+            <p>{formatDateFromString(client.person.birthday)}</p>
           </div>
         </div>
 
@@ -175,6 +175,18 @@ function DataInfo() {
           <div className="flex flex-col text-xs sm:text-sm md:text-base">
             <p className="font-semibold uppercase text-gray-600 text-xs">Nombre</p>
             <p>{client.clientType.name}</p>
+          </div>
+
+          <div className="flex flex-col text-xs sm:text-sm md:text-base">
+            <p className="font-semibold uppercase text-gray-600 text-xs">Fecha de registro</p>
+            <p>{formatDateFromString(client.registrationDate)}</p>
+          </div>
+
+          <div className="flex flex-col text-xs sm:text-sm md:text-base">
+            <p className="font-semibold uppercase text-gray-600 text-xs">Vencimiento de membresía</p>
+            <p className={!client.expirationMembershipDate ? "text-gray-500 italic" : ""}>
+              {client.expirationMembershipDate ? formatDateFromString(client.expirationMembershipDate) : 'Sin membresía activa'}
+            </p>
           </div>
 
           <div className="flex flex-col text-xs sm:text-sm md:text-base">

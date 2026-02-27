@@ -4,7 +4,7 @@ import { Client, ClientDataForm } from "../shared/types"
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication"
 import useClientStore from "./Store"
 import { useNavigate } from "react-router"
-import { formatDate } from "../shared/utils/format"
+import { formatDate, formatDateFromString } from "../shared/utils/format"
 
 export const useClient = () => {
     const navigate = useNavigate()
@@ -115,7 +115,7 @@ export const useClient = () => {
         index + 1,
         client.person.identificationNumber,
         `${client.person.name} ${client.person.firstLastName} ${client.person.secondLastName}`,
-        formatDate(new Date(client.registrationDate)),
+        formatDateFromString(client.registrationDate),
         client.clientType.name
     ]);
 

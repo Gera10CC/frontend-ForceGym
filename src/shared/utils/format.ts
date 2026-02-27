@@ -7,6 +7,21 @@ export const formatDate = (date: Date) => {
     }).format(localDate);
 }
 
+// Formatea fechas desde strings sin problemas de zona horaria
+export const formatDateFromString = (dateString: string | Date | null): string => {
+    if (!dateString) return 'Sin fecha';
+    
+    // Si es un string, extraer directamente año, mes y día
+    if (typeof dateString === 'string') {
+        const dateOnly = dateString.split('T')[0]; // Toma solo YYYY-MM-DD
+        const [year, month, day] = dateOnly.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    
+    // Si es un Date, usar formatDate normal
+    return formatDate(dateString);
+}
+
 export const formatDateForParam = (date: Date): string => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
