@@ -55,6 +55,7 @@ function TrainingMode() {
                     });
                     setPersonalNotes(notesMap);
                 } catch (noteError) {
+                    console.error('Error cargando notas personales:', noteError);
                     // No mostrar error al usuario, simplemente no habrá notas
                 }
             } else {
