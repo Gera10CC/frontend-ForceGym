@@ -183,7 +183,7 @@ export type Client = {
     clientType: ClientType
     healthQuestionnaire: HealthQuestionnaire
     registrationDate: Date
-    expirationMembershipDate: string | Date
+    expirationMembershipDate: string | Date | null
     phoneNumberContactEmergency: string
     nameEmergencyContact: string
     signatureImage: string

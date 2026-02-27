@@ -1,6 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import ErrorForm from "../../shared/components/ErrorForm";
 import { formatDate } from "../../shared/utils/format";
+import useClientStore from "../Store";
 
 const MAXLENGTH_PHONENUMBER = 15;
 const MINLENGTH_PHONENUMBER = 8;
@@ -11,6 +12,7 @@ const MINLENGTH_NAME = 2;
 
 export const StepContactInfo = () => {
   const { register, formState: { errors } } = useFormContext();
+  const { activeEditingId } = useClientStore();
   
   return (
     <div className="space-y-5">
@@ -138,6 +140,24 @@ export const StepContactInfo = () => {
         />
         {errors.registrationDate && <ErrorForm>{errors.registrationDate.message?.toString()}</ErrorForm>}
       </div>
+
+      {/* Solo mostrar el campo de vencimiento al editar un cliente */}
+      {activeEditingId !== 0 && (
+        <div>
+          <label htmlFor="expirationMembershipDate" className="text-sm uppercase font-bold">
+            Fecha de vencimiento de membresía
+          </label>
+          <input  
+            id="expirationMembershipDate"
+            className="w-full p-3 border border-gray-100"  
+            type="date" 
+            {...register('expirationMembershipDate', {
+              required: activeEditingId !== 0 ? 'La fecha de vencimiento de membresía es obligatoria' : false
+            })}
+          />
+          {errors.expirationMembershipDate && <ErrorForm>{errors.expirationMembershipDate.message?.toString()}</ErrorForm>}
+        </div>
+      )}
     </div>
   );
 };
