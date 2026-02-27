@@ -45,7 +45,7 @@ function PublicRoutes() {
                 element={<ChangePasswordForm />} 
             />
             {/* Rutas del Portal de Clientes - DESHABILITADO (pendiente de pago) */}
-            {/* <Route 
+             <Route 
                 path="/portal-cliente" 
                 element={<ClientLogin />} 
             />
@@ -64,7 +64,7 @@ function PublicRoutes() {
             <Route 
                 path="/portal-cliente/entrenar/:idRoutineAssignment" 
                 element={<TrainingMode />} 
-            /> */}
+            /> 
         </Routes>
     );
 }
