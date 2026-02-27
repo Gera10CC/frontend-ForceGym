@@ -674,6 +674,21 @@ function ClientDashboard() {
                     }}
                 />
             )}
+            
+            {/* Footer con información del desarrollador */}
+            <footer className="mt-8 pb-4 text-center">
+                <p className="text-xs text-gray-400">
+                    Desarrollado por{' '}
+                    <a 
+                        href="https://geraldcalderon.netlify.app" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:text-gray-600 transition-colors underline"
+                    >
+                        Gerald Calderón
+                    </a>
+                </p>
+            </footer>
         </div>
     );
 }

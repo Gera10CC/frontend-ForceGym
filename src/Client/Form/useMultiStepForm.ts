@@ -43,7 +43,7 @@ export const useMultiStepForm = () => {
     phoneNumber: ''
   });
 
-  const formatToYYYYMMDD = (date: Date | string): string => {
+  const formatToYYYYMMDD = (date: Date | string | null): string => {
     if (!date) return '';
   
     // Si ya es un string en formato YYYY-MM-DD, devolverlo directamente
@@ -71,8 +71,8 @@ export const useMultiStepForm = () => {
       idClient: activeClient.idClient,
       idUser: activeClient.user.idUser,
       idClientType: activeClient.clientType.idClientType,
-      registrationDate: formatToYYYYMMDD(activeClient.registrationDate),
-      expirationMembershipDate: formatToYYYYMMDD(activeClient.expirationMembershipDate),
+      registrationDate: formatToYYYYMMDD(activeClient.registrationDate) as any,
+      expirationMembershipDate: formatToYYYYMMDD(activeClient.expirationMembershipDate) as any,
       phoneNumberContactEmergency: activeClient.phoneNumberContactEmergency,
       nameEmergencyContact: activeClient.nameEmergencyContact,
       signatureImage: activeClient.signatureImage,
@@ -90,7 +90,7 @@ export const useMultiStepForm = () => {
       name: activeClient.person.name,
       firstLastName: activeClient.person.firstLastName,
       secondLastName: activeClient.person.secondLastName,
-      birthday: formatToYYYYMMDD(activeClient.person.birthday),
+      birthday: formatToYYYYMMDD(activeClient.person.birthday) as any,
       idGender: activeClient.person.gender.idGender,
       email: activeClient.person.email,
       phoneNumber: activeClient.person.phoneNumber
@@ -112,7 +112,7 @@ export const useMultiStepForm = () => {
     const loggedUser = getAuthUser();
 
     // Función para convertir fecha a formato ISO con hora al mediodía
-    const dateToISO = (dateValue: string | Date): string => {
+    const dateToISO = (dateValue: string | Date | null): string => {
       if (!dateValue) return '';
       
       if (typeof dateValue === 'string') {
