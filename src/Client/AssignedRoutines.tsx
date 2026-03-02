@@ -8,7 +8,7 @@ import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import NoData from "../shared/components/NoData";
 import { formatDate, formatDateFromString } from "../shared/utils/format";
-import { exportToPDFRutinas } from "../shared/utils/pdfRutinas";
+import { exportToPDFRutinasLazy } from "../shared/utils/lazyExports";
 
 interface AssignedRoutine {
   idRoutineAssignment: number;
@@ -199,7 +199,7 @@ export default function AssignedRoutines() {
 
       const routineTitle = `Rutina: ${routine.name} - Cliente: ${clientName}`;
 
-      exportToPDFRutinas(
+      await exportToPDFRutinasLazy(
         routineTitle,
         exerciseHeaders,
         exerciseRows

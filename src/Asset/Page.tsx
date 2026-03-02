@@ -10,8 +10,7 @@ import Form from "./Form";
 import { useAsset } from "./useAsset";
 import { FilterButton, FilterSelect } from "./Filter";
 import FileTypeDecision from "../shared/components/ModalFileType";
-import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
-import { exportToExcel } from "../shared/utils/excelGeneral";
+import { exportToPDFGeneralLazy, exportToExcelLazy } from "../shared/utils/lazyExports";
 import AssetTable from "./AssetTable";
 import NoData from "../shared/components/NoData";
 
@@ -172,10 +171,10 @@ export default function AssetManagement() {
                     modulo="Activos"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDFGeneral("Activos", pdfTableHeaders, pdfTableRows)
+                      exportToPDFGeneralLazy("Activos", pdfTableHeaders, pdfTableRows)
                     }
                     exportToExcel={() =>
-                      exportToExcel("Activos", pdfTableHeaders, pdfTableRows)
+                      exportToExcelLazy("Activos", pdfTableHeaders, pdfTableRows)
                     }
                   />
                 )}

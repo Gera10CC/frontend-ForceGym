@@ -13,8 +13,7 @@ import Form from "./Form";
 import MeasurementTable from "./MeasurementTable";
 import { FilterButton, FilterSelect } from "./Filter";
 
-import { exportToPDFMedidas } from "../shared/utils/pdfMedidas";
-import { exportToExcelMedidas } from "../shared/utils/excelMedidas";
+import { exportToPDFMedidasLazy, exportToExcelMedidasLazy } from "../shared/utils/lazyExports";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 
 export default function MeasurementManagement() {
@@ -163,10 +162,10 @@ export default function MeasurementManagement() {
                     modulo="Medidas Corporales"
                     closeModal={closeModalFileType}
                     exportToPDF={() =>
-                      exportToPDFMedidas("Medidas", tableColumn, tableRows,clientData)
+                      exportToPDFMedidasLazy("Medidas", tableColumn, tableRows,clientData)
                     }
                     exportToExcel={() =>
-                      exportToExcelMedidas(
+                      exportToExcelMedidasLazy(
                         "Medidas",
                         tableColumn,
                         tableRows,

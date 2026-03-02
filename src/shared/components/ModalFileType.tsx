@@ -4,8 +4,8 @@ import Swal from "sweetalert2";
 type FileTypeDecisionProps = {
   modulo: string;
   closeModal: () => void;
-  exportToPDF: () => void;
-  exportToExcel: () => void;
+  exportToPDF: () => void | Promise<void>;
+  exportToExcel: () => void | Promise<void>;
 };
 
 export default function FileTypeDecision({
@@ -31,7 +31,8 @@ export default function FileTypeDecision({
       return;
     }
 
-    selected === "pdf" ? exportToPDF() : exportToExcel();
+    // Manejar exportaciones async
+    await (selected === "pdf" ? exportToPDF() : exportToExcel());
   };
 const optionClass = (type: "pdf" | "excel") =>
   `
