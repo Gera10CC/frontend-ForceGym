@@ -4,7 +4,6 @@ import './index.css'
 import App from './App'
 import { startTokenMonitoring } from './shared/utils/tokenMonitor'
 
-// Iniciar monitoreo de token en desarrollo
 if (import.meta.env.DEV) {
   startTokenMonitoring();
 }

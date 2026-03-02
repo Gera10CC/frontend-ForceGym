@@ -13,8 +13,7 @@ import FileTypeDecision from "../shared/components/ModalFileType";
 import IncomeDashboard from "./IncomeDashboard";
 import IncomeTable from "./IncomeTable";
 
-import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
-import { exportToExcel } from "../shared/utils/excelGeneral";
+import { exportToPDFGeneralLazy, exportToExcelLazy } from "../shared/utils/lazyExports";
 
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
@@ -169,14 +168,14 @@ export default function EconomicIncomeManagement() {
               setFilteredRows([]);
             }}
             exportToPDF={() =>
-              exportToPDFGeneral(
+              exportToPDFGeneralLazy(
                 "Ingresos",
                 pdfTableHeaders,
                 filteredRows
               )
             }
             exportToExcel={() =>
-              exportToExcel(
+              exportToExcelLazy(
                 "Ingresos",
                 pdfTableHeaders,
                 filteredRows

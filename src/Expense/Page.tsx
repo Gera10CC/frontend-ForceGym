@@ -12,8 +12,7 @@ import FileTypeDecision from "../shared/components/ModalFileType";
 import ExpenseDashboard from "./ExpenseDashboard";
 import ExpenseTable from "./ExpenseTable";
 
-import { exportToPDFGeneral } from "../shared/utils/pdfGeneral";
-import { exportToExcel } from "../shared/utils/excelGeneral";
+import { exportToPDFGeneralLazy, exportToExcelLazy } from "../shared/utils/lazyExports";
 
 import { useEffect, useState } from "react";
 import { FilterButton, FilterSelect } from "./Filter";
@@ -168,14 +167,14 @@ export default function EconomicExpenseManagement() {
               setFilteredRows([]);
             }}
             exportToPDF={() =>
-              exportToPDFGeneral(
+              exportToPDFGeneralLazy(
                 "Gastos",
                 pdfTableHeaders,
                 filteredRows
               )
             }
             exportToExcel={() =>
-              exportToExcel(
+              exportToExcelLazy(
                 "Gastos",
                 pdfTableHeaders,
                 filteredRows
