@@ -57,23 +57,23 @@ function PublicRoutes() {
                 />
                 {/* Rutas del Portal de Clientes - DESHABILITADO (pendiente de pago) */}
                  <Route 
-                    path="/portal-cliente" 
+                    path="/cliente" 
                     element={<ClientLogin />} 
                 />
                 <Route 
-                    path="/portal-cliente/recuperar-contrasena" 
+                    path="/cliente/recuperar-contrasena" 
                     element={<ClientForgotPassword />} 
                 />
                 <Route 
-                    path="/portal-cliente/restablecer-contrasena" 
+                    path="/cliente/restablecer-contrasena" 
                     element={<ClientResetPassword />} 
                 />
                 <Route 
-                    path="/portal-cliente/dashboard" 
+                    path="/cliente/dashboard" 
                     element={<ClientDashboard />} 
                 />
                 <Route 
-                    path="/portal-cliente/entrenar/:idRoutineAssignment" 
+                    path="/cliente/entrenar/:idRoutineAssignment" 
                     element={<TrainingMode />} 
                 /> 
             </Routes>

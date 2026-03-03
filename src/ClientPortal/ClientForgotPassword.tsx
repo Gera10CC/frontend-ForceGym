@@ -153,7 +153,7 @@ function ClientForgotPassword() {
 
                         <div className="text-center mt-3 sm:mt-4">
                             <Link
-                                to="/portal-cliente"
+                                to="/cliente"
                                 className="text-xs sm:text-sm md:text-base text-gray-600 hover:underline hover:text-yellow flex items-center justify-center gap-2"
                             >
                                 <FaArrowLeft /> Volver al inicio de sesión

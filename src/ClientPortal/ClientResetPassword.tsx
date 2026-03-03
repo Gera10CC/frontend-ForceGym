@@ -55,7 +55,7 @@ function ClientResetPassword() {
                 confirmButtonColor: '#CFAD04'
             });
 
-            navigate("/portal-cliente");
+            navigate("/cliente");
         } else {
             await Swal.fire({
                 title: 'Error',
@@ -80,11 +80,11 @@ function ClientResetPassword() {
                 width: 500,
                 confirmButtonColor: '#CFAD04'
             }).then(() => {
-                navigate("/portal-cliente");
+                navigate("/cliente");
             });
 
             setTimeout(() => {
-                navigate("/portal-cliente");
+                navigate("/cliente");
             }, 3000);
         }
 
@@ -96,7 +96,7 @@ function ClientResetPassword() {
             <main className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
                 <header className="flex items-center gap-3 mb-4 sm:mb-6">
                     <Link
-                        to="/portal-cliente"
+                        to="/cliente"
                         className="hover:text-yellow-500 transition-colors text-gray-700 flex-shrink-0"
                     >
                         <MdArrowBackIosNew size={20} className="sm:w-6 sm:h-6" />
@@ -160,7 +160,7 @@ function ClientResetPassword() {
                 <footer className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600">
                     <p>¿Recordaste tu contraseña?</p>
                     <Link 
-                        to="/portal-cliente" 
+                        to="/cliente" 
                         className="text-yellow-600 hover:text-yellow-800 font-semibold transition-colors"
                     >
                         Volver al inicio de sesión

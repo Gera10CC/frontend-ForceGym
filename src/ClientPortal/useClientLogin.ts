@@ -19,7 +19,7 @@ export const useClientLogin = () => {
         const clientData = localStorage.getItem('clientData');
         const clientToken = localStorage.getItem('clientToken');
         if (clientData && clientToken) {
-            navigate('/portal-cliente/dashboard');
+            navigate('/cliente/dashboard');
         }
     }, [navigate]);
 
@@ -68,7 +68,7 @@ export const useClientLogin = () => {
                 timer: 1500,
                 showConfirmButton: false
             });
-            navigate('/portal-cliente/dashboard');
+            navigate('/cliente/dashboard');
         } catch (error: any) {
             await Swal.fire({
                 icon: 'error',

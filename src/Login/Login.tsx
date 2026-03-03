@@ -99,7 +99,7 @@ function Login({ credencialUser, setCredencialUser, handleLoginSubmit, isSubmitt
 
                         <div className="text-center mt-4 pt-4 border-t border-gray-300">
                             <Link
-                                to="/portal-cliente"
+                                to="/cliente"
                                 className="text-sm sm:text-base text-black font-semibold hover:text-yellow flex items-center justify-center gap-2"
                             >
                                 <span>¿Eres cliente del gimnasio?</span>
