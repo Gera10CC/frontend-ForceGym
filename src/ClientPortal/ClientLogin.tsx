@@ -94,7 +94,7 @@ function ClientLogin() {
 
                         <div className="text-center mt-2">
                             <Link
-                                to="/portal-cliente/recuperar-contrasena"
+                                to="/cliente/recuperar-contrasena"
                                 className="text-sm sm:text-base text-gray-600 hover:underline hover:text-yellow"
                             >
                                 ¿Olvidaste tu contraseña?

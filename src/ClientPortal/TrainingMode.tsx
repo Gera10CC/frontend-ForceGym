@@ -64,7 +64,7 @@ function TrainingMode() {
                     title: 'Error',
                     text: 'Rutina no encontrada'
                 });
-                navigate('/portal-cliente/dashboard');
+                navigate('/cliente/dashboard');
             }
         } catch (error) {
             await Swal.fire({
@@ -72,7 +72,7 @@ function TrainingMode() {
                 title: 'Error',
                 text: 'Error al cargar la rutina'
             });
-            navigate('/portal-cliente/dashboard');
+            navigate('/cliente/dashboard');
         } finally {
             setLoading(false);
         }
@@ -258,7 +258,7 @@ function TrainingMode() {
             <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
                 <div className="container mx-auto p-4 md:p-8">
                     <button
-                        onClick={() => navigate('/portal-cliente/dashboard')}
+                        onClick={() => navigate('/cliente/dashboard')}
                         className="flex items-center gap-2 text-yellow hover:text-yellow/80 mb-6 transition-colors"
                     >
                         <FaArrowLeft /> Volver al Dashboard

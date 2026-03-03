@@ -38,7 +38,7 @@ api.interceptors.response.use(
                 confirmButtonColor: '#000000',
                 willClose: () => {
                     // Redirigir al login de clientes
-                    window.location.href = '/portal-cliente';
+                    window.location.href = '/cliente';
                 }
             });
         }

@@ -21,7 +21,7 @@ function ClientDashboard() {
         const clientToken = localStorage.getItem('clientToken');
         
         if (!storedClientData || !clientToken) {
-            navigate('/portal-cliente');
+            navigate('/cliente');
             return;
         }
 
@@ -128,7 +128,7 @@ function ClientDashboard() {
                 timer: 1500,
                 showConfirmButton: false
             });
-            navigate('/portal-cliente');
+            navigate('/cliente');
         }
     };
 
@@ -437,7 +437,7 @@ function ClientDashboard() {
                                             </div>
                                             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                                 <button
-                                                    onClick={() => navigate(`/portal-cliente/entrenar/${assignment.idRoutineAssignment}`)}
+                                                    onClick={() => navigate(`/cliente/entrenar/${assignment.idRoutineAssignment}`)}
                                                     className="flex items-center justify-center gap-2 bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm whitespace-nowrap"
                                                     title="Modo entrenamiento"
                                                 >
