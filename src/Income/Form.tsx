@@ -263,7 +263,8 @@ function Form() {
         )}
       </div>
 
-      <div>
+      {/* CAMPO OCULTO - Días de atraso */}
+      {/* <div>
         <label className="text-sm uppercase font-bold">Días de atraso</label>
         <div className="flex items-center mt-2 gap-2">
           <span>¿Hubo atraso?</span>
@@ -290,7 +291,7 @@ function Form() {
             <ErrorForm>{errors.delayDays.message}</ErrorForm>
           )}
         </div>
-      )}
+      )} */}
 
       <div>
         <label className="text-sm uppercase font-bold">Medio de pago</label>
