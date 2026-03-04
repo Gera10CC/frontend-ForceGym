@@ -210,8 +210,28 @@ function ClientDashboard() {
         }
     };
 
+    // Formatea fechas sin problemas de zona horaria
     const formatDate = (date: Date | string) => {
-        return new Date(date).toLocaleDateString('es-CR', {
+        if (!date) return 'Sin fecha';
+        
+        // Si es string, extraer directamente año-mes-día
+        let year: number, month: number, day: number;
+        
+        if (typeof date === 'string') {
+            const dateOnly = date.split('T')[0]; // Toma solo YYYY-MM-DD
+            const parts = dateOnly.split('-');
+            year = parseInt(parts[0]);
+            month = parseInt(parts[1]) - 1; // Los meses en JS van de 0-11
+            day = parseInt(parts[2]);
+        } else {
+            year = date.getFullYear();
+            month = date.getMonth();
+            day = date.getDate();
+        }
+        
+        // Crear fecha local sin zona horaria
+        const localDate = new Date(year, month, day);
+        return localDate.toLocaleDateString('es-CR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -220,24 +240,40 @@ function ClientDashboard() {
 
     const getMembershipStatus = () => {
         if (!clientData?.expirationMembershipDate) {
-            return { status: 'unknown', daysRemaining: 0 };
+            return { status: 'unknown', daysRemaining: 0, lastValidDay: null };
         }
         
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        const expirationDate = new Date(clientData.expirationMembershipDate);
+        // Parsear fecha de vencimiento sin zona horaria
+        let expirationDate: Date;
+        const dateValue = clientData.expirationMembershipDate;
+        
+        if (typeof dateValue === 'string') {
+            const dateOnly = dateValue.split('T')[0]; // Toma solo YYYY-MM-DD
+            const [year, month, day] = dateOnly.split('-').map(Number);
+            expirationDate = new Date(year, month - 1, day); // Crear fecha local
+        } else {
+            expirationDate = new Date(dateValue);
+        }
         expirationDate.setHours(0, 0, 0, 0);
         
-        const diffTime = expirationDate.getTime() - today.getTime();
+        // El último día válido de ingreso es el día ANTERIOR a la fecha de vencimiento
+        const lastValidDay = new Date(expirationDate);
+        lastValidDay.setDate(lastValidDay.getDate() - 1);
+        
+        const diffTime = lastValidDay.getTime() - today.getTime();
         const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
         if (daysRemaining < 0) {
-            return { status: 'expired', daysRemaining: Math.abs(daysRemaining) };
-        } else if (daysRemaining <= 7) {
-            return { status: 'warning', daysRemaining };
+            return { status: 'expired', daysRemaining: Math.abs(daysRemaining), lastValidDay };
+        } else if (daysRemaining === 0) {
+            return { status: 'lastDay', daysRemaining: 0, lastValidDay };
+        } else if (daysRemaining <= 6) {
+            return { status: 'warning', daysRemaining, lastValidDay };
         } else {
-            return { status: 'active', daysRemaining };
+            return { status: 'active', daysRemaining, lastValidDay };
         }
     };
 
@@ -319,16 +355,20 @@ function ClientDashboard() {
                     <div className={`rounded-lg shadow-lg p-4 md:p-6 ${
                         membershipStatus.status === 'expired' 
                             ? 'bg-red-100 border-l-4 border-red-500' 
-                            : membershipStatus.status === 'warning'
+                            : membershipStatus.status === 'lastDay'
                                 ? 'bg-orange-100 border-l-4 border-orange-500'
-                                : 'bg-green-100 border-l-4 border-green-500'
+                                : membershipStatus.status === 'warning'
+                                    ? 'bg-yellow-100 border-l-4 border-yellow-500'
+                                    : 'bg-green-100 border-l-4 border-green-500'
                     }`}>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div className="flex items-start gap-3">
                                 {membershipStatus.status === 'expired' ? (
                                     <FaExclamationTriangle className="text-red-500 text-2xl md:text-3xl mt-1 flex-shrink-0" />
-                                ) : membershipStatus.status === 'warning' ? (
+                                ) : membershipStatus.status === 'lastDay' ? (
                                     <FaClock className="text-orange-500 text-2xl md:text-3xl mt-1 flex-shrink-0" />
+                                ) : membershipStatus.status === 'warning' ? (
+                                    <FaClock className="text-yellow-600 text-2xl md:text-3xl mt-1 flex-shrink-0" />
                                 ) : (
                                     <FaCheckCircle className="text-green-500 text-2xl md:text-3xl mt-1 flex-shrink-0" />
                                 )}
@@ -336,38 +376,46 @@ function ClientDashboard() {
                                     <h3 className={`font-bold text-lg md:text-xl ${
                                         membershipStatus.status === 'expired' 
                                             ? 'text-red-700' 
-                                            : membershipStatus.status === 'warning'
+                                            : membershipStatus.status === 'lastDay'
                                                 ? 'text-orange-700'
-                                                : 'text-green-700'
+                                                : membershipStatus.status === 'warning'
+                                                    ? 'text-yellow-700'
+                                                    : 'text-green-700'
                                     }`}>
                                         {membershipStatus.status === 'expired' 
                                             ? 'Membresía Vencida' 
-                                            : membershipStatus.status === 'warning'
-                                                ? 'Membresía por Vencer'
-                                                : 'Membresía Activa'}
+                                            : membershipStatus.status === 'lastDay'
+                                                ? '¡Último Día de Membresía!'
+                                                : membershipStatus.status === 'warning'
+                                                    ? 'Membresía por Vencer'
+                                                    : 'Membresía Activa'}
                                     </h3>
                                     <p className={`text-sm md:text-base ${
                                         membershipStatus.status === 'expired' 
                                             ? 'text-red-600' 
-                                            : membershipStatus.status === 'warning'
+                                            : membershipStatus.status === 'lastDay'
                                                 ? 'text-orange-600'
-                                                : 'text-green-600'
+                                                : membershipStatus.status === 'warning'
+                                                    ? 'text-yellow-700'
+                                                    : 'text-green-600'
                                     }`}>
                                         {membershipStatus.status === 'expired' 
                                             ? `Tu membresía venció hace ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''}.` 
-                                            : membershipStatus.status === 'warning'
-                                                ? `Te quedan ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''} antes de que venza.`
-                                                : `Te quedan ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''} de membresía.`}
+                                            : membershipStatus.status === 'lastDay'
+                                                ? 'Hoy es tu último día para ingresar al gimnasio.'
+                                                : membershipStatus.status === 'warning'
+                                                    ? `Te quedan ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''} de membresía.`
+                                                    : `Te quedan ${membershipStatus.daysRemaining} día${membershipStatus.daysRemaining !== 1 ? 's' : ''} de membresía.`}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex flex-col items-start sm:items-end">
                                 <div className="flex items-center gap-2 text-gray-600">
                                     <FaCalendarAlt />
-                                    <span className="text-xs md:text-sm font-medium">Fecha de vencimiento:</span>
+                                    <span className="text-xs md:text-sm font-medium">Último día de ingreso:</span>
                                 </div>
                                 <span className="text-base md:text-lg font-bold text-gray-800">
-                                    {formatDate(clientData.expirationMembershipDate)}
+                                    {membershipStatus.lastValidDay && formatDate(membershipStatus.lastValidDay)}
                                 </span>
                             </div>
                         </div>
@@ -376,9 +424,14 @@ function ClientDashboard() {
                                 Por favor, acércate a recepción para renovar tu membresía y continuar disfrutando de nuestros servicios.
                             </p>
                         )}
-                        {membershipStatus.status === 'warning' && (
+                        {membershipStatus.status === 'lastDay' && (
                             <p className="mt-3 text-sm text-orange-600 bg-orange-50 p-2 rounded">
-                                Recuerda renovar tu membresía antes de la fecha de vencimiento para no perder acceso al gimnasio.
+                                ⚠️ Renueva tu membresía mañana para no perder acceso al gimnasio.
+                            </p>
+                        )}
+                        {membershipStatus.status === 'warning' && (
+                            <p className="mt-3 text-sm text-yellow-700 bg-yellow-50 p-2 rounded">
+                                Recuerda renovar tu membresía pronto para no perder acceso al gimnasio.
                             </p>
                         )}
                     </div>

@@ -9,6 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "noEmit": true,
     "types": ["node", "jest"]
   },
   "types": ["node", "jest", "@testing-library/jest-dom"],
