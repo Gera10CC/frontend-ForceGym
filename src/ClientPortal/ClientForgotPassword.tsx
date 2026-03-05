@@ -178,7 +178,7 @@ function ClientForgotPassword() {
                 <p className="text-xs text-gray-500">
                     Desarrollado por{' '}
                     <a 
-                        href="https://geraldcalderon.netlify.app" 
+                        href="https://geraldcalderon.site" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="hover:text-gray-700 transition-colors underline"
