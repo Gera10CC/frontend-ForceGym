@@ -2,9 +2,9 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { EconomicExpense, EconomicExpenseDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
-import { format } from 'date-fns';
 import { isCompleteDate } from "../shared/utils/validation";
 import { useCommonDataStore } from "../shared/CommonDataStore";
+import { formatDateForParam } from "../shared/utils/format";
 
 type EconomicExpenseStore = {
     economicExpenses: EconomicExpense[];
@@ -116,8 +116,8 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
                 isCompleteDate(state.filterByDateRangeMax) &&
                 isCompleteDate(state.filterByDateRangeMin)
             ) {
-                const formattedDateMax = format(state.filterByDateRangeMax!, 'yyyy-MM-dd');
-                const formattedDateMin = format(state.filterByDateRangeMin!, 'yyyy-MM-dd');
+                const formattedDateMax = formatDateForParam(state.filterByDateRangeMax!);
+                const formattedDateMin = formatDateForParam(state.filterByDateRangeMin!);
                 filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
             }
             if (state.filterByMeanOfPayment != 0) {
@@ -151,7 +151,7 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
             const formatIfDate = (v: any) => {
                 if (!v) return null;
                 try {
-                    if (v instanceof Date) return format(v, 'yyyy-MM-dd');
+                    if (v instanceof Date) return formatDateForParam(v);
                     return v;
                 } catch {
                     return v;

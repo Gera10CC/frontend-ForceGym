@@ -44,15 +44,25 @@ function DashboardManagement() {
     }));
 
     economicIncomes.forEach((income: any) => {
-      const monthIndex = new Date(income.registrationDate).getMonth();
-      monthlyData[monthIndex].income += income.amount;
-      monthlyData[monthIndex].balance += income.amount;
+      // Parsear fecha sin conversión de zona horaria
+      const dateStr = String(income.registrationDate);
+      const dateOnly = dateStr.split('T')[0];
+      const [year, month, day] = dateOnly.split('-').map(Number);
+      const incomeDate = new Date(year, month - 1, day);
+      
+      monthlyData[incomeDate.getMonth()].income += income.amount;
+      monthlyData[incomeDate.getMonth()].balance += income.amount;
     });
 
     economicExpenses.forEach((expense: any) => {
-      const monthIndex = new Date(expense.registrationDate).getMonth();
-      monthlyData[monthIndex].expense += expense.amount;
-      monthlyData[monthIndex].balance -= expense.amount;
+      // Parsear fecha sin conversión de zona horaria
+      const dateStr = String(expense.registrationDate);
+      const dateOnly = dateStr.split('T')[0];
+      const [year, month, day] = dateOnly.split('-').map(Number);
+      const expDate = new Date(year, month - 1, day);
+      
+      monthlyData[expDate.getMonth()].expense += expense.amount;
+      monthlyData[expDate.getMonth()].balance -= expense.amount;
     });
 
     return monthlyData;

@@ -29,7 +29,7 @@ function RoutineManagement() {
     resetEditing,
   } = useRoutineStore();
 
-  const { handleDelete, handleRestore, handleExportRoutine } = useRoutine();
+  const { handleDelete, handleRestore, handleDuplicate, handleExportRoutine } = useRoutine();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -107,6 +107,7 @@ function RoutineManagement() {
 
             handleDelete={handleDelete}
             handleRestore={handleRestore}
+            handleDuplicate={handleDuplicate}
             handleExportRoutine={handleExportRoutine}
 
             showModalForm={showModalForm}

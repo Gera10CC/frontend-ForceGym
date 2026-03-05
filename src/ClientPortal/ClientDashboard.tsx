@@ -49,8 +49,12 @@ function ClientDashboard() {
                 localStorage.setItem('clientData', JSON.stringify(updatedClientData));
                 setClientData(updatedClientData);
             }
-        } catch (error) {
-            // No mostrar error al usuario, simplemente usar los datos del localStorage
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            // Para otros errores, simplemente usar los datos del localStorage
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                console.log('Error al actualizar perfil, usando datos locales');
+            }
         }
     };
 
@@ -76,8 +80,12 @@ function ClientDashboard() {
                     });
                 }, 1500);
             }
-        } catch (error) {
-            // Error silencioso - no afecta la experiencia del usuario
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            // Para otros errores, simplemente no afecta la experiencia
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                console.log('Error al verificar contraseña provisional');
+            }
         }
     };
 
@@ -98,12 +106,17 @@ function ClientDashboard() {
             
             setRoutines(sortedRoutines);
             setMeasurements(measurementsData);
-        } catch (error) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al cargar los datos'
-            });
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            // Solo mostrar alerta si NO es un error de autenticación
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos'
+                });
+            }
+            // Si es 401 o 403, no hacemos nada porque el interceptor ya redirigió
         } finally {
             setLoading(false);
         }
@@ -149,12 +162,15 @@ function ClientDashboard() {
                 timer: 1500,
                 showConfirmButton: false
             });
-        } catch (error) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al descargar el PDF'
-            });
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al descargar el PDF'
+                });
+            }
         }
     };
 
@@ -175,12 +191,15 @@ function ClientDashboard() {
                 timer: 1500,
                 showConfirmButton: false
             });
-        } catch (error) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al descargar el PDF'
-            });
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al descargar el PDF'
+                });
+            }
         }
     };
 
@@ -201,12 +220,15 @@ function ClientDashboard() {
                 timer: 1500,
                 showConfirmButton: false
             });
-        } catch (error) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al descargar el PDF'
-            });
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al descargar el PDF'
+                });
+            }
         }
     };
 

@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { EconomicExpense, EconomicIncome } from "../shared/types";
 import { getData } from "../shared/services/gym";
-import { format } from 'date-fns';
 import { isCompleteDate } from "../shared/utils/validation";
+import { formatDateForParam } from "../shared/utils/format";
 
 type EconomicBalanceStore = {
     economicExpenses: EconomicExpense[];
@@ -62,8 +62,8 @@ export const useEconomicBalanceStore = create<EconomicBalanceStore>()(
                 filters += `&filterByAmountRangeMax=${state.filterByAmountRangeMax}&filterByAmountRangeMin=${state.filterByAmountRangeMin}`;
             }
             if (isCompleteDate(state.filterByDateRangeMax) && isCompleteDate(state.filterByDateRangeMin)) {
-                const formattedDateMax = format(state.filterByDateRangeMax!, 'yyyy-MM-dd');
-                const formattedDateMin = format(state.filterByDateRangeMin!, 'yyyy-MM-dd');
+                const formattedDateMax = formatDateForParam(state.filterByDateRangeMax!);
+                const formattedDateMin = formatDateForParam(state.filterByDateRangeMin!);
                 filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
             }
             if (state.filterByMeanOfPayment != 0) {
@@ -91,8 +91,8 @@ export const useEconomicBalanceStore = create<EconomicBalanceStore>()(
                 filters += `&filterByAmountRangeMax=${state.filterByAmountRangeMax}&filterByAmountRangeMin=${state.filterByAmountRangeMin}`;
             }
             if (isCompleteDate(state.filterByDateRangeMax) && isCompleteDate(state.filterByDateRangeMin)) {
-                const formattedDateMax = format(state.filterByDateRangeMax!, 'yyyy-MM-dd');
-                const formattedDateMin = format(state.filterByDateRangeMin!, 'yyyy-MM-dd');
+                const formattedDateMax = formatDateForParam(state.filterByDateRangeMax!);
+                const formattedDateMin = formatDateForParam(state.filterByDateRangeMin!);
                 filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
             }
             if (state.filterByMeanOfPayment != 0) {

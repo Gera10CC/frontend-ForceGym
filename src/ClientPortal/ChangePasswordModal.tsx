@@ -50,11 +50,14 @@ function ChangePasswordModal({ onClose, onSuccess }: ChangePasswordModalProps) {
             onSuccess();
             onClose();
         } catch (error: any) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.response?.data?.message || 'Error al cambiar la contraseña'
-            });
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Error al cambiar la contraseña'
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }

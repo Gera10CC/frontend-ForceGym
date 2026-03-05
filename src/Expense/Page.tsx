@@ -177,7 +177,9 @@ export default function EconomicExpenseManagement() {
               exportToExcelLazy(
                 "Gastos",
                 pdfTableHeaders,
-                filteredRows
+                filteredRows,
+                undefined,
+                3
               )
             }
           />

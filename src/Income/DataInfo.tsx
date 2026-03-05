@@ -1,4 +1,4 @@
-import { formatAmountToCRC, formatDate } from "../shared/utils/format";
+import { formatAmountToCRC, formatDateFromString } from "../shared/utils/format";
 import useEconomicIncomeStore from "./Store";
 
 function DataInfo() {
@@ -69,7 +69,7 @@ function DataInfo() {
             <p className="font-semibold uppercase text-gray-600 text-xs">
               Fecha de Registro
             </p>
-            <p>{formatDate(new Date(economicIncome.registrationDate))}</p>
+            <p>{formatDateFromString(economicIncome.registrationDate)}</p>
           </div>
         </div>
 

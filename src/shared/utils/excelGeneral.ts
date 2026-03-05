@@ -11,7 +11,8 @@ export const exportToExcel = async (
   title: string,
   tableHeaders: string[],
   tableRows: any[][],
-  clientData?: { name: string; age: number; height: number }
+  clientData?: { name: string; age: number; height: number },
+  amountColumnIndex?: number
 ) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(`Reporte de ${title}`);
@@ -112,14 +113,67 @@ export const exportToExcel = async (
         right: { style: "thin" },
       };
 
+      // Format numbers: amount column gets currency format, others get integer format
       if (typeof cell.value === "number") {
-        cell.numFmt = "#,##0.0";
+        if (amountColumnIndex !== undefined && colIndex === amountColumnIndex) {
+          // Currency format for Costa Rica: ₡14.500,00
+          cell.value = value;
+          cell.numFmt = '"₡"#,##0.00';
+        } else {
+          // Integer format for index and other numbers
+          cell.numFmt = "0";
+        }
       }
     });
 
     currentRow++;
   });
 
+  // Add total row if amountColumnIndex is provided
+  if (amountColumnIndex !== undefined && tableRows.length > 0) {
+    const totalRow = worksheet.getRow(currentRow);
+    
+    // Calculate total from numeric values
+    const total = tableRows.reduce((sum, row) => {
+      const amountValue = row[amountColumnIndex];
+      const numericValue = typeof amountValue === 'number' ? amountValue : parseFloat(String(amountValue));
+      return sum + (isNaN(numericValue) ? 0 : numericValue);
+    }, 0);
+
+    // Set cells for total row
+    tableHeaders.forEach((_, colIndex) => {
+      const cell = totalRow.getCell(colIndex + 1);
+      
+      if (colIndex === amountColumnIndex - 1) {
+        // Cell before amount column shows "TOTAL"
+        cell.value = "TOTAL";
+        cell.font = { size: 12, bold: true, name: "Arial" };
+        cell.alignment = { horizontal: "right", vertical: "middle" };
+      } else if (colIndex === amountColumnIndex) {
+        // Amount column shows the total as a number with currency format
+        cell.value = total;
+        cell.numFmt = '"₡"#,##0.00';
+        cell.font = { size: 12, bold: true, name: "Arial" };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+      } else {
+        // Other cells are empty
+        cell.value = "";
+      }
+      
+      // Style for total row
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE8E8E8" },
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+  }
 
   worksheet.columns.forEach((column) => {
     column.width = 20;

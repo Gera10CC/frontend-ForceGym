@@ -11,7 +11,7 @@ import {
   Cell
 } from 'recharts';
 
-import { formatAmountToCRC, formatDate } from '../shared/utils/format';
+import { formatAmountToCRC, formatDateFromString, formatDateForParam } from '../shared/utils/format';
 import { EconomicIncome } from '../shared/types';
 
 interface IncomeDashboardProps {
@@ -32,10 +32,14 @@ const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ economicIncomes }) =>
   };
 
   const calculateTotals = () => {
-    const today = new Date();
-    const currentDay = formatDate(today);
+    // Crear fecha local a medianoche sin conversión UTC
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const currentDay = formatDateFromString(formatDateForParam(today)); // Evitar conversión de zona horaria
     const currentWeek = getWeekNumber(today);
     const currentMonth = today.toLocaleString('es-ES', { month: 'long' });
+    const currentYear = today.getFullYear();
+    const currentMonthNumber = today.getMonth();
     const isFirstQuincena = today.getDate() <= 15;
 
     let dailyTotal = 0;
@@ -47,8 +51,14 @@ const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ economicIncomes }) =>
     const dailyData: Record<string, number> = {};
 
     economicIncomes.forEach((income) => {
-      const incomeDate = new Date(income.registrationDate);
-      const formattedDate = formatDate(incomeDate);
+      // Extraer solo la fecha sin problemas de zona horaria
+      const dateStr = String(income.registrationDate);
+      const dateOnly = dateStr.split('T')[0]; // YYYY-MM-DD
+      const [year, month, day] = dateOnly.split('-').map(Number);
+      
+      // Crear fecha local sin conversión de zona horaria
+      const incomeDate = new Date(year, month - 1, day);
+      const formattedDate = formatDateFromString(dateStr);
 
       dailyData[formattedDate] = (dailyData[formattedDate] || 0) + income.amount;
 
@@ -56,11 +66,11 @@ const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ economicIncomes }) =>
         dailyTotal += income.amount;
       }
 
-      if (getWeekNumber(incomeDate) === currentWeek) {
+      if (getWeekNumber(incomeDate) === currentWeek && incomeDate.getFullYear() === currentYear) {
         weeklyTotal += income.amount;
       }
 
-      if (incomeDate.getMonth() === today.getMonth()) {
+      if (incomeDate.getMonth() === currentMonthNumber && incomeDate.getFullYear() === currentYear) {
         if (
           (isFirstQuincena && incomeDate.getDate() <= 15) ||
           (!isFirstQuincena && incomeDate.getDate() > 15)
@@ -69,7 +79,7 @@ const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ economicIncomes }) =>
         }
       }
 
-      if (incomeDate.getMonth() === today.getMonth()) {
+      if (incomeDate.getMonth() === currentMonthNumber && incomeDate.getFullYear() === currentYear) {
         monthlyTotal += income.amount;
       }
     });
@@ -125,7 +135,7 @@ const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ economicIncomes }) =>
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
           <h3 className="font-semibold text-gray-600 text-sm sm:text-base">Hoy</h3>
           <p className="text-2xl font-bold">{formatAmountToCRC(dailyTotal)}</p>
-          <p className="text-xs sm:text-sm text-gray-500">{formatDate(new Date())}</p>
+          <p className="text-xs sm:text-sm text-gray-500">{formatDateFromString(formatDateForParam(new Date()))}</p>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-emerald-500">

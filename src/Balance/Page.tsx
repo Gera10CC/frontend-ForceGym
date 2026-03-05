@@ -74,15 +74,25 @@ export default function EconomicBalanceDashboard() {
     }));
 
     economicIncomes.forEach((income) => {
-      const month = new Date(income.registrationDate).getMonth();
-      monthlyData[month].income += income.amount;
-      monthlyData[month].balance += income.amount;
+      // Parsear fecha sin conversión de zona horaria
+      const dateStr = String(income.registrationDate);
+      const dateOnly = dateStr.split('T')[0];
+      const [year, month, day] = dateOnly.split('-').map(Number);
+      const incomeDate = new Date(year, month - 1, day);
+      
+      monthlyData[incomeDate.getMonth()].income += income.amount;
+      monthlyData[incomeDate.getMonth()].balance += income.amount;
     });
 
     economicExpenses.forEach((exp) => {
-      const month = new Date(exp.registrationDate).getMonth();
-      monthlyData[month].expense += exp.amount;
-      monthlyData[month].balance -= exp.amount;
+      // Parsear fecha sin conversión de zona horaria
+      const dateStr = String(exp.registrationDate);
+      const dateOnly = dateStr.split('T')[0];
+      const [year, month, day] = dateOnly.split('-').map(Number);
+      const expDate = new Date(year, month - 1, day);
+      
+      monthlyData[expDate.getMonth()].expense += exp.amount;
+      monthlyData[expDate.getMonth()].balance -= exp.amount;
     });
 
     return monthlyData;
