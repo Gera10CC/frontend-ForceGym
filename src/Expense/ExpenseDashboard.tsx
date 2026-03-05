@@ -11,7 +11,7 @@ import {
   Cell
 } from 'recharts';
 
-import { formatAmountToCRC, formatDate } from '../shared/utils/format';
+import { formatAmountToCRC, formatDateFromString, formatDateForParam } from '../shared/utils/format';
 import { EconomicExpense } from '../shared/types';
 
 interface ExpenseDashboardProps {
@@ -32,10 +32,13 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
   };
 
   const calculateTotals = () => {
-    const today = new Date();
-    const currentDay = formatDate(today);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const currentDay = formatDateFromString(formatDateForParam(today));
     const currentWeek = getWeekNumber(today);
     const currentMonth = today.toLocaleString('es-ES', { month: 'long' });
+    const currentYear = today.getFullYear();
+    const currentMonthNumber = today.getMonth();
     const isFirstQuincena = today.getDate() <= 15;
 
     let dailyTotal = 0;
@@ -47,8 +50,14 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
     const dailyData: Record<string, number> = {};
 
     economicExpenses.forEach((expense) => {
-      const expenseDate = new Date(expense.registrationDate);
-      const formattedDate = formatDate(expenseDate);
+      // Extraer solo la fecha sin problemas de zona horaria
+      const dateStr = String(expense.registrationDate);
+      const dateOnly = dateStr.split('T')[0]; // YYYY-MM-DD
+      const [year, month, day] = dateOnly.split('-').map(Number);
+      
+      // Crear fecha local sin conversión de zona horaria
+      const expenseDate = new Date(year, month - 1, day);
+      const formattedDate = formatDateFromString(dateStr);
 
       dailyData[formattedDate] = (dailyData[formattedDate] || 0) + expense.amount;
 
@@ -56,11 +65,11 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
         dailyTotal += expense.amount;
       }
 
-      if (getWeekNumber(expenseDate) === currentWeek) {
+      if (getWeekNumber(expenseDate) === currentWeek && expenseDate.getFullYear() === currentYear) {
         weeklyTotal += expense.amount;
       }
 
-      if (expenseDate.getMonth() === today.getMonth()) {
+      if (expenseDate.getMonth() === currentMonthNumber && expenseDate.getFullYear() === currentYear) {
         if (
           (isFirstQuincena && expenseDate.getDate() <= 15) ||
           (!isFirstQuincena && expenseDate.getDate() > 15)
@@ -69,7 +78,7 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
         }
       }
 
-      if (expenseDate.getMonth() === today.getMonth()) {
+      if (expenseDate.getMonth() === currentMonthNumber && expenseDate.getFullYear() === currentYear) {
         monthlyTotal += expense.amount;
       }
     });
@@ -125,7 +134,7 @@ const ExpenseDashboard: React.FC<ExpenseDashboardProps> = ({ economicExpenses })
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
           <h3 className="font-semibold text-gray-600 text-sm sm:text-base">Hoy</h3>
           <p className="text-2xl font-bold">{formatAmountToCRC(dailyTotal)}</p>
-          <p className="text-xs sm:text-sm text-gray-500">{formatDate(new Date())}</p>
+          <p className="text-xs sm:text-sm text-gray-500">{formatDateFromString(formatDateForParam(new Date()))}</p>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">

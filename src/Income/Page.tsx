@@ -44,6 +44,7 @@ export default function EconomicIncomeManagement() {
     filterByClientType,
 
     fetchEconomicIncomes,
+    fetchAllActiveIncomes,
     getEconomicIncomeById,
     changePage,
     changeSize,
@@ -70,6 +71,7 @@ export default function EconomicIncomeManagement() {
 
   const navigate = useNavigate();
   const [showDashboard, setShowDashboard] = useState(false);
+  const [dashboardData, setDashboardData] = useState<EconomicIncome[]>([]);
 
   // Estados para exportación
   const [fileTypeModalOpen, setFileTypeModalOpen] = useState(false);
@@ -92,6 +94,18 @@ export default function EconomicIncomeManagement() {
     filterByStatus, filterByAmountRangeMax, filterByAmountRangeMin,
     filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin, filterByClientType
   ]);
+
+  // Cargar datos completos para el dashboard respetando filtros activos
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (showDashboard) {
+        const filteredIncomes = await fetchEconomicIncomeByActiveFilters();
+        setDashboardData(filteredIncomes);
+      }
+    };
+    loadDashboardData();
+  }, [showDashboard, searchTerm, filterByStatus, filterByAmountRangeMax, filterByAmountRangeMin,
+    filterByMeanOfPayment, filterByDateRangeMax, filterByDateRangeMin, filterByClientType]);
 
   // Export using active filters
   const handleExport = async () => {
@@ -178,7 +192,9 @@ export default function EconomicIncomeManagement() {
               exportToExcelLazy(
                 "Ingresos",
                 pdfTableHeaders,
-                filteredRows
+                filteredRows,
+                undefined,
+                4
               )
             }
           />
@@ -220,7 +236,7 @@ export default function EconomicIncomeManagement() {
           </div>
 
           {showDashboard ? (
-            <IncomeDashboard economicIncomes={economicIncomes} />
+            <IncomeDashboard economicIncomes={dashboardData} />
           ) : (
             <IncomeTable
               economicIncomes={economicIncomes}

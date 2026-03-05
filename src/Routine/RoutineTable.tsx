@@ -1,4 +1,4 @@
-import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore, MdOutlineFileDownload } from "react-icons/md";
+import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore, MdOutlineFileDownload, MdContentCopy } from "react-icons/md";
 import { IoIosMore } from "react-icons/io";
 import Modal from "../shared/components/Modal";
 import NoData from "../shared/components/NoData";
@@ -20,6 +20,7 @@ interface RoutineTableProps {
 
   handleDelete: (routine: Routine) => void;
   handleRestore: (routine: Routine) => void;
+  handleDuplicate: (routine: Routine) => void;
   handleExportRoutine: () => Promise<any>;
 
   showModalForm: () => void;
@@ -38,6 +39,7 @@ function RoutineTable({
   closeModalFileType,
 
   handleDelete,
+  handleDuplicate,
   handleRestore,
   handleExportRoutine,
 
@@ -97,6 +99,14 @@ function RoutineTable({
                           title="Editar"
                         >
                           <MdModeEdit className="text-white text-sm sm:text-base" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDuplicate(routine)}
+                          className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                          title="Duplicar"
+                        >
+                          <MdContentCopy className="text-white text-sm sm:text-base" />
                         </button>
 
                         {routine.isDeleted ? (

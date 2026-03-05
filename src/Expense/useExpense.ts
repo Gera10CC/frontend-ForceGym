@@ -167,7 +167,7 @@ export const useEconomicExpense = () => {
         index + 1,
         expense.voucherNumber || "No adjunto",
         formatDate(new Date(expense.registrationDate)),
-        formatAmountToCRC(expense.amount),
+        expense.amount,
         expense.meanOfPayment.name,
         expense.category.name,
         expense.detail || "Sin detalle"

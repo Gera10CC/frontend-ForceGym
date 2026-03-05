@@ -1,5 +1,6 @@
 import { IoFilterOutline } from "react-icons/io5";
 import useEconomicExpenseStore from "./Store";
+import { formatDateForParam } from "../shared/utils/format";
 
 export function FilterButton() {
   const {
@@ -270,12 +271,15 @@ export function FilterSelect() {
                 }`}
               value={
                 filterByDateRangeMin
-                  ? filterByDateRangeMin.toISOString().split("T")[0]
+                  ? formatDateForParam(filterByDateRangeMin)
                   : ""
               }
-              onChange={(e) =>
-                changeFilterByDateRangeMin(new Date(e.target.value))
-              }
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [year, month, day] = e.target.value.split('-').map(Number);
+                  changeFilterByDateRangeMin(new Date(year, month - 1, day));
+                }
+              }}
             />
           </div>
 
@@ -289,12 +293,15 @@ export function FilterSelect() {
                 }`}
               value={
                 filterByDateRangeMax
-                  ? filterByDateRangeMax.toISOString().split("T")[0]
+                  ? formatDateForParam(filterByDateRangeMax)
                   : ""
               }
-              onChange={(e) =>
-                changeFilterByDateRangeMax(new Date(e.target.value))
-              }
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [year, month, day] = e.target.value.split('-').map(Number);
+                  changeFilterByDateRangeMax(new Date(year, month - 1, day));
+                }
+              }}
             />
           </div>
 

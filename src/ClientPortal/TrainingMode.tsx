@@ -66,13 +66,16 @@ function TrainingMode() {
                 });
                 navigate('/cliente/dashboard');
             }
-        } catch (error) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al cargar la rutina'
-            });
-            navigate('/cliente/dashboard');
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar la rutina'
+                });
+                navigate('/cliente/dashboard');
+            }
         } finally {
             setLoading(false);
         }
@@ -174,12 +177,15 @@ function TrainingMode() {
                 timer: 1500,
                 showConfirmButton: false
             });
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo guardar la nota'
-            });
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo guardar la nota'
+                });
+            }
         } finally {
             setSavingNote(false);
         }

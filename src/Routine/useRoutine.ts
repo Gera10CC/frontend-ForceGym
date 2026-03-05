@@ -19,7 +19,8 @@ export const useRoutine = () => {
         fetchRoutines, 
         deleteRoutine, 
         updateRoutine,
-        getRoutineById
+        getRoutineById,
+        duplicateRoutine
     } = useRoutineStore();
 
     const { exercise: allExercises } = useCommonDataStore();
@@ -101,6 +102,53 @@ export const useRoutine = () => {
                     timerProgressBar: true,
                     width: 500,
                     confirmButtonColor: '#CFAD04'
+                });
+            }
+
+            if (response?.logout) {
+                setAuthHeader(null);
+                setAuthUser(null);
+                navigate('/login', { replace: true });
+            }
+        } 
+    };
+
+    const handleDuplicate = async ({ idRoutine, name }: Routine) => {
+        const result = await Swal.fire({
+            title: '¿Desea duplicar la rutina?',
+            text: `Se creará una copia de "${name}"`,
+            icon: 'question',
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            cancelButtonColor: '#bebdbd',
+            confirmButtonText: 'Duplicar',
+            confirmButtonColor: '#CFAD04',
+            width: 500,
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
+            const response = await duplicateRoutine(idRoutine);
+            
+            if (response?.ok) {
+                await fetchRoutines();
+                await Swal.fire({
+                    title: 'Rutina duplicada',
+                    text: `Se ha creado una copia de "${name}"`,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    width: 500,
+                    confirmButtonColor: '#CFAD04'
+                });
+            } else {
+                await Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo duplicar la rutina',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
                 });
             }
 
@@ -238,6 +286,7 @@ export const useRoutine = () => {
     return {
         handleDelete,
         handleRestore,
+        handleDuplicate,
         handleExportRoutine,
         pdfTableHeaders,
         pdfTableRows

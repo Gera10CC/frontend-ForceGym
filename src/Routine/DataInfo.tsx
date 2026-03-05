@@ -60,6 +60,7 @@ function DataInfo() {
 
   return (
     <section
+      id="routine-print-section"
       className="
         w-full max-w-4xl mx-auto 
         px-4 sm:px-6 py-6 
@@ -67,7 +68,7 @@ function DataInfo() {
         flex flex-col gap-8
       "
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 print:grid-cols-2">
         <div className="flex flex-col gap-3">
           <h1 className="text-yellow font-black text-2xl uppercase underline">
             Rutina

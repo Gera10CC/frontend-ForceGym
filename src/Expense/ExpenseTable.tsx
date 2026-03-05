@@ -1,6 +1,6 @@
 import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore } from "react-icons/md";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { formatAmountToCRC, formatDate } from "../shared/utils/format";
+import { formatAmountToCRC, formatDateFromString } from "../shared/utils/format";
 import { IoIosMore } from "react-icons/io";
 import { mapEconomicExpenseToDataForm } from "../shared/types/mapper";
 import DataInfo from "./DataInfo";
@@ -129,7 +129,7 @@ function ExpenseTable({
                     </td>
 
                     <td className="py-3 hidden md:table-cell">
-                      {formatDate(new Date(economicExpense.registrationDate))}
+                      {formatDateFromString(economicExpense.registrationDate)}
                     </td>
 
                     <td className="py-3">

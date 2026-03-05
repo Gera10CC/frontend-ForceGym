@@ -22,6 +22,7 @@ type RoutineStore = {
     updateRoutine: (data: RoutineWithExercisesDTO) => Promise<any>;
     deleteRoutine: (id: number) => Promise<any>;
     restoreRoutine: (id: number) => Promise<any>;
+    duplicateRoutine: (id: number) => Promise<any>;
 
     showModalForm: (id?: number) => void;
     closeModalForm: () => void;
@@ -197,6 +198,63 @@ export const useRoutineStore = create<RoutineStore>()(
                 return result;
             } catch (error) {
                 set({ error: 'Error al restaurar rutina', isLoading: false });
+                return { ok: false };
+            } finally {
+                set({ isLoading: false });
+            }
+        },
+
+        duplicateRoutine: async (id) => {
+            set({ isLoading: true });
+            try {
+                const loggedUser = getAuthUser();
+                if (!loggedUser?.idUser) throw new Error('Usuario no autenticado');
+                
+                // Obtener la rutina completa
+                const result = await getData(`${import.meta.env.VITE_URL_API}routine/${id}`);
+                
+                if (result?.logout) return { logout: true };
+                
+                const originalRoutine = result?.data;
+                if (!originalRoutine) {
+                    throw new Error('No se pudo obtener la rutina original');
+                }
+
+                // Crear una copia de la rutina sin ID y sin asignaciones
+                const duplicatedRoutine: RoutineWithExercisesDTO = {
+                    name: `${originalRoutine.name} (Copia)`,
+                    date: new Date().toISOString().split('T')[0],
+                    idUser: loggedUser.idUser,
+                    difficultyRoutine: originalRoutine.difficultyRoutine,
+                    exercises: originalRoutine.exercises.map((ex: any) => ({
+                        idExercise: ex.exercise?.idExercise || ex.idExercise,
+                        series: ex.series,
+                        repetitions: ex.repetitions,
+                        note: ex.note || '',
+                        categoryOrder: ex.categoryOrder,
+                        dayNumber: ex.dayNumber
+                    })),
+                    assignments: [], // No copiar asignaciones
+                    isDeleted: 0,
+                    paramLoggedIdUser: loggedUser.idUser
+                };
+
+                // Guardar la rutina duplicada
+                const addResult = await postData(
+                    `${import.meta.env.VITE_URL_API}routine/add`,
+                    duplicatedRoutine
+                );
+                
+                if (addResult?.logout) return { logout: true };
+                if (addResult?.ok) {
+                    await get().fetchRoutines();
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
+                
+                return addResult;
+            } catch (error) {
+                console.error('Error al duplicar rutina:', error);
+                set({ error: 'Error al duplicar rutina', isLoading: false });
                 return { ok: false };
             } finally {
                 set({ isLoading: false });

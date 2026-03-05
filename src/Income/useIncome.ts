@@ -166,7 +166,7 @@ export const useEconomicIncome = () => {
         income.voucherNumber || "No adjunto",
         `${income.client.person.name} ${income.client.person.firstLastName} ${income.client.person.secondLastName}`,
         formatDate(new Date(income.registrationDate)),
-        formatAmountToCRC(income.amount),
+        income.amount,
         income.meanOfPayment.name,
         income.activityType.name,
         income.detail || "Sin detalle"
