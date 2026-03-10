@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { clientPortalService } from './clientPortalService';
 import type { ClientCredentials, ClientLogin } from '../shared/types';
 import Swal from 'sweetalert2';
-import type ReCAPTCHA from 'react-google-recaptcha';
 
 export const useClientLogin = () => {
     const navigate = useNavigate();
     const [credentials, setCredentials] = useState<ClientCredentials>({
         identificationNumber: '',
-        password: '',
-        recaptchaToken: ''
+        password: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,7 +21,7 @@ export const useClientLogin = () => {
         }
     }, [navigate]);
 
-    const handleLoginSubmit = async (e: React.FormEvent, refReCaptcha: React.RefObject<ReCAPTCHA>) => {
+    const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!credentials.identificationNumber || !credentials.password) {
@@ -35,28 +33,10 @@ export const useClientLogin = () => {
             return;
         }
 
-        const recaptchaValue = refReCaptcha.current?.getValue();
-        if (!recaptchaValue) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Por favor complete el reCAPTCHA'
-            });
-            return;
-        }
-
-        setCredentials(prev => ({
-            ...prev,
-            recaptchaToken: recaptchaValue
-        }));
-
         setIsSubmitting(true);
 
         try {
-            const clientData: ClientLogin = await clientPortalService.login({
-                ...credentials,
-                recaptchaToken: recaptchaValue
-            });
+            const clientData: ClientLogin = await clientPortalService.login(credentials);
             
             // Guardar datos del cliente en localStorage
             localStorage.setItem('clientData', JSON.stringify(clientData));
@@ -75,7 +55,6 @@ export const useClientLogin = () => {
                 title: 'Error',
                 text: error.response?.data?.message || 'Credenciales inválidas'
             });
-            refReCaptcha.current?.reset();
         } finally {
             setIsSubmitting(false);
         }
