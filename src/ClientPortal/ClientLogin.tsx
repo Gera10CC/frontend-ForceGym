@@ -1,12 +1,8 @@
-import { useRef } from 'react';
 import { useClientLogin } from './useClientLogin';
 import PasswordInput from '../shared/components/PasswordInput';
 import { Link } from 'react-router-dom';
-import { FaArrowLeft } from 'react-icons/fa';
-import ReCAPTCHA from 'react-google-recaptcha';
 
 function ClientLogin() {
-    const recaptcha = useRef<ReCAPTCHA>(null);
     const { credentials, setCredentials, handleLoginSubmit, isSubmitting } = useClientLogin();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,10 +11,6 @@ function ClientLogin() {
             ...prev,
             [name]: value
         }));
-
-        if (recaptcha.current?.getValue()) {
-            recaptcha.current.reset();
-        }
     };
 
     return (
@@ -41,7 +33,7 @@ function ClientLogin() {
 
                     <form 
                         className="flex flex-col gap-4 mt-4"
-                        onSubmit={(e) => handleLoginSubmit(e, recaptcha)}
+                        onSubmit={handleLoginSubmit}
                     >
                         <label htmlFor='identificationNumber' className="text-lg sm:text-xl font-bold ">
                             Usuario
@@ -72,15 +64,6 @@ function ClientLogin() {
                             disabled={isSubmitting}
                             className="border border-gray-300 rounded"
                         />
-
-                        <div className="flex justify-center sm:justify-start w-full">
-                            <div className="transform scale-[0.85] origin-left sm:scale-100">
-                                <ReCAPTCHA 
-                                    ref={recaptcha} 
-                                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-                                />
-                            </div>
-                        </div>
 
                         <button 
                             type="submit" 

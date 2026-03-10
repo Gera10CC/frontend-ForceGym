@@ -351,7 +351,6 @@ export type RoutineDataForm = {
 export type ClientCredentials = {
     identificationNumber: string;
     password: string;
-    recaptchaToken: string;
 };
 
 export type ClientLogin = {
