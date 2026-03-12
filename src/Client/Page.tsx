@@ -71,6 +71,7 @@ export default function ClientManagement() {
 
   const {
     handleDelete,
+    handleDeletePermanently,
     handleSearch,
     handleOrderByChange,
     handleRestore,
@@ -225,6 +226,7 @@ export default function ClientManagement() {
             closeModalInfo={closeModalInfo}
             showModalForm={showModalForm}
             handleDelete={handleDelete}
+            handleDeletePermanently={handleDeletePermanently}
             handleRestore={handleRestore}
             changePage={changePage}
             changeSize={changeSize}

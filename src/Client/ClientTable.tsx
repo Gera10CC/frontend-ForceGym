@@ -2,6 +2,7 @@ import {
   MdModeEdit,
   MdOutlineDelete,
   MdOutlineSettingsBackupRestore,
+  MdDeleteForever,
 } from "react-icons/md";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
@@ -33,6 +34,7 @@ interface ClientTableProps {
   closeModalInfo: () => void;
   showModalForm: () => void;
   handleDelete: (client: any) => void;
+  handleDeletePermanently: (client: any) => void;
   handleRestore: (client: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
@@ -53,6 +55,7 @@ function ClientTable({
   closeModalInfo,
   showModalForm,
   handleDelete,
+  handleDeletePermanently,
   handleRestore,
   changePage,
   changeSize,
@@ -215,15 +218,24 @@ function ClientTable({
                         </Link>
 
                         {client.isDeleted ? (
-                          <button
-                            onClick={() =>
-                              handleRestore(mapClientToDataForm(client))
-                            }
-                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
-                            title="Restaurar"
-                          >
-                            <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() =>
+                                handleRestore(mapClientToDataForm(client))
+                              }
+                              className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                              title="Restaurar"
+                            >
+                              <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePermanently(client)}
+                              className="p-1.5 sm:p-2 bg-red-600 rounded hover:bg-red-700"
+                              title="Eliminar Permanentemente"
+                            >
+                              <MdDeleteForever className="text-white text-sm sm:text-base" />
+                            </button>
+                          </>
                         ) : (
                           <button
                             onClick={() => handleDelete(client)}

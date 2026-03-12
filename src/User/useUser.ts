@@ -7,7 +7,7 @@ import { useNavigate } from "react-router"
 
 export const useUser = () => {
     const navigate = useNavigate()
-    const { fetchUsers, directionOrderBy, deleteUser, updateUser, changeSearchTerm, changeOrderBy, changeDirectionOrderBy } = useUserStore()
+    const { fetchUsers, directionOrderBy, deleteUser, deleteUserPermanently, updateUser, changeSearchTerm, changeOrderBy, changeDirectionOrderBy } = useUserStore()
 
     const handleDelete = async ({ idUser, username } : User) => {
             
@@ -49,6 +49,55 @@ export const useUser = () => {
                     navigate('/login', {replace: true})
                 }
                 
+            } 
+        })
+    }
+
+    const handleDeletePermanently = async ({ idUser, username } : User) => {
+        await Swal.fire({
+            title: '¿Desea eliminar PERMANENTEMENTE este usuario?',
+            text: `Esta acción eliminará definitivamente al usuario ${username} y no se podrá recuperar. Use esta opción solo para registros duplicados o ingresados por error.`,
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            cancelButtonColor: '#bebdbd',
+            confirmButtonText: 'Eliminar Permanentemente',
+            confirmButtonColor: '#dc2626',
+            width: 600,
+            reverseButtons: true
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const loggedUser = getAuthUser()
+                const response = await deleteUserPermanently(idUser, loggedUser?.idUser as number)
+
+                if(response.ok){
+                    Swal.fire({
+                        title: 'Usuario eliminado permanentemente',
+                        text: `Se ha eliminado permanentemente el usuario ${username}`,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        width: 500,
+                        confirmButtonColor: '#CFAD04'
+                    })
+
+                    fetchUsers()
+                } else if(response.logout){
+                    setAuthHeader(null)
+                    setAuthUser(null)
+                    navigate('/login', {replace: true})
+                } else {
+                    // Mostrar mensaje de error
+                    Swal.fire({
+                        title: 'No se puede eliminar',
+                        text: response.message || response.error || 'No se pudo eliminar el usuario',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        width: 600,
+                        confirmButtonColor: '#CFAD04'
+                    })
+                }
             } 
         })
     }
@@ -124,6 +173,7 @@ export const useUser = () => {
 
     return {
         handleDelete,
+        handleDeletePermanently,
         handleSearch,
         handleOrderByChange, 
         handleRestore

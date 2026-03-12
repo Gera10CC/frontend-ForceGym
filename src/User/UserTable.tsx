@@ -2,6 +2,7 @@ import {
   MdModeEdit,
   MdOutlineDelete,
   MdOutlineSettingsBackupRestore,
+  MdDeleteForever,
 } from "react-icons/md";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
@@ -30,6 +31,7 @@ interface UserTableProps {
   closeModalInfo: () => void;
   showModalForm: () => void;
   handleDelete: (user: User) => void;
+  handleDeletePermanently: (user: User) => void;
   handleRestore: (user: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
@@ -51,6 +53,7 @@ function UserTable({
   closeModalInfo,
   showModalForm,
   handleDelete,
+  handleDeletePermanently,
   handleRestore,
   changePage,
   changeSize,
@@ -192,13 +195,22 @@ function UserTable({
             </button>
 
             {user.isDeleted ? (
-              <button
-                onClick={() => handleRestore(mapUserToDataForm(user))}
-                className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
-                title="Restaurar"
-              >
-                <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
-              </button>
+              <>
+                <button
+                  onClick={() => handleRestore(mapUserToDataForm(user))}
+                  className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                  title="Restaurar"
+                >
+                  <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                </button>
+                <button
+                  onClick={() => handleDeletePermanently(user)}
+                  className="p-1.5 sm:p-2 bg-red-600 rounded hover:bg-red-700"
+                  title="Eliminar Permanentemente"
+                >
+                  <MdDeleteForever className="text-white text-sm sm:text-base" />
+                </button>
+              </>
             ) : (
               <button
                 onClick={() => handleDelete(user)}
