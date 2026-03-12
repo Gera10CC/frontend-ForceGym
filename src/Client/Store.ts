@@ -38,6 +38,7 @@ type ClientStore = {
     addClient: (data: ClientDataForm) => Promise<any>;
     updateClient: (data: ClientDataForm) => Promise<any>;
     deleteClient: (id: number, loggedIdUser: number) => Promise<any>;
+    deleteClientPermanently: (id: number, loggedIdUser: number) => Promise<any>;
 
     changeSize: (newSize: number) => void;
     changePage: (newPage: number) => void;
@@ -206,6 +207,14 @@ export const useClientStore = create<ClientStore>()(
 
         deleteClient: async (id, loggedIdUser) => {
             const result = await deleteData(`${import.meta.env.VITE_URL_API}client/delete/${id}`, loggedIdUser);
+            if (result?.ok) {
+                await useCommonDataStore.getState().refreshAllCommonData();
+            }
+            return result;
+        },
+
+        deleteClientPermanently: async (id, loggedIdUser) => {
+            const result = await deleteData(`${import.meta.env.VITE_URL_API}client/delete-permanent/${id}`, loggedIdUser);
             if (result?.ok) {
                 await useCommonDataStore.getState().refreshAllCommonData();
             }

@@ -49,6 +49,7 @@ export default function UserManagement() {
 
   const {
     handleDelete,
+    handleDeletePermanently,
     handleSearch,
     handleOrderByChange,
     handleRestore,
@@ -160,6 +161,7 @@ export default function UserManagement() {
             showModalForm={showModalForm}
             handleOrderByChange={handleOrderByChange}
             handleDelete={handleDelete}
+            handleDeletePermanently={handleDeletePermanently}
             handleRestore={handleRestore}
             changePage={changePage}
             changeSize={changeSize}

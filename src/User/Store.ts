@@ -30,6 +30,7 @@ type UserStore = {
   addUser: (data: UserDataForm) => Promise<any>;
   updateUser: (data: UserDataForm) => Promise<any>;
   deleteUser: (id: number, loggedIdUser: number) => Promise<any>;
+  deleteUserPermanently: (id: number, loggedIdUser: number) => Promise<any>;
 
   changeSize: (newSize: number) => void;
   changePage: (newPage: number) => void;
@@ -142,6 +143,17 @@ const useUserStore = create<UserStore>()(
     deleteUser: async (id, loggedIdUser) => {
       const result = await deleteData(
         `${import.meta.env.VITE_URL_API}user/delete/${id}`,
+        loggedIdUser
+      );
+      if (result?.ok) {
+        await useCommonDataStore.getState().refreshAllCommonData();
+      }
+      return result;
+    },
+
+    deleteUserPermanently: async (id, loggedIdUser) => {
+      const result = await deleteData(
+        `${import.meta.env.VITE_URL_API}user/delete-permanent/${id}`,
         loggedIdUser
       );
       if (result?.ok) {
