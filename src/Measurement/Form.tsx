@@ -99,7 +99,6 @@ function Form() {
     return age;
   };
 
-  // Obtener información del cliente para mostrar edad
   const clientInfo = measurements.length > 0 
     ? {
         name: `${measurements[0].client.person.name} ${measurements[0].client.person.firstLastName}`,
