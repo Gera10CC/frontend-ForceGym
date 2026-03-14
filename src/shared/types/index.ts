@@ -197,6 +197,7 @@ export type Measurement = {
     measurementDate: Date
     weight: number
     height: number
+    bmi: number
     muscleMass: number
     bodyFatPercentage: number 
     visceralFatPercentage: number

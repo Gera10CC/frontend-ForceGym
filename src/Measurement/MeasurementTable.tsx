@@ -4,7 +4,7 @@ import { IoIosMore } from "react-icons/io";
 import Modal from "../shared/components/Modal";
 import NoData from "../shared/components/NoData";
 import Pagination from "../shared/components/Pagination";
-import { formatDate } from "../shared/utils/format";
+import { formatDateFromString } from "../shared/utils/format";
 import DataInfo from "./DataInfo";
 import { mapMeasurementToDataForm } from "../shared/types/mapper";
 import { Measurement } from "../shared/types";
@@ -97,7 +97,7 @@ function MeasurementTable({
                     <td className="py-3">{index + 1}</td>
 
                     <td className="py-3">
-                      {formatDate(new Date(measurement.measurementDate))}
+                      {formatDateFromString(measurement.measurementDate)}
                     </td>
 
                     <td className="py-3">{measurement.weight}</td>
