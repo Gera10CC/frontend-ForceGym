@@ -79,6 +79,7 @@ export function mapMeasurementToDataForm(measurement: Measurement): MeasurementD
         measurementDate: measurement.measurementDate,
         weight: measurement.weight,
         height: measurement.height,
+        bmi: measurement.bmi,
         bodyFatPercentage: measurement.bodyFatPercentage,
         muscleMass: measurement.muscleMass,
         visceralFatPercentage: measurement.visceralFatPercentage,

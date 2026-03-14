@@ -1,4 +1,4 @@
-import { formatDate } from "../shared/utils/format";
+import { formatDateFromString } from "../shared/utils/format";
 import useMeasurementStore from "./Store";
 
 function DataInfo() {
@@ -33,7 +33,7 @@ function DataInfo() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          ["Fecha", formatDate(new Date(measurement.measurementDate))],
+          ["Fecha", formatDateFromString(measurement.measurementDate)],
           ["Peso", `${measurement.weight} kg`],
           ["Altura", `${measurement.height} cm`],
           ["Músculo", `${measurement.muscleMass} %`],

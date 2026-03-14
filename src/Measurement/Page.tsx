@@ -108,6 +108,29 @@ export default function MeasurementManagement() {
         />
       </header>
 
+      {/* Información del Cliente */}
+      {clientData && (
+        <div className="mt-4 bg-white rounded-lg shadow-md p-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+              <div>
+                <span className="text-xs text-gray-500 uppercase font-semibold">Cliente</span>
+                <p className="text-lg font-bold text-gray-800">{clientData.name}</p>
+              </div>
+              <div className="h-8 w-px bg-gray-300 hidden sm:block"></div>
+              <div className="bg-yellow/20 px-4 py-2 rounded-full">
+                <span className="text-xs text-gray-600 font-semibold">Edad actual: </span>
+                <span className="text-lg font-bold text-yellow">{clientData.age} años</span>
+              </div>
+              <div className="bg-blue-50 px-4 py-2 rounded-full">
+                <span className="text-xs text-gray-600 font-semibold">Altura: </span>
+                <span className="text-lg font-bold text-blue-600">{clientData.height} cm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="mt-6">
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 overflow-hidden">
 

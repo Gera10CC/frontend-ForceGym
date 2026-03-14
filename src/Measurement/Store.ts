@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Measurement, MeasurementDataForm } from "../shared/types";
 import { deleteData, getData, postData, putData } from "../shared/services/gym";
-import { format } from 'date-fns';
 import { isCompleteDate } from "../shared/utils/validation";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 
@@ -96,13 +95,25 @@ export const useMeasurementStore = create<MeasurementStore>()(
             }
             if (state.filterByStatus !== '') {
                 filters += `&filterByStatus=${state.filterByStatus}`;
-            }if (
-                    isCompleteDate(state.filterByDateRangeMax) &&
-                    isCompleteDate(state.filterByDateRangeMin)
-                ) {
-                    const formattedDateMax = format(state.filterByDateRangeMax!, 'yyyy-MM-dd');
-                    const formattedDateMin = format(state.filterByDateRangeMin!, 'yyyy-MM-dd');
-                    filters += `&filterByDateRangeMax=${formattedDateMax}&filterByDateRangeMin=${formattedDateMin}`;
+            }
+            
+            // Enviar filtros de fecha individualmente si están presentes
+            // Formatear manualmente para evitar problemas de zona horaria
+            if (isCompleteDate(state.filterByDateRangeMin)) {
+                const date = state.filterByDateRangeMin!;
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const formattedDateMin = `${year}-${month}-${day}`;
+                filters += `&filterByDateRangeMin=${formattedDateMin}`;
+            }
+            if (isCompleteDate(state.filterByDateRangeMax)) {
+                const date = state.filterByDateRangeMax!;
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const formattedDateMax = `${year}-${month}-${day}`;
+                filters += `&filterByDateRangeMax=${formattedDateMax}`;
             }
 
             const result = await getData(

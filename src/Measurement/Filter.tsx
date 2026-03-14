@@ -101,12 +101,18 @@ export function FilterSelect() {
               `}
               value={
                 filterByDateRangeMin
-                  ? filterByDateRangeMin.toISOString().split("T")[0]
+                  ? `${filterByDateRangeMin.getFullYear()}-${String(filterByDateRangeMin.getMonth() + 1).padStart(2, '0')}-${String(filterByDateRangeMin.getDate()).padStart(2, '0')}`
                   : ""
               }
-              onChange={(e) =>
-                changeFilterByDateRangeMin(new Date(e.target.value))
-              }
+              onChange={(e) => {
+                if (e.target.value) {
+                  // Crear fecha en zona horaria local para evitar problemas de conversión
+                  const [year, month, day] = e.target.value.split('-').map(Number);
+                  changeFilterByDateRangeMin(new Date(year, month - 1, day));
+                } else {
+                  changeFilterByDateRangeMin(null);
+                }
+              }}
             />
           </div>
 
@@ -122,12 +128,18 @@ export function FilterSelect() {
               `}
               value={
                 filterByDateRangeMax
-                  ? filterByDateRangeMax.toISOString().split("T")[0]
+                  ? `${filterByDateRangeMax.getFullYear()}-${String(filterByDateRangeMax.getMonth() + 1).padStart(2, '0')}-${String(filterByDateRangeMax.getDate()).padStart(2, '0')}`
                   : ""
               }
-              onChange={(e) =>
-                changeFilterByDateRangeMax(new Date(e.target.value))
-              }
+              onChange={(e) => {
+                if (e.target.value) {
+                  // Crear fecha en zona horaria local para evitar problemas de conversión
+                  const [year, month, day] = e.target.value.split('-').map(Number);
+                  changeFilterByDateRangeMax(new Date(year, month - 1, day));
+                } else {
+                  changeFilterByDateRangeMax(null);
+                }
+              }}
             />
           </div>
         </div>
