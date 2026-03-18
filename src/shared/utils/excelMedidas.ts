@@ -40,7 +40,7 @@ export const exportToExcelMedidas = async (
 
   worksheet.getRow(1).height = 50;
 
-  worksheet.mergeCells("D1:H1");
+  worksheet.mergeCells("D1:S1");
   const titleCell = worksheet.getCell("D1");
   titleCell.value = clientData
     ? `Reporte de ${title} - ${clientData.name}`
@@ -89,7 +89,7 @@ export const exportToExcelMedidas = async (
     currentRow++;
 
     currentRow += 1; 
-    worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+    worksheet.mergeCells(`A${currentRow}:S${currentRow}`);
     worksheet.getCell(`A${currentRow}`).border = {
       bottom: { style: "thin", color: { argb: "FFC8C8C8" } },
     };
@@ -118,8 +118,9 @@ export const exportToExcelMedidas = async (
 
     const resumenData = [
       ["Peso (kg)", first[1], last[1], calcIndicator(first[1], last[1])],
-      ["Grasa Corporal", first[2], last[2], calcIndicator(first[2], last[2])],
-      ["Masa Muscular", first[3], last[3], calcIndicator(first[3], last[3])],
+      ["IMC", first[3], last[3], calcIndicator(first[3], last[3])],
+      ["Masa Muscular (%)", first[4], last[4], calcIndicator(first[4], last[4])],
+      ["Grasa Corporal (%)", first[5], last[5], calcIndicator(first[5], last[5])],
     ];
 
     resumenData.forEach((row) => {
@@ -198,7 +199,7 @@ export const exportToExcelMedidas = async (
     motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
 
   currentRow += 2;
-  worksheet.mergeCells(`A${currentRow}:H${currentRow}`);
+  worksheet.mergeCells(`A${currentRow}:S${currentRow}`);
   const msgCell = worksheet.getRow(currentRow).getCell(1);
   msgCell.value = message;
   msgCell.font = { italic: true, bold: true, size: 12, name: "Arial" };
@@ -245,7 +246,7 @@ export const exportToExcelMedidas = async (
   });
 
   worksheet.columns.forEach((col) => {
-    col.width = 18;
+    col.width = 14;
   });
 
   const buffer = await workbook.xlsx.writeBuffer();

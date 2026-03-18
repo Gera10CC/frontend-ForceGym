@@ -116,11 +116,9 @@ function Form() {
         // Convertir fecha al formato YYYY-MM-DD sin problemas de zona horaria
         let formattedDate = '';
         if (formData.measurementDate) {
-          const date = new Date(formData.measurementDate);
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
-          formattedDate = `${year}-${month}-${day}`;
+          // Extraer directamente del string sin crear objeto Date para evitar problemas de zona horaria
+          const dateString = String(formData.measurementDate);
+          formattedDate = dateString.split('T')[0]; // Toma solo YYYY-MM-DD
         }
         
         const formattedData = {
@@ -353,10 +351,10 @@ function Form() {
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            ["leftArmSize", "Brazo Izq."],
             ["rightArmSize", "Brazo Der."],
-            ["leftForeArmSize", "Antebrazo Izq."],
+            ["leftArmSize", "Brazo Izq."],
             ["rightForeArmSize", "Antebrazo Der."],
+            ["leftForeArmSize", "Antebrazo Izq."],
           ].map(([name, label]) => (
             <div key={name}>
               <label className="text-xs uppercase font-semibold text-gray-600">{label} <span className="text-[10px] text-gray-400">(cm)</span></label>
@@ -388,10 +386,10 @@ function Form() {
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            ["leftLegSize", "Pierna Izq."],
             ["rightLegSize", "Pierna Der."],
-            ["leftCalfSize", "Pantorrilla Izq."],
+            ["leftLegSize", "Pierna Izq."],
             ["rightCalfSize", "Pantorrilla Der."],
+            ["leftCalfSize", "Pantorrilla Izq."],
           ].map(([name, label]) => (
             <div key={name}>
               <label className="text-xs uppercase font-semibold text-gray-600">{label} <span className="text-[10px] text-gray-400">(cm)</span></label>

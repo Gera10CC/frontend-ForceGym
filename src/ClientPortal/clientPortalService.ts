@@ -85,6 +85,13 @@ export const clientPortalService = {
         return response.data;
     },
 
+    downloadMeasurementsExcel: async (): Promise<Blob> => {
+        const response = await api.get('/download-measurements-excel', {
+            responseType: 'blob'
+        });
+        return response.data;
+    },
+
     hasProvisionalPassword: async (): Promise<boolean> => {
         const response = await api.get('/has-provisional-password');
         return response.data.data.hasProvisionalPassword;

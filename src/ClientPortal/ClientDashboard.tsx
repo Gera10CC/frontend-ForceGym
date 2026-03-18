@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { clientPortalService } from './clientPortalService';
 import type { ClientLogin, ClientRoutine, Measurement } from '../shared/types';
 import Swal from 'sweetalert2';
-import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle, FaVideo, FaPlay, FaCalendarAlt, FaCheckCircle, FaClock } from 'react-icons/fa';
+import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle, FaVideo, FaPlay, FaCalendarAlt, FaCheckCircle, FaClock, FaFilePdf, FaFileExcel } from 'react-icons/fa';
 import ChangePasswordModal from './ChangePasswordModal';
 
 function ClientDashboard() {
@@ -15,6 +15,7 @@ function ClientDashboard() {
     const [activeTab, setActiveTab] = useState<'routines' | 'measurements'>('routines');
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [hasProvisionalPassword, setHasProvisionalPassword] = useState(false);
+    const [showFileTypeModal, setShowFileTypeModal] = useState(false);
 
     useEffect(() => {
         const storedClientData = localStorage.getItem('clientData');
@@ -214,6 +215,7 @@ function ClientDashboard() {
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
+            setShowFileTypeModal(false);
             await Swal.fire({
                 icon: 'success',
                 title: 'PDF descargado',
@@ -227,6 +229,36 @@ function ClientDashboard() {
                     icon: 'error',
                     title: 'Error',
                     text: 'Error al descargar el PDF'
+                });
+            }
+        }
+    };
+
+    const handleDownloadMeasurementsExcel = async () => {
+        try {
+            const blob = await clientPortalService.downloadMeasurementsExcel();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mis_medidas.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            setShowFileTypeModal(false);
+            await Swal.fire({
+                icon: 'success',
+                title: 'Excel descargado',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } catch (error: any) {
+            // Si es error 401 o 403, el interceptor ya manejó la redirección
+            if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al descargar el Excel'
                 });
             }
         }
@@ -675,11 +707,11 @@ function ClientDashboard() {
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 md:mb-6">
                             <h2 className="text-xl md:text-2xl font-bold">Mi Historial de Medidas</h2>
                             <button
-                                onClick={handleDownloadMeasurementsPdf}
+                                onClick={() => setShowFileTypeModal(true)}
                                 className="flex items-center justify-center gap-2 bg-yellow text-black px-3 md:px-4 py-2 rounded-lg hover:bg-yellow/80 transition-colors text-sm whitespace-nowrap w-full sm:w-auto"
                             >
                                 <FaDownload />
-                                Descargar PDF
+                                Descargar
                             </button>
                         </div>
 
@@ -748,6 +780,43 @@ function ClientDashboard() {
                         checkProvisionalPassword();
                     }}
                 />
+            )}
+
+            {/* Modal de selección de tipo de archivo */}
+            {showFileTypeModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-xl font-bold mb-4 text-center">Seleccionar formato de descarga</h3>
+                        <p className="text-gray-600 text-sm mb-6 text-center">
+                            Elige el formato en el que deseas descargar tu historial de medidas
+                        </p>
+                        
+                        <div className="space-y-3">
+                            <button
+                                onClick={handleDownloadMeasurementsPdf}
+                                className="w-full flex items-center justify-center gap-3 bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg transition-colors"
+                            >
+                                <FaFilePdf className="text-xl" />
+                                <span className="font-semibold">Descargar PDF</span>
+                            </button>
+                            
+                            <button
+                                onClick={handleDownloadMeasurementsExcel}
+                                className="w-full flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors"
+                            >
+                                <FaFileExcel className="text-xl" />
+                                <span className="font-semibold">Descargar Excel</span>
+                            </button>
+                            
+                            <button
+                                onClick={() => setShowFileTypeModal(false)}
+                                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-lg transition-colors font-semibold"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
             
             {/* Footer con información del desarrollador */}

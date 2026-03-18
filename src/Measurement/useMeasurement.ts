@@ -8,7 +8,7 @@ import {
 } from "../shared/utils/authentication";
 import useMeasurementStore from "./Store";
 import { useNavigate } from "react-router";
-import { formatDate } from "../shared/utils/format";
+import { formatDateFromString } from "../shared/utils/format";
 
 export const useMeasurement = () => {
   const navigate = useNavigate();
@@ -27,9 +27,10 @@ export const useMeasurement = () => {
   const handleDelete = async (measurement: Measurement) => {
     await Swal.fire({
       title: "¿Desea eliminar esta medición?",
-      text: `Está eliminando la medición del ${formatDate(
-        new Date(measurement.measurementDate)
+      text: `Está eliminando la medición del ${formatDateFromString(
+        measurement.measurementDate
       )}`,
+
       icon: "question",
       showCancelButton: true,
       cancelButtonText: "Cancelar",
@@ -49,9 +50,10 @@ export const useMeasurement = () => {
         if (response.ok) {
           Swal.fire({
             title: "Medición eliminada",
-            text: `Se ha eliminado la medición del ${formatDate(
-              new Date(measurement.measurementDate)
+            text: `Se ha eliminado la medición del ${formatDateFromString(
+              measurement.measurementDate
             )}`,
+
             icon: "success",
             confirmButtonText: "OK",
             timer: 3000,
@@ -94,9 +96,10 @@ export const useMeasurement = () => {
 
     await Swal.fire({
       title: "¿Desea restaurar esta medición?",
-      text: `Está restaurando la medición del ${formatDate(
-        new Date(measurement.measurementDate)
+      text: `Está restaurando la medición del ${formatDateFromString(
+        measurement.measurementDate
       )}`,
+
       icon: "question",
       showCancelButton: true,
       cancelButtonText: "Cancelar",
@@ -112,9 +115,10 @@ export const useMeasurement = () => {
         if (response.ok) {
           Swal.fire({
             title: "Medición restaurada",
-            text: `Se ha restaurado la medición del ${formatDate(
-              new Date(measurement.measurementDate)
+            text: `Se ha restaurado la medición del ${formatDateFromString(
+              measurement.measurementDate
             )}`,
+
             icon: "success",
             confirmButtonText: "OK",
             timer: 3000,
@@ -163,42 +167,66 @@ export const useMeasurement = () => {
 
   const tableColumn = [
     "Fecha",
+    // Medidas Básicas y Composición
     "Peso (kg)",
-    "Grasa Corp (%)",
-    "Masa Musc (kg)",
-    "Grasa Visceral",
-    "Cintura (cm)",
-    "Cadera (cm)",
+    "Altura (cm)",
+    "IMC",
+    "Masa Musc. (%)",
+    "Grasa Corp. (%)",
+    "Grasa Visc. (%)",
+    // Medidas del Torso
     "Pecho (cm)",
     "Espalda (cm)",
-    "Brazo D/I (cm)",
-    "Antebrazo D/I (cm)",
-    "Pierna D/I (cm)",
-    "Pantorrilla D/I (cm)",
+    "Cintura (cm)",
+    "Cadera (cm)",
+    // Brazos
+    "Brazo Der. (cm)",
+    "Brazo Izq. (cm)",
+    "Antebrazo Der. (cm)",
+    "Antebrazo Izq. (cm)",
+    // Piernas
+    "Pierna Der. (cm)",
+    "Pierna Izq. (cm)",
+    "Pantorrilla Der. (cm)",
+    "Pantorrilla Izq. (cm)",
   ];
 
   const orderedMeasurements = [...measurements].sort(
-    (a, b) =>
-      new Date(b.measurementDate).getTime() -
-      new Date(a.measurementDate).getTime()
+    (a, b) => {
+      // Comparar fechas como strings YYYY-MM-DD sin convertir a Date para evitar problemas de zona horaria
+      const dateA = String(a.measurementDate).split('T')[0];
+      const dateB = String(b.measurementDate).split('T')[0];
+      return dateB.localeCompare(dateA); // Orden descendente (más reciente primero)
+    }
   );
+
 
 
     const tableRows = orderedMeasurements.map((measurement) => {
     return [
-        formatDate(new Date(measurement.measurementDate)),   
-        measurement.weight.toFixed(1),                     
-        measurement.bodyFatPercentage.toFixed(1),       
-        measurement.muscleMass.toFixed(1),                
-        measurement.visceralFatPercentage.toFixed(1),     
-        measurement.waistSize || "0",                       
-        measurement.hipSize || "0",                          
-        measurement.chestSize || "0",                   
-        measurement.backSize || "0",                        
-        `${measurement.rightArmSize} / ${measurement.leftArmSize}`,  
-        `${measurement.rightForeArmSize} / ${measurement.leftForeArmSize}`,
-        `${measurement.rightLegSize} / ${measurement.leftLegSize}`,        
-        `${measurement.rightCalfSize} / ${measurement.leftCalfSize}`,      
+        formatDateFromString(measurement.measurementDate),
+        // Medidas Básicas y Composición
+        measurement.weight.toFixed(1),
+        measurement.height.toFixed(1),
+        measurement.bmi.toFixed(1),
+        measurement.muscleMass.toFixed(1),
+        measurement.bodyFatPercentage.toFixed(1),
+        measurement.visceralFatPercentage.toFixed(1),
+        // Medidas del Torso
+        measurement.chestSize || "0",
+        measurement.backSize || "0",
+        measurement.waistSize || "0",
+        measurement.hipSize || "0",
+        // Brazos
+        measurement.rightArmSize || "0",
+        measurement.leftArmSize || "0",
+        measurement.rightForeArmSize || "0",
+        measurement.leftForeArmSize || "0",
+        // Piernas
+        measurement.rightLegSize || "0",
+        measurement.leftLegSize || "0",
+        measurement.rightCalfSize || "0",
+        measurement.leftCalfSize || "0",
     ];
     });
 

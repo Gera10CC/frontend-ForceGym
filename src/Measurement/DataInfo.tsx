@@ -29,59 +29,119 @@ function DataInfo() {
   }
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-8">
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          ["Fecha", formatDateFromString(measurement.measurementDate)],
-          ["Peso", `${measurement.weight} kg`],
-          ["Altura", `${measurement.height} cm`],
-          ["Músculo", `${measurement.muscleMass} %`],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="bg-white rounded-xl shadow-sm border p-4 flex flex-col"
-          >
-            <span className="text-[11px] uppercase font-semibold text-gray-500">
-              {label}
-            </span>
-            <span className="text-lg font-semibold text-gray-900 mt-1">
-              {value}
-            </span>
-          </div>
-        ))}
+    <section className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-6">
+      {/* Encabezado con Fecha */}
+      <div className="bg-white rounded-xl shadow-sm border p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-yellow font-black text-lg uppercase">
+            Medición del {formatDateFromString(measurement.measurementDate)}
+          </h2>
+        </div>
       </div>
 
+      {/* Medidas Básicas y Composición */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
-        <h2 className="text-yellow font-black text-xl uppercase mb-4">
-          Medidas Corporales
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h3 className="text-sm font-bold uppercase text-gray-700 mb-4 border-b pb-2">
+          Medidas Básicas y Composición
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            ["Grasa corporal", measurement.bodyFatPercentage + " %"],
-            ["Grasa visceral", measurement.visceralFatPercentage + " %"],
-            ["Pecho", measurement.chestSize + " cm"],
-            ["Espalda", measurement.backSize + " cm"],
-            ["Cadera", measurement.hipSize + " cm"],
-            ["Cintura", measurement.waistSize + " cm"],
-            ["Pierna izquierda", measurement.leftLegSize + " cm"],
-            ["Pierna derecha", measurement.rightLegSize + " cm"],
-            ["Pantorrilla izquierda", measurement.leftCalfSize + " cm"],
-            ["Pantorrilla derecha", measurement.rightCalfSize + " cm"],
-            ["Antebrazo izquierdo", measurement.leftForeArmSize + " cm"],
-            ["Antebrazo derecho", measurement.rightForeArmSize + " cm"],
-            ["Brazo izquierdo", measurement.leftArmSize + " cm"],
-            ["Brazo derecho", measurement.rightArmSize + " cm"],
+            ["Peso", `${measurement.weight} kg`],
+            ["Altura", `${measurement.height} cm`],
+            ["IMC", `${measurement.bmi}`],
+            ["Músculo", `${measurement.muscleMass} %`],
+            ["Grasa Corp.", `${measurement.bodyFatPercentage} %`],
+            ["Grasa Visc.", `${measurement.visceralFatPercentage} %`],
           ].map(([label, value]) => (
             <div
               key={label}
-              className="border rounded-lg p-3 flex flex-col bg-gray-50"
+              className="border rounded-lg p-3 flex flex-col bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-shadow duration-200"
             >
-              <span className="text-[11px] uppercase font-semibold text-gray-500">
+              <span className="text-[10px] uppercase font-bold text-gray-600 tracking-wide">
                 {label}
               </span>
-              <span className="text-base font-medium text-gray-900 mt-1">
+              <span className="text-base font-semibold text-gray-900 mt-2">
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Medidas del Torso */}
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <h3 className="text-sm font-bold uppercase text-gray-700 mb-4 border-b pb-2">
+          Medidas del Torso
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            ["Pecho", `${measurement.chestSize} cm`],
+            ["Espalda", `${measurement.backSize} cm`],
+            ["Cintura", `${measurement.waistSize} cm`],
+            ["Cadera", `${measurement.hipSize} cm`],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="border rounded-lg p-3 flex flex-col bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-shadow duration-200"
+            >
+              <span className="text-[10px] uppercase font-bold text-gray-600 tracking-wide">
+                {label}
+              </span>
+              <span className="text-base font-semibold text-gray-900 mt-2">
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Brazos */}
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <h3 className="text-sm font-bold uppercase text-gray-700 mb-4 border-b pb-2">
+          Brazos
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            ["Brazo Der.", `${measurement.rightArmSize} cm`],
+            ["Brazo Izq.", `${measurement.leftArmSize} cm`],
+            ["Antebrazo Der.", `${measurement.rightForeArmSize} cm`],
+            ["Antebrazo Izq.", `${measurement.leftForeArmSize} cm`],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="border rounded-lg p-3 flex flex-col bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-shadow duration-200"
+            >
+              <span className="text-[10px] uppercase font-bold text-gray-600 tracking-wide">
+                {label}
+              </span>
+              <span className="text-base font-semibold text-gray-900 mt-2">
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Piernas */}
+      <div className="bg-white rounded-xl shadow-sm border p-6">
+        <h3 className="text-sm font-bold uppercase text-gray-700 mb-4 border-b pb-2">
+          Piernas
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            ["Pierna Der.", `${measurement.rightLegSize} cm`],
+            ["Pierna Izq.", `${measurement.leftLegSize} cm`],
+            ["Pantorrilla Der.", `${measurement.rightCalfSize} cm`],
+            ["Pantorrilla Izq.", `${measurement.leftCalfSize} cm`],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="border rounded-lg p-3 flex flex-col bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-shadow duration-200"
+            >
+              <span className="text-[10px] uppercase font-bold text-gray-600 tracking-wide">
+                {label}
+              </span>
+              <span className="text-base font-semibold text-gray-900 mt-2">
                 {value}
               </span>
             </div>
