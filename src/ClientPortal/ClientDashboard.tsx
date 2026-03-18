@@ -16,6 +16,18 @@ function ClientDashboard() {
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [hasProvisionalPassword, setHasProvisionalPassword] = useState(false);
     const [showFileTypeModal, setShowFileTypeModal] = useState(false);
+    const [showMoreRoutines, setShowMoreRoutines] = useState(false);
+
+    // Colores para cada día (igual que en el PDF)
+    const dayColors = [
+        'rgb(207, 173, 4)',   // Día 1 - Amarillo
+        'rgb(0, 123, 255)',   // Día 2 - Azul
+        'rgb(40, 167, 69)',   // Día 3 - Verde
+        'rgb(255, 159, 64)',  // Día 4 - Naranja
+        'rgb(111, 66, 193)',  // Día 5 - Púrpura
+        'rgb(220, 53, 69)',   // Día 6 - Rojo
+        'rgb(23, 162, 184)',  // Día 7 - Cian
+    ];
 
     useEffect(() => {
         const storedClientData = localStorage.getItem('clientData');
@@ -521,16 +533,222 @@ function ClientDashboard() {
 
                 {/* Content */}
                 {activeTab === 'routines' ? (
-                    <div className="bg-white rounded-lg shadow-lg p-3 md:p-6">
-                        <div className="mb-4 md:mb-6">
-                            <h2 className="text-xl md:text-2xl font-bold">Mis Rutinas de Entrenamiento</h2>
-                        </div>
-
+                    <div className="space-y-4 md:space-y-6">
                         {routines.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8 text-sm md:text-base">No tienes rutinas asignadas aún.</p>
+                            <div className="bg-white rounded-lg shadow-lg p-3 md:p-6">
+                                <p className="text-gray-500 text-center py-8 text-sm md:text-base">No tienes rutinas asignadas aún.</p>
+                            </div>
                         ) : (
-                            <div className="space-y-4 md:space-y-6">
-                                {routines.map((assignment) => (
+                            <>
+                                {/* ===== RUTINA MÁS RECIENTE ===== */}
+                                <div className="bg-white rounded-lg shadow-lg p-3 md:p-6">
+                                    <div className="mb-4 md:mb-6">
+                                        <h2 className="text-xl md:text-2xl font-bold">Mi Rutina Actual</h2>
+                                    </div>
+                                    
+                                    {(() => {
+                                        const mostRecentRoutine = routines[0];
+                                        return (
+                                            <div className="border-2 border-yellow rounded-lg p-4 md:p-6">
+                                                {/* Header de la rutina */}
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
+                                                    <div className="flex-1">
+                                                        <h3 className="text-2xl md:text-3xl font-bold text-yellow mb-2">{mostRecentRoutine.routine.name}</h3>
+                                                        <p className="text-sm md:text-base text-gray-600">
+                                                        Asignada el: {formatDate(mostRecentRoutine.assignmentDate)}
+                                                        </p>
+                                                        <p className="text-sm md:text-base text-gray-600">
+                                                        Dificultad: {mostRecentRoutine.routine.difficultyRoutine?.name || 'N/A'}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                                        <button
+                                                            onClick={() => navigate(`/cliente/entrenar/${mostRecentRoutine.idRoutineAssignment}`)}
+                                                            className="flex items-center justify-center gap-2 bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-800 transition-colors text-sm font-semibold whitespace-nowrap"
+                                                        >
+                                                            <FaPlay />
+                                                            Entrenar Ahora
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDownloadSingleRoutinePdf(mostRecentRoutine.idRoutineAssignment, mostRecentRoutine.routine.name)}
+                                                            className="flex items-center justify-center gap-2 bg-yellow text-black px-4 py-3 rounded-lg hover:bg-yellow/80 transition-colors text-sm font-semibold whitespace-nowrap"
+                                                        >
+                                                            <FaDownload />
+                                                            Descargar PDF
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* Días y ejercicios con colores */}
+                                                {mostRecentRoutine.routine.routineExercises && mostRecentRoutine.routine.routineExercises.length > 0 && (
+                                                    <div className="mt-6">
+                                                        {(() => {
+                                                            // Agrupar ejercicios por día
+                                                            const exercisesByDay = mostRecentRoutine.routine.routineExercises.reduce((acc, re) => {
+                                                                const day = re.dayNumber || 1;
+                                                                if (!acc[day]) acc[day] = [];
+                                                                acc[day].push(re);
+                                                                return acc;
+                                                            }, {} as Record<number, typeof mostRecentRoutine.routine.routineExercises>);
+
+                                                            const days = Object.keys(exercisesByDay).map(Number).sort((a, b) => a - b);
+
+                                                            return (
+                                                                <div className="space-y-6">
+                                                                    {days.map((day) => {
+                                                                        const dayColor = dayColors[(day - 1) % dayColors.length];
+                                                                        
+                                                                        // Agrupar ejercicios del día por categoría
+                                                                        const exercisesByCategory = exercisesByDay[day].reduce((acc, re) => {
+                                                                            const category = re.exercise?.exerciseCategory?.name || 'Otros';
+                                                                            if (!acc[category]) acc[category] = [];
+                                                                            acc[category].push(re);
+                                                                            return acc;
+                                                                        }, {} as Record<string, typeof exercisesByDay[number]>);
+
+                                                                        // Ordenar ejercicios dentro de cada categoría
+                                                                        Object.keys(exercisesByCategory).forEach(category => {
+                                                                            exercisesByCategory[category].sort((a, b) => {
+                                                                                if (a.categoryOrder !== b.categoryOrder) {
+                                                                                    return a.categoryOrder - b.categoryOrder;
+                                                                                }
+                                                                                return (a.idRoutineExercise || 0) - (b.idRoutineExercise || 0);
+                                                                            });
+                                                                        });
+
+                                                                        // Ordenar categorías por el mínimo categoryOrder de sus ejercicios
+                                                                        const categories = Object.keys(exercisesByCategory).sort((a, b) => {
+                                                                            const minOrderA = Math.min(...exercisesByCategory[a].map(ex => ex.categoryOrder));
+                                                                            const minOrderB = Math.min(...exercisesByCategory[b].map(ex => ex.categoryOrder));
+                                                                            return minOrderA - minOrderB;
+                                                                        });
+
+                                                                        return (
+                                                                            <div key={day} className="border-2 rounded-lg p-4 md:p-5" style={{ borderColor: dayColor, backgroundColor: `${dayColor}10` }}>
+                                                                                {/* Título del día con color */}
+                                                                                <div className="flex items-center gap-3 mb-4 pb-3 border-b-2" style={{ borderColor: dayColor }}>
+                                                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white font-bold text-xl md:text-2xl" style={{ backgroundColor: dayColor }}>
+                                                                                        {day}
+                                                                                    </div>
+                                                                                    <h5 className="font-bold text-xl md:text-2xl" style={{ color: dayColor }}>DÍA {day}</h5>
+                                                                                </div>
+
+                                                                                {/* Categorías y ejercicios */}
+                                                                                <div className="space-y-4">
+                                                                                    {categories.map((category) => (
+                                                                                        <div key={category}>
+                                                                                            <h6 className="font-bold text-base md:text-lg mb-3 px-3 py-2 rounded" style={{ backgroundColor: dayColor, color: 'white' }}>
+                                                                                                {category}
+                                                                                            </h6>
+                                                                                            
+                                                                                            {/* Vista móvil (cards) */}
+                                                                                            <div className="md:hidden space-y-3">
+                                                                                                {exercisesByCategory[category].map((re, idx) => (
+                                                                                                    <div key={idx} className="bg-white p-4 rounded-lg border-2" style={{ borderColor: dayColor }}>
+                                                                                                        <div className="font-semibold text-base mb-3" style={{ color: dayColor }}>{re.exercise?.name || 'N/A'}</div>
+                                                                                                        <div className="grid grid-cols-2 gap-3 text-sm">
+                                                                                                            <div className="bg-gray-50 p-2 rounded">
+                                                                                                                <span className="text-gray-500 text-xs">Series:</span>
+                                                                                                                <span className="ml-1 font-bold" style={{ color: dayColor }}>{re.series || 'N/A'}</span>
+                                                                                                            </div>
+                                                                                                            <div className="bg-gray-50 p-2 rounded">
+                                                                                                                <span className="text-gray-500 text-xs">Reps:</span>
+                                                                                                                <span className="ml-1 font-bold" style={{ color: dayColor }}>{re.repetitions || 'N/A'}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        {re.note && re.note !== '-' && (
+                                                                                                            <div className="mt-3 text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                                                                                                                <span className="font-medium">Notas:</span> {re.note}
+                                                                                                            </div>
+                                                                                                        )}
+                                                                                                        {re.exercise?.videoUrl && (
+                                                                                                            <a
+                                                                                                                href={re.exercise.videoUrl}
+                                                                                                                target="_blank"
+                                                                                                                rel="noopener noreferrer"
+                                                                                                                className="mt-3 flex items-center gap-2 text-sm font-medium hover:underline"
+                                                                                                                style={{ color: dayColor }}
+                                                                                                            >
+                                                                                                                <FaVideo /> Ver video tutorial
+                                                                                                            </a>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                            
+                                                                                            {/* Vista escritorio (tabla) */}
+                                                                                            <div className="hidden md:block overflow-x-auto">
+                                                                                                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                                                                                                    <thead style={{ backgroundColor: dayColor }}>
+                                                                                                        <tr>
+                                                                                                            <th className="px-4 py-3 text-left text-sm font-bold text-white">Ejercicio</th>
+                                                                                                            <th className="px-4 py-3 text-center text-sm font-bold text-white">Series</th>
+                                                                                                            <th className="px-4 py-3 text-center text-sm font-bold text-white">Repeticiones</th>
+                                                                                                            <th className="px-4 py-3 text-left text-sm font-bold text-white">Notas</th>
+                                                                                                            <th className="px-4 py-3 text-center text-sm font-bold text-white">Video</th>
+                                                                                                        </tr>
+                                                                                                    </thead>
+                                                                                                    <tbody className="divide-y divide-gray-200">
+                                                                                                        {exercisesByCategory[category].map((re, idx) => (
+                                                                                                            <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                                                                                                <td className="px-4 py-3 font-medium">{re.exercise?.name || 'N/A'}</td>
+                                                                                                                <td className="px-4 py-3 text-center font-semibold" style={{ color: dayColor }}>{re.series || 'N/A'}</td>
+                                                                                                                <td className="px-4 py-3 text-center font-semibold" style={{ color: dayColor }}>{re.repetitions || 'N/A'}</td>
+                                                                                                                <td className="px-4 py-3 text-sm text-gray-600">{re.note || '-'}</td>
+                                                                                                                <td className="px-4 py-3 text-center">
+                                                                                                                    {re.exercise?.videoUrl ? (
+                                                                                                                        <a
+                                                                                                                            href={re.exercise.videoUrl}
+                                                                                                                            target="_blank"
+                                                                                                                            rel="noopener noreferrer"
+                                                                                                                            className="inline-flex items-center gap-1 font-medium hover:underline"
+                                                                                                                            style={{ color: dayColor }}
+                                                                                                                        >
+                                                                                                                            <FaVideo /> Ver
+                                                                                                                        </a>
+                                                                                                                    ) : (
+                                                                                                                        <span className="text-gray-400 text-sm">-</span>
+                                                                                                                    )}
+                                                                                                                </td>
+                                                                                                            </tr>
+                                                                                                        ))}
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+
+                                {/* ===== RUTINAS ADICIONALES (COLAPSABLES) ===== */}
+                                {routines.length > 1 && (
+                                    <div className="bg-white rounded-lg shadow-lg p-3 md:p-6">
+                                        <button
+                                            onClick={() => setShowMoreRoutines(!showMoreRoutines)}
+                                            className="w-full flex items-center justify-between text-left mb-4"
+                                        >
+                                            <h2 className="text-xl md:text-2xl font-bold">
+                                                Rutinas Anteriores ({routines.length - 1})
+                                            </h2>
+                                            <span className="text-2xl font-bold text-yellow">
+                                                {showMoreRoutines ? '−' : '+'}
+                                            </span>
+                                        </button>
+
+                                        {showMoreRoutines && (
+                                            <div className="space-y-4 md:space-y-6">
+                                                {routines.slice(1).map((assignment) => (
                                     <div key={assignment.idRoutineAssignment} className="border border-gray-200 rounded-lg p-3 md:p-4">
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                                             <div className="flex-1">
@@ -697,22 +915,33 @@ function ClientDashboard() {
                                                 })()}
                                             </div>
                                         )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ) : (
+                                ) : (
                     <div className="bg-white rounded-lg shadow-lg p-3 md:p-6">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 md:mb-6">
                             <h2 className="text-xl md:text-2xl font-bold">Mi Historial de Medidas</h2>
                             <button
                                 onClick={() => setShowFileTypeModal(true)}
-                                className="flex items-center justify-center gap-2 bg-yellow text-black px-3 md:px-4 py-2 rounded-lg hover:bg-yellow/80 transition-colors text-sm whitespace-nowrap w-full sm:w-auto"
+                                className="flex items-center justify-center gap-2 bg-yellow text-black px-3 md:px-4 py-2 rounded-lg hover:bg-yellow/80 transition-colors text-sm font-semibold whitespace-nowrap w-full sm:w-auto"
                             >
                                 <FaDownload />
-                                Descargar
+                                Descargar Completo
                             </button>
+                        </div>
+
+                        {/* Mensaje informativo */}
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-3 md:p-4 mb-4 rounded">
+                            <p className="text-xs md:text-sm text-blue-800">
+                            <strong>Vista simplificada:</strong> Se muestran solo las medidas básicas. Para ver todas las medidas detalladas (circunferencias, grasa visceral, etc.), descarga el reporte completo.
+                            </p>
                         </div>
 
                         {measurements.length === 0 ? (
@@ -720,47 +949,28 @@ function ClientDashboard() {
                         ) : (
                             <div className="space-y-4 md:space-y-6">
                                 {measurements.map((measurement) => (
-                                    <div key={measurement.idMeasurement} className="border border-gray-200 rounded-lg p-3 md:p-4">
-                                        <h3 className="text-base md:text-lg font-bold mb-3 md:mb-4 text-yellow border-b-2 border-yellow pb-2">
+                                    <div key={measurement.idMeasurement} className="border-2 border-yellow rounded-lg p-4 md:p-5">
+                                        <h3 className="text-lg md:text-xl font-bold mb-4 text-yellow flex items-center gap-2">
                                             Medición del: {formatDate(measurement.measurementDate)}
                                         </h3>
                                         
-                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Peso</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.weight} kg</p>
+                                        {/* Medidas básicas */}
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                                            <div className="bg-gradient-to-br from-yellow/10 to-yellow/5 border-2 border-yellow p-3 md:p-4 rounded-lg">
+                                                <p className="text-xs md:text-sm text-gray-600 font-medium mb-1">Peso</p>
+                                                <p className="text-xl md:text-2xl font-bold text-yellow">{measurement.weight} <span className="text-base md:text-lg">kg</span></p>
                                             </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Altura</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.height} cm</p>
+                                            <div className="bg-gradient-to-br from-blue-50 to-blue-25 border-2 border-blue-500 p-3 md:p-4 rounded-lg">
+                                                <p className="text-xs md:text-sm text-gray-600 font-medium mb-1">Altura</p>
+                                                <p className="text-xl md:text-2xl font-bold text-blue-600">{measurement.height} <span className="text-base md:text-lg">cm</span></p>
                                             </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Masa Muscular</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.muscleMass}</p>
+                                            <div className="bg-gradient-to-br from-green-50 to-green-25 border-2 border-green-500 p-3 md:p-4 rounded-lg">
+                                                <p className="text-xs md:text-sm text-gray-600 font-medium mb-1">Masa Muscular</p>
+                                                <p className="text-xl md:text-2xl font-bold text-green-600">{measurement.muscleMass}</p>
                                             </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">% Grasa Corporal</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.bodyFatPercentage}%</p>
-                                            </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">% Grasa Visceral</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.visceralFatPercentage}%</p>
-                                            </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Pecho</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.chestSize} cm</p>
-                                            </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Espalda</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.backSize} cm</p>
-                                            </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Cadera</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.hipSize} cm</p>
-                                            </div>
-                                            <div className="bg-gray-50 p-2 md:p-3 rounded">
-                                                <p className="text-xs md:text-sm text-gray-600">Cintura</p>
-                                                <p className="text-sm md:text-lg font-semibold">{measurement.waistSize} cm</p>
+                                            <div className="bg-gradient-to-br from-orange-50 to-orange-25 border-2 border-orange-500 p-3 md:p-4 rounded-lg">
+                                                <p className="text-xs md:text-sm text-gray-600 font-medium mb-1">% Grasa Corporal</p>
+                                                <p className="text-xl md:text-2xl font-bold text-orange-600">{measurement.bodyFatPercentage}<span className="text-base md:text-lg">%</span></p>
                                             </div>
                                         </div>
                                     </div>
