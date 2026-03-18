@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { Plus, Download } from "lucide-react";
+import { Plus, Download, Upload } from "lucide-react";
 
 import Modal from "../shared/components/Modal";
 import ModalFilter from "../shared/components/ModalFilter";
 import FileTypeDecision from "../shared/components/ModalFileType";
+import ImportModal from "./ImportModal";
 
 import { useMeasurementStore } from "./Store";
 import { useMeasurement } from "./useMeasurement";
@@ -60,6 +61,9 @@ export default function MeasurementManagement() {
     tableRows,
     clientData,
   } = useMeasurement();
+
+  // Estado para modal de importación
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     if (idClient) setIdClient(idClient);
@@ -136,30 +140,46 @@ export default function MeasurementManagement() {
 
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
 
-            <Modal
-              Button={() => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetEditing();
-                    showModalForm();
-                  }}
-                  className="
-                    w-full sm:w-auto
-                    px-4 py-2 bg-gray-100 hover:bg-gray-300
-                    rounded-full transition flex items-center gap-2
-                    justify-center sm:justify-start
-                  "
-                >
-                  <Plus size={18} />
-                  Añadir
-                </button>
-              )}
-              modal={modalForm}
-              closeModal={closeModalForm}
-              getDataById={getMeasurementById}
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <Modal
+                Button={() => (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetEditing();
+                      showModalForm();
+                    }}
+                    className="
+                      w-full sm:w-auto
+                      px-4 py-2 bg-gray-100 hover:bg-gray-300
+                      rounded-full transition flex items-center gap-2
+                      justify-center sm:justify-start
+                    "
+                  >
+                    <Plus size={18} />
+                    Añadir
+                  </button>
+                )}
+                modal={modalForm}
+                closeModal={closeModalForm}
+                getDataById={getMeasurementById}
               Content={Form}
             />
+
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              className="
+                w-full sm:w-auto
+                px-4 py-2 bg-green-500 hover:bg-green-600 text-white
+                rounded-full transition flex items-center gap-2
+                justify-center sm:justify-start
+              "
+            >
+              <Upload size={18} />
+              Importar Excel
+            </button>
+            </div>
 
             {measurements?.length > 0 && (
               <Modal
@@ -223,6 +243,13 @@ export default function MeasurementManagement() {
           />
         </div>
       </main>
+
+      {/* Modal de importación de Excel */}
+      <ImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        idClient={idClient}
+      />
     </>
   );
 }
