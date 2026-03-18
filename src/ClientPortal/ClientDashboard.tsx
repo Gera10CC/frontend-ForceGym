@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { clientPortalService } from './clientPortalService';
 import type { ClientLogin, ClientRoutine, Measurement } from '../shared/types';
 import Swal from 'sweetalert2';
-import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle } from 'react-icons/fa';
+import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle, FaFilePdf, FaFileExcel } from 'react-icons/fa';
 import { useMembershipStatus, useFormatDate } from './hooks/useClientDashboard';
 import MembershipStatusCard from './components/MembershipStatusCard';
 import MeasurementCard from './components/MeasurementCard';
