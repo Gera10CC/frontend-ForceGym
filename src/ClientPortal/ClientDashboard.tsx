@@ -478,6 +478,43 @@ function ClientDashboard() {
                     onDownloadExcel={handleDownloadMeasurementsExcel}
                 />
             )}
+
+            {/* Modal de selección de tipo de archivo */}
+            {showFileTypeModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-xl font-bold mb-4 text-center">Seleccionar formato de descarga</h3>
+                        <p className="text-gray-600 text-sm mb-6 text-center">
+                            Elige el formato en el que deseas descargar tu historial de medidas
+                        </p>
+                        
+                        <div className="space-y-3">
+                            <button
+                                onClick={handleDownloadMeasurementsPdf}
+                                className="w-full flex items-center justify-center gap-3 bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg transition-colors"
+                            >
+                                <FaFilePdf className="text-xl" />
+                                <span className="font-semibold">Descargar PDF</span>
+                            </button>
+                            
+                            <button
+                                onClick={handleDownloadMeasurementsExcel}
+                                className="w-full flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors"
+                            >
+                                <FaFileExcel className="text-xl" />
+                                <span className="font-semibold">Descargar Excel</span>
+                            </button>
+                            
+                            <button
+                                onClick={() => setShowFileTypeModal(false)}
+                                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-lg transition-colors font-semibold"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {/* Footer con información del desarrollador */}
             <footer className="mt-8 pb-4 text-center">
