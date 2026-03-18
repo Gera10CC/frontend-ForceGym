@@ -17,7 +17,11 @@ export const exportToPDFMedidas = (
     height: number;
   }
 ) => {
-  const doc = new jsPDF({ putOnlyUsedFonts: true });
+  // Crear PDF en orientación horizontal para acomodar más columnas
+  const doc = new jsPDF({ 
+    orientation: 'landscape',
+    putOnlyUsedFonts: true 
+  });
 
   const formattedCurrentDate = formatCurrentDateWithHourForTitle();
   const formattedCurrentDateDoc = formatCurrentDateForDocument();
@@ -35,11 +39,11 @@ export const exportToPDFMedidas = (
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(`Reporte de ${title}`, 105, 18, { align: "center" });
+  doc.text(`Reporte de ${title}`, 148, 18, { align: "center" });
 
   doc.setLineWidth(0.1);
   doc.setDrawColor(200, 200, 200);
-  doc.line(13, 27, 195, 27);
+  doc.line(13, 27, 285, 27);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
@@ -47,7 +51,7 @@ export const exportToPDFMedidas = (
   doc.text(`Fecha: ${formattedCurrentDateDoc}`, 13, 40);
   doc.text(`Hora: ${formattedCurrentHourDoc}`, 13, 45);
 
-  doc.line(13, 50, 195, 50);
+  doc.line(13, 50, 285, 50);
 
   let nextStartY = 58;
 
@@ -62,7 +66,7 @@ export const exportToPDFMedidas = (
     doc.text(`Edad: ${clientData.age} años`, 13, nextStartY + 11);
     doc.text(`Estatura: ${clientData.height} cm`, 13, nextStartY + 16);
 
-    doc.line(13, nextStartY + 20, 195, nextStartY + 20);
+    doc.line(13, nextStartY + 20, 285, nextStartY + 20);
     nextStartY += 26;
   }
 
@@ -84,8 +88,9 @@ export const exportToPDFMedidas = (
       head: [["RESUMEN", "INICIO", "ACTUAL", "CAMBIO"]],
       body: [
         ["Peso (kg)", first[1], last[1], calcIndicator(first[1], last[1])],
-        ["Grasa Corporal", first[2], last[2], calcIndicator(first[2], last[2])],
-        ["Masa Muscular", first[3], last[3], calcIndicator(first[3], last[3])],
+        ["IMC", first[3], last[3], calcIndicator(first[3], last[3])],
+        ["Masa Muscular (%)", first[4], last[4], calcIndicator(first[4], last[4])],
+        ["Grasa Corporal (%)", first[5], last[5], calcIndicator(first[5], last[5])],
       ],
       theme: "grid",
       styles: {
@@ -103,14 +108,24 @@ export const exportToPDFMedidas = (
     nextStartY = (doc as any).lastAutoTable.finalY + 10;
   }
 
+  // Crear tablas separadas por sección para mejor visualización
+  
+  // 1. MEDIDAS BÁSICAS Y COMPOSICIÓN
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("MEDIDAS BÁSICAS Y COMPOSICIÓN", 13, nextStartY);
+  nextStartY += 5;
+
+  const basicHeaders = ["Fecha", "Peso (kg)", "Altura (cm)", "IMC", "Masa Musc. (%)", "Grasa Corp. (%)", "Grasa Visc. (%)"];
+  const basicData = tableRows.map(row => [row[0], row[1], row[2], row[3], row[4], row[5], row[6]]);
 
   autoTable(doc, {
     startY: nextStartY,
-    head: [tableColumn],
-    body: tableRows,
+    head: [basicHeaders],
+    body: basicData,
     theme: "striped",
     styles: {
-      fontSize: 9,
+      fontSize: 8,
       halign: "center",
       cellPadding: 2,
     },
@@ -118,6 +133,103 @@ export const exportToPDFMedidas = (
       fillColor: [207, 173, 4],
       textColor: [0, 0, 0],
       fontStyle: "bold",
+      fontSize: 8,
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+  });
+
+  nextStartY = (doc as any).lastAutoTable.finalY + 10;
+
+  // 2. MEDIDAS DEL TORSO
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("MEDIDAS DEL TORSO", 13, nextStartY);
+  nextStartY += 5;
+
+  const torsoHeaders = ["Fecha", "Pecho (cm)", "Espalda (cm)", "Cintura (cm)", "Cadera (cm)"];
+  const torsoData = tableRows.map(row => [row[0], row[7], row[8], row[9], row[10]]);
+
+  autoTable(doc, {
+    startY: nextStartY,
+    head: [torsoHeaders],
+    body: torsoData,
+    theme: "striped",
+    styles: {
+      fontSize: 8,
+      halign: "center",
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [207, 173, 4],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      fontSize: 8,
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+  });
+
+  nextStartY = (doc as any).lastAutoTable.finalY + 10;
+
+  // 3. BRAZOS
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("BRAZOS", 13, nextStartY);
+  nextStartY += 5;
+
+  const armHeaders = ["Fecha", "Brazo Der. (cm)", "Brazo Izq. (cm)", "Antebrazo Der. (cm)", "Antebrazo Izq. (cm)"];
+  const armData = tableRows.map(row => [row[0], row[11], row[12], row[13], row[14]]);
+
+  autoTable(doc, {
+    startY: nextStartY,
+    head: [armHeaders],
+    body: armData,
+    theme: "striped",
+    styles: {
+      fontSize: 8,
+      halign: "center",
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [207, 173, 4],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      fontSize: 8,
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+  });
+
+  nextStartY = (doc as any).lastAutoTable.finalY + 10;
+
+  // 4. PIERNAS
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("PIERNAS", 13, nextStartY);
+  nextStartY += 5;
+
+  const legHeaders = ["Fecha", "Pierna Der. (cm)", "Pierna Izq. (cm)", "Pantorrilla Der. (cm)", "Pantorrilla Izq. (cm)"];
+  const legData = tableRows.map(row => [row[0], row[15], row[16], row[17], row[18]]);
+
+  autoTable(doc, {
+    startY: nextStartY,
+    head: [legHeaders],
+    body: legData,
+    theme: "striped",
+    styles: {
+      fontSize: 8,
+      halign: "center",
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [207, 173, 4],
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      fontSize: 8,
     },
     alternateRowStyles: {
       fillColor: [245, 245, 245],
@@ -139,15 +251,15 @@ export const exportToPDFMedidas = (
 
   doc.setFont("helvetica", "italic");
   doc.setFontSize(11);
-  doc.text(message, 105, nextStartY, {
+  doc.text(message, 148, nextStartY, {
     align: "center",
-    maxWidth: 160,
+    maxWidth: 260,
   });
 
   doc.addPage();
 
   doc.setFont("helvetica", "bold");
-  doc.text("TABLA DE REFERENCIAS", 105, 20, { align: "center" });
+  doc.text("TABLA DE REFERENCIAS", 148, 20, { align: "center" });
 
   const referenceHeaders = ["", "BAJO", "NORMAL", "ELEVADO", "MUY ELEVADO"];
   const referenceData = [
