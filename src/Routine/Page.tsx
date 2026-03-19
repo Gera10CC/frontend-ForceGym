@@ -14,7 +14,6 @@ function RoutineManagement() {
     routines,
     modalForm,
     modalInfo,
-    modalFileTypeDecision,
 
     fetchRoutines,
     getRoutineById,
@@ -24,8 +23,6 @@ function RoutineManagement() {
     closeModalForm,
     closeModalInfo,
 
-    showModalFileType,
-    closeModalFileType,
     resetEditing,
   } = useRoutineStore();
 
@@ -96,14 +93,10 @@ function RoutineManagement() {
           <RoutineTable
             routines={routines}
             modalInfo={modalInfo}
-            modalFileTypeDecision={modalFileTypeDecision}
 
             getRoutineById={getRoutineById}
             showModalInfo={showModalInfo}
             closeModalInfo={closeModalInfo}
-
-            showModalFileType={showModalFileType}
-            closeModalFileType={closeModalFileType}
 
             handleDelete={handleDelete}
             handleRestore={handleRestore}

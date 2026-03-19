@@ -3,25 +3,20 @@ import { IoIosMore } from "react-icons/io";
 import Modal from "../shared/components/Modal";
 import NoData from "../shared/components/NoData";
 import DataInfo from "./DataInfo";
-import FileTypeDecision from "../shared/components/ModalFileType";
 import { Routine } from "../shared/types";
 
 interface RoutineTableProps {
   routines: Routine[];
   modalInfo: boolean;
-  modalFileTypeDecision: boolean;
 
   getRoutineById: (id: number) => void;
   showModalInfo: () => void;
   closeModalInfo: () => void;
 
-  showModalFileType: () => void;
-  closeModalFileType: () => void;
-
   handleDelete: (routine: Routine) => void;
   handleRestore: (routine: Routine) => void;
   handleDuplicate: (routine: Routine) => void;
-  handleExportRoutine: () => Promise<any>;
+  handleExportRoutine: (idRoutine: number, routineName: string) => Promise<void>;
 
   showModalForm: () => void;
 }
@@ -29,14 +24,10 @@ interface RoutineTableProps {
 function RoutineTable({
   routines,
   modalInfo,
-  modalFileTypeDecision,
 
   getRoutineById,
   showModalInfo,
   closeModalInfo,
-
-  showModalFileType,
-  closeModalFileType,
 
   handleDelete,
   handleDuplicate,
@@ -127,37 +118,13 @@ function RoutineTable({
                           </button>
                         )}
 
-                        <Modal
-                          Button={() => (
-                            <button
-                              onClick={() => {
-                                getRoutineById(routine.idRoutine);
-                                showModalFileType();
-                              }}
-                              className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
-                              title="Exportar"
-                            >
-                              <MdOutlineFileDownload className="text-white text-sm sm:text-base" />
-                            </button>
-                          )}
-                          modal={modalFileTypeDecision}
-                          closeModal={closeModalFileType}
-                          getDataById={getRoutineById}
-                          Content={() => (
-                            <FileTypeDecision
-                              modulo="Rutina"
-                              closeModal={closeModalFileType}
-                              exportToPDF={async () => {
-                                const result = await handleExportRoutine();
-                                result?.exportToPDF();
-                              }}
-                              exportToExcel={async () => {
-                                const result = await handleExportRoutine();
-                                result?.exportToExcel();
-                              }}
-                            />
-                          )}
-                        />
+                        <button
+                          onClick={() => handleExportRoutine(routine.idRoutine, routine.name)}
+                          className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                          title="Exportar PDF"
+                        >
+                          <MdOutlineFileDownload className="text-white text-sm sm:text-base" />
+                        </button>
                       </div>
                     </td>
                   </tr>
