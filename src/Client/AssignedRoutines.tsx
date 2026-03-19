@@ -8,7 +8,7 @@ import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import NoData from "../shared/components/NoData";
 import { formatDate, formatDateFromString } from "../shared/utils/format";
-import { exportToPDFRutinasLazy } from "../shared/utils/lazyExports";
+import axios from "axios";
 
 interface AssignedRoutine {
   idRoutineAssignment: number;
@@ -102,7 +102,7 @@ export default function AssignedRoutines() {
                 
                 if (assignment.idClient === Number(idClient)) {
                   clientRoutines.push({
-                    idRoutineAssignment: assignment.idRoutineAssignment || Math.random(),
+                    idRoutineAssignment: assignment.idRoutineAssignment,
                     assignmentDate: assignment.assignmentDate,
                     routine: {
                       idRoutine: routine.idRoutine,
@@ -168,46 +168,33 @@ export default function AssignedRoutines() {
 
   const handleExportRoutine = async (routineAssignment: AssignedRoutine) => {
     try {
-      const routine = routineAssignment.routine;
-
-      const exerciseHeaders = [
-        "Paso",
-        "Ejercicio",
-        "Grupo Muscular",
-        "Series",
-        "Repeticiones",
-        "Indicaciones",
-      ];
-
-      let stepCounter = 1;
-      const exerciseRows = routine.routineExercises?.map((re) => {
-        const exerciseInfo = allExercises.find(e => e.idExercise === re.idExercise);
-        
-        return [
-          `Paso ${stepCounter++}`,
-          exerciseInfo?.name || `Ejercicio #${re.idExercise}`,
-          exerciseInfo?.exerciseCategory?.name || "N/A",
-          `${re.series}`,
-          `${re.repetitions}`,
-          re.note || "Sin indicaciones",
-        ];
-      }) || [];
-
-      const clientName = clientInfo
-        ? `${clientInfo.person.name} ${clientInfo.person.firstLastName} ${clientInfo.person.secondLastName}`
-        : "Cliente";
-
-      const routineTitle = `Rutina: ${routine.name} - Cliente: ${clientName}`;
-
-      await exportToPDFRutinasLazy(
-        routineTitle,
-        exerciseHeaders,
-        exerciseRows
+      // Usar el endpoint del backend para generar el PDF con el mismo formato del portal del cliente
+      const token = localStorage.getItem("token");
+      
+      const response = await axios.get(
+        `${import.meta.env.VITE_URL_API}routine/download-routine-pdf/${routineAssignment.idRoutineAssignment}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob",
+        }
       );
+
+      // Crear el blob y descargar el archivo
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `rutina_${routineAssignment.routine.name.replace(/\s+/g, "_")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
       await Swal.fire({
         title: "Exportado exitosamente",
-        text: `La rutina "${routine.name}" se ha descargado en PDF`,
+        text: `La rutina "${routineAssignment.routine.name}" se ha descargado en PDF`,
         icon: "success",
         confirmButtonText: "OK",
         timer: 3000,

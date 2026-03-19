@@ -9,7 +9,6 @@ type RoutineStore = {
     routines: Routine[];
     modalForm: boolean;
     modalInfo: boolean;
-    modalFileTypeDecision: boolean;
     activeEditingId: number | null;
     routineToEdit: RoutineWithExercisesDTO | null;
     isLoading: boolean;
@@ -28,8 +27,6 @@ type RoutineStore = {
     closeModalForm: () => void;
     showModalInfo: () => void;
     closeModalInfo: () => void;
-    showModalFileType: () => void; 
-    closeModalFileType: () => void;
     resetEditing: () => void;
 };
 
@@ -39,7 +36,6 @@ export const useRoutineStore = create<RoutineStore>()(
         currentRoutine: null,
         modalForm: false,
         modalInfo: false,
-        modalFileTypeDecision: false,
         activeEditingId: null,
         routineToEdit: null,
         isLoading: false,
@@ -282,14 +278,6 @@ export const useRoutineStore = create<RoutineStore>()(
 
         closeModalInfo: () => {
             set({ modalInfo: false });
-        },
-
-        showModalFileType: () => {
-            set({ modalFileTypeDecision: true });
-        },
-
-        closeModalFileType: () => {
-            set({ modalFileTypeDecision: false });
         }
     }))
 );
