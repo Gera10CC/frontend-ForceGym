@@ -145,6 +145,7 @@ export type EconomicExpenseDataForm = Omit<EconomicIncomeDataForm, 'idActivityTy
     & Pick<EconomicExpense, 'idEconomicExpense'> & {
         idUser: number
         idCategory: number
+        paramLoggedIdUser?: number
     }
 
 // -----------------------------------------------------
