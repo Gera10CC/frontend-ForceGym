@@ -74,11 +74,24 @@ function Form() {
 
         let action = '';
         const loggedUser = getAuthUser();
+        
+        // Verificar que el usuario esté logueado
+        if (!loggedUser || !loggedUser.idUser) {
+            await Swal.fire({
+                title: 'Sesión expirada',
+                text: 'Por favor inicie sesión nuevamente',
+                icon: 'warning'
+            });
+            setAuthHeader(null);
+            setAuthUser(null);
+            navigate('/login');
+            return;
+        }
 
         const reqUser = {
             ...data,
-            idUser: loggedUser?.idUser,
-            paramLoggedIdUser: loggedUser?.idUser
+            idUser: Number(loggedUser.idUser),
+            paramLoggedIdUser: Number(loggedUser.idUser)
         };
 
         let result;
