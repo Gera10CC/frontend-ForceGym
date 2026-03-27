@@ -7,6 +7,7 @@ import { useEconomicBalanceStore } from '../Balance/Store';
 import { useNavigate } from "react-router";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import MembershipCalendar from "./MembershipCalendar";
+import BirthdayCalendar from "./BirthdayCalendar";
 
 function DashboardManagement() {
   const {
@@ -196,8 +197,14 @@ function DashboardManagement() {
           </div>
         </div>
 
-        {/* Calendario de Vencimientos */}
-        <MembershipCalendar />
+        {/* Calendarios */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Calendario de Vencimientos */}
+          <MembershipCalendar />
+          
+          {/* Calendario de Cumpleaños */}
+          <BirthdayCalendar />
+        </div>
       </main>
 
       {/* Notificaciones Modal */}

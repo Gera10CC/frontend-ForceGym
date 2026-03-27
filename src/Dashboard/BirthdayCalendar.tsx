@@ -4,17 +4,18 @@ import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { MdOutlineCancel } from 'react-icons/md';
 
-interface ClientExpiration {
+interface ClientBirthday {
   idClient: number;
   name: string;
   phone: string;
   email: string;
-  expirationDate: string;
+  birthday: string;
   clientType: string;
+  age: number;
 }
 
-interface ExpirationData {
-  clientsByDay: Record<number, ClientExpiration[]>;
+interface BirthdayData {
+  clientsByDay: Record<number, ClientBirthday[]>;
   year: number;
   month: number;
   totalClients: number;
@@ -27,27 +28,27 @@ const MONTHS = [
 
 const DAYS_OF_WEEK = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-function MembershipCalendar() {
+function BirthdayCalendar() {
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
-  const [expirationData, setExpirationData] = useState<ExpirationData | null>(null);
+  const [birthdayData, setBirthdayData] = useState<BirthdayData | null>(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchExpirations();
+    fetchBirthdays();
   }, [currentYear, currentMonth]);
 
-  const fetchExpirations = async () => {
+  const fetchBirthdays = async () => {
     setLoading(true);
     try {
-      const result = await getData(`${import.meta.env.VITE_URL_API}client/membership-expirations?year=${currentYear}&month=${currentMonth}`);
+      const result = await getData(`${import.meta.env.VITE_URL_API}client/birthdays?year=${currentYear}&month=${currentMonth}`);
       if (result.ok && result.data) {
-        setExpirationData(result.data);
+        setBirthdayData(result.data);
       }
     } catch (error) {
-      console.error('Error fetching expirations:', error);
+      console.error('Error fetching birthdays:', error);
     } finally {
       setLoading(false);
     }
@@ -93,8 +94,8 @@ function MembershipCalendar() {
 
     // Días del mes
     for (let day = 1; day <= daysInMonth; day++) {
-      const clientsForDay = expirationData?.clientsByDay[day] || [];
-      const hasExpirations = clientsForDay.length > 0;
+      const clientsForDay = birthdayData?.clientsByDay[day] || [];
+      const hasBirthdays = clientsForDay.length > 0;
       const isToday = day === today.getDate() && 
                       currentMonth === today.getMonth() + 1 && 
                       currentYear === today.getFullYear();
@@ -103,21 +104,21 @@ function MembershipCalendar() {
       days.push(
         <div
           key={day}
-          onClick={() => hasExpirations && setSelectedDay(day)}
+          onClick={() => hasBirthdays && setSelectedDay(day)}
           className={`
             h-10 sm:h-12 flex flex-col items-center justify-center rounded-lg text-sm
             transition-all duration-200 relative
-            ${hasExpirations ? 'cursor-pointer hover:bg-yellow-100' : ''}
-            ${isSelected ? 'bg-yellow-400 text-black font-bold' : ''}
+            ${hasBirthdays ? 'cursor-pointer hover:bg-yellow-100' : ''}
+            ${isSelected ? 'bg-yellow-400 text-white font-bold' : ''}
             ${isToday && !isSelected ? 'border-2 border-yellow-500' : ''}
-            ${hasExpirations && !isSelected ? 'bg-red-100 text-red-800 font-semibold' : ''}
+            ${hasBirthdays && !isSelected ? 'bg-green-100 text-green-800 font-semibold' : ''}
           `}
         >
           <span>{day}</span>
-          {hasExpirations && (
+          {hasBirthdays && (
             <span className={`
               text-xs px-1.5 py-0.5 rounded-full mt-0.5
-              ${isSelected ? 'bg-black text-yellow-400' : 'bg-red-500 text-white'}
+              ${isSelected ? 'bg-white text-yellow-400' : 'bg-green-500 text-white'}
             `}>
               {clientsForDay.length}
             </span>
@@ -129,12 +130,12 @@ function MembershipCalendar() {
     return days;
   };
 
-  const selectedClients = selectedDay && expirationData?.clientsByDay[selectedDay] || [];
+  const selectedClients = selectedDay && birthdayData?.clientsByDay[selectedDay] || [];
 
   return (
     <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
       <h2 className="text-lg sm:text-xl font-semibold text-center mb-4">
-        Vencimientos de Membresía
+        Cumpleaños de Clientes
       </h2>
 
       {/* Navegación del mes */}
@@ -157,9 +158,9 @@ function MembershipCalendar() {
       </div>
 
       {/* Resumen */}
-      {expirationData && (
+      {birthdayData && (
         <div className="text-center text-sm text-gray-600 mb-3">
-          Total de vencimientos este mes: <span className="font-bold text-red-600">{expirationData.totalClients}</span>
+          Total de cumpleaños este mes: <span className="font-bold text-green-600">{birthdayData.totalClients}</span>
         </div>
       )}
 
@@ -186,11 +187,11 @@ function MembershipCalendar() {
           {/* Leyenda */}
           <div className="flex justify-center gap-4 mt-4 text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-4 h-4 bg-red-100 rounded"></div>
-              <span>Con vencimientos</span>
+              <div className="w-4 h-4 bg-green-100 rounded"></div>
+              <span>Con cumpleaños</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-4 h-4 border-2 border-yellow-500 rounded"></div>
+              <div className="w-4 h-4 border-2 border-yellow-400 rounded"></div>
               <span>Hoy</span>
             </div>
           </div>
@@ -234,11 +235,11 @@ function MembershipCalendar() {
                   </button>
 
                   {/* Header */}
-                  <div className="bg-yellow text-black px-6 py-4 pr-12">
+                  <div className="bg-yellow-400 text-black px-6 py-4 pr-12">
                     <h3 className="font-bold text-lg">
-                      Vencimientos del {selectedDay} de {MONTHS[currentMonth - 1]}
+                      Cumpleaños del {selectedDay} de {MONTHS[currentMonth - 1]}
                     </h3>
-                    <p className="text-sm opacity-80 mt-1">
+                    <p className="text-sm opacity-90 mt-1">
                       {selectedClients.length} cliente{selectedClients.length !== 1 ? 's' : ''}
                     </p>
                   </div>
@@ -250,7 +251,10 @@ function MembershipCalendar() {
                         key={client.idClient}
                         className={`p-4 ${index !== selectedClients.length - 1 ? 'border-b border-gray-200' : ''}`}
                       >
-                        <div className="font-semibold text-gray-800">{client.name}</div>
+                        <div className="flex items-center justify-between">
+                          <div className="font-semibold text-gray-800">{client.name}</div>
+                          <div className="text-lg font-bold text-yellow-400">{client.age} años</div>
+                        </div>
                         <div className="text-sm text-gray-600 mt-2 space-y-1">
                           <div className="flex items-center gap-2">
                             <span>{client.phone || 'Sin teléfono'}</span>
@@ -260,6 +264,9 @@ function MembershipCalendar() {
                           </div>
                           <div className="flex items-center gap-2">
                             <span>{client.clientType}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span>{client.birthday}</span>
                           </div>
                         </div>
                       </div>
@@ -275,4 +282,4 @@ function MembershipCalendar() {
   );
 }
 
-export default MembershipCalendar;
+export default BirthdayCalendar;

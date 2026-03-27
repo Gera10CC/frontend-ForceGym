@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { clientPortalService } from './clientPortalService';
 import type { ClientLogin, ClientRoutine, Measurement } from '../shared/types';
 import Swal from 'sweetalert2';
-import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle } from 'react-icons/fa';
+import { FaDownload, FaSignOutAlt, FaDumbbell, FaRulerVertical, FaKey, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
 import { useMembershipStatus, useFormatDate } from './hooks/useClientDashboard';
 import MembershipStatusCard from './components/MembershipStatusCard';
 import MeasurementCard from './components/MeasurementCard';
@@ -24,6 +24,9 @@ function ClientDashboard() {
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [hasProvisionalPassword, setHasProvisionalPassword] = useState(false);
     const [showFileTypeModal, setShowFileTypeModal] = useState(false);
+    const [downloadingRoutineId, setDownloadingRoutineId] = useState<number | null>(null);
+    const [downloadingMeasurementsPdf, setDownloadingMeasurementsPdf] = useState(false);
+    const [downloadingMeasurementsExcel, setDownloadingMeasurementsExcel] = useState(false);
 
     // Colores para cada día (igual que en el PDF) - Memoizado
     const dayColors = useMemo(() => [
@@ -169,7 +172,10 @@ function ClientDashboard() {
     }, [navigate]);
 
     const handleDownloadSingleRoutinePdf = useCallback(async (idRoutineAssignment: number, routineName: string) => {
+        if (downloadingRoutineId) return; // Prevenir múltiples descargas simultáneas
+        
         try {
+            setDownloadingRoutineId(idRoutineAssignment);
             const blob = await clientPortalService.downloadSingleRoutinePdf(idRoutineAssignment);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -193,11 +199,16 @@ function ClientDashboard() {
                     text: 'Error al descargar el PDF'
                 });
             }
+        } finally {
+            setDownloadingRoutineId(null);
         }
-    }, []);
+    }, [downloadingRoutineId]);
 
     const handleDownloadMeasurementsPdf = useCallback(async () => {
+        if (downloadingMeasurementsPdf) return; // Prevenir múltiples descargas
+        
         try {
+            setDownloadingMeasurementsPdf(true);
             const blob = await clientPortalService.downloadMeasurementsPdf();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -222,11 +233,16 @@ function ClientDashboard() {
                     text: 'Error al descargar el PDF'
                 });
             }
+        } finally {
+            setDownloadingMeasurementsPdf(false);
         }
-    }, []);
+    }, [downloadingMeasurementsPdf]);
 
     const handleDownloadMeasurementsExcel = useCallback(async () => {
+        if (downloadingMeasurementsExcel) return; // Prevenir múltiples descargas
+        
         try {
+            setDownloadingMeasurementsExcel(true);
             const blob = await clientPortalService.downloadMeasurementsExcel();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -251,8 +267,10 @@ function ClientDashboard() {
                     text: 'Error al descargar el Excel'
                 });
             }
+        } finally {
+            setDownloadingMeasurementsExcel(false);
         }
-    }, []);
+    }, [downloadingMeasurementsExcel]);
 
     if (loading) {
         return (
@@ -382,6 +400,7 @@ function ClientDashboard() {
                                         dayColors={dayColors}
                                         onStartTraining={() => navigate(`/cliente/entrenar/${sortedRoutines[0].idRoutineAssignment}`)}
                                         onDownloadPdf={() => handleDownloadSingleRoutinePdf(sortedRoutines[0].idRoutineAssignment, sortedRoutines[0].routine.name)}
+                                        isDownloading={downloadingRoutineId === sortedRoutines[0].idRoutineAssignment}
                                     />
                                 </div>
 
@@ -407,9 +426,21 @@ function ClientDashboard() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleDownloadSingleRoutinePdf(routine.idRoutineAssignment, routine.routine.name)}
-                                                            className="flex items-center gap-1 bg-yellow text-black px-3 py-2 rounded hover:bg-yellow/80 transition-colors text-sm whitespace-nowrap"
+                                                            disabled={downloadingRoutineId === routine.idRoutineAssignment}
+                                                            className={`flex items-center gap-1 px-3 py-2 rounded transition-colors text-sm whitespace-nowrap ${
+                                                                downloadingRoutineId === routine.idRoutineAssignment
+                                                                    ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                                                                    : 'bg-yellow text-black hover:bg-yellow/80'
+                                                            }`}
                                                         >
-                                                            PDF
+                                                            {downloadingRoutineId === routine.idRoutineAssignment ? (
+                                                                <>
+                                                                    <FaSpinner className="animate-spin" />
+                                                                    ...
+                                                                </>
+                                                            ) : (
+                                                                'PDF'
+                                                            )}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -476,6 +507,8 @@ function ClientDashboard() {
                     onClose={() => setShowFileTypeModal(false)}
                     onDownloadPdf={handleDownloadMeasurementsPdf}
                     onDownloadExcel={handleDownloadMeasurementsExcel}
+                    isDownloadingPdf={downloadingMeasurementsPdf}
+                    isDownloadingExcel={downloadingMeasurementsExcel}
                 />
             )}
             
