@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { FaDownload, FaPlay, FaVideo } from 'react-icons/fa';
+import { FaDownload, FaPlay, FaVideo, FaSpinner } from 'react-icons/fa';
 import type { ClientRoutine, RoutineExercise } from '../../shared/types';
 
 interface RoutineCardProps {
@@ -8,9 +8,10 @@ interface RoutineCardProps {
     dayColors: string[];
     onStartTraining: () => void;
     onDownloadPdf: () => void;
+    isDownloading?: boolean;
 }
 
-const RoutineCard = memo(({ routine, formatDate, dayColors, onStartTraining, onDownloadPdf }: RoutineCardProps) => {
+const RoutineCard = memo(({ routine, formatDate, dayColors, onStartTraining, onDownloadPdf, isDownloading = false }: RoutineCardProps) => {
     // Agrupar ejercicios por día
     const exercisesByDay = routine.routine.routineExercises.reduce((acc, re) => {
         const day = re.dayNumber || 1;
@@ -44,10 +45,24 @@ const RoutineCard = memo(({ routine, formatDate, dayColors, onStartTraining, onD
                     </button>
                     <button
                         onClick={onDownloadPdf}
-                        className="flex items-center justify-center gap-2 bg-yellow text-black px-4 py-3 rounded-lg hover:bg-yellow/80 transition-colors text-sm font-semibold whitespace-nowrap"
+                        disabled={isDownloading}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors text-sm font-semibold whitespace-nowrap ${
+                            isDownloading 
+                                ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
+                                : 'bg-yellow text-black hover:bg-yellow/80'
+                        }`}
                     >
-                        <FaDownload />
-                        Descargar PDF
+                        {isDownloading ? (
+                            <>
+                                <FaSpinner className="animate-spin" />
+                                Descargando...
+                            </>
+                        ) : (
+                            <>
+                                <FaDownload />
+                                Descargar PDF
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
