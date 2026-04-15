@@ -8,7 +8,7 @@ import { formatDate, formatDateFromString } from "../shared/utils/format"
 
 export const useClient = () => {
     const navigate = useNavigate()
-    const { clients, fetchClients, deleteClient, deleteClientPermanently, updateClient, changeSearchTerm, changeOrderBy, changeDirectionOrderBy, directionOrderBy } = useClientStore()
+    const { clients, fetchClients, deleteClient, deleteClientPermanently, updateClient, changeSearchTerm, changeOrderBy, changeDirectionOrderBy, directionOrderBy, deletingId, restoringId } = useClientStore()
 
     const handleDelete = async ({ idClient, person } : Client) => {
         await Swal.fire({
@@ -133,27 +133,32 @@ export const useClient = () => {
             reverseButtons: true
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await updateClient(reqClient)
+                useClientStore.setState({ restoringId: client.idClient });
+                try {
+                    const response = await updateClient(reqClient)
 
-                if(response.ok){
-                    Swal.fire({
-                        title: 'Cliente restaurado',
-                        text: `Se ha restaurado el cliente ${client.name}`,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        width: 500,
-                        confirmButtonColor: '#CFAD04'
-                    })
-                    
-                    fetchClients()
-                }
+                    if(response.ok){
+                        Swal.fire({
+                            title: 'Cliente restaurado',
+                            text: `Se ha restaurado el cliente ${client.name}`,
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            width: 500,
+                            confirmButtonColor: '#CFAD04'
+                        })
+                        
+                        fetchClients()
+                    }
 
-                if(response.logout){
-                    setAuthHeader(null)
-                    setAuthUser(null)
-                    navigate('/login', {replace: true})
+                    if(response.logout){
+                        setAuthHeader(null)
+                        setAuthUser(null)
+                        navigate('/login', {replace: true})
+                    }
+                } finally {
+                    useClientStore.setState({ restoringId: null });
                 }
             } 
         })
@@ -175,6 +180,8 @@ export const useClient = () => {
         handleOrderByChange, 
         handleRestore,
         pdfTableHeaders,
-        pdfTableRows
+        pdfTableRows,
+        deletingId,
+        restoringId
     }
 }

@@ -13,6 +13,8 @@ type EconomicExpenseStore = {
     modalInfo: boolean;
     modalFileTypeDecision: boolean;
     activeEditingId: EconomicExpense['idEconomicExpense'];
+    deletingId: number | null;
+    restoringId: number | null;
     size: number;
     page: number;
     totalRecords: number;
@@ -69,6 +71,8 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
         modalInfo: false,
         modalFileTypeDecision: false,
         activeEditingId: 0,
+        deletingId: null,
+        restoringId: null,
         size: 5,
         page: 1,
         totalRecords: 0,
@@ -238,11 +242,16 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
         },
 
         deleteEconomicExpense: async (id, loggedIdUser) => {
-            const result = await deleteData(`${import.meta.env.VITE_URL_API}economicExpense/delete/${id}`, loggedIdUser);
-            if (result?.ok) {
-                await useCommonDataStore.getState().refreshAllCommonData();
+            set({ deletingId: id });
+            try {
+                const result = await deleteData(`${import.meta.env.VITE_URL_API}economicExpense/delete/${id}`, loggedIdUser);
+                if (result?.ok) {
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
+                return result;
+            } finally {
+                set({ deletingId: null });
             }
-            return result;
         },
 
         changeSize: (newSize) => set(() => ({ size: newSize })),

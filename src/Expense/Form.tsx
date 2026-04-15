@@ -4,10 +4,11 @@ import { EconomicExpenseDataForm } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import useEconomicExpenseStore from "./Store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import { formatDate } from "../shared/utils/format";
+import { FaSpinner } from 'react-icons/fa';
 
 const MAXLENGTH_VOUCHER = 100;
 const MAXLENGTH_DETAIL = 100;
@@ -17,6 +18,7 @@ const MAXDATE = new Date().toUTCString();
 
 function Form() {
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { meansOfPayment, categories } = useCommonDataStore();
 
     const {
@@ -72,32 +74,34 @@ function Form() {
             });
         }
 
-        let action = '';
-        const loggedUser = getAuthUser();
-        
-        // Verificar que el usuario esté logueado
-        if (!loggedUser || !loggedUser.idUser) {
-            await Swal.fire({
-                title: 'Sesión expirada',
-                text: 'Por favor inicie sesión nuevamente',
-                icon: 'warning'
-            });
-            setAuthHeader(null);
-            setAuthUser(null);
-            navigate('/login');
-            return;
-        }
+        setIsSubmitting(true);
+        try {
+            let action = '';
+            const loggedUser = getAuthUser();
+            
+            // Verificar que el usuario esté logueado
+            if (!loggedUser || !loggedUser.idUser) {
+                await Swal.fire({
+                    title: 'Sesión expirada',
+                    text: 'Por favor inicie sesión nuevamente',
+                    icon: 'warning'
+                });
+                setAuthHeader(null);
+                setAuthUser(null);
+                navigate('/login');
+                return;
+            }
 
-        const reqUser = {
-            ...data,
-            idUser: Number(loggedUser.idUser),
-            paramLoggedIdUser: Number(loggedUser.idUser)
-        };
+            const reqUser = {
+                ...data,
+                idUser: Number(loggedUser.idUser),
+                paramLoggedIdUser: Number(loggedUser.idUser)
+            };
 
-        let result;
+            let result;
 
-        if (activeEditingId === 0) {
-            result = await addEconomicExpense(reqUser as EconomicExpenseDataForm);
+            if (activeEditingId === 0) {
+                result = await addEconomicExpense(reqUser as EconomicExpenseDataForm);
             action = 'agregado';
         } else {
             result = await updateEconomicExpense(reqUser as EconomicExpenseDataForm);
@@ -126,6 +130,9 @@ function Form() {
             setAuthHeader(null);
             setAuthUser(null);
             navigate('/login');
+        }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -294,15 +301,24 @@ useEffect(() => {
                 {errors.amount && <ErrorForm>{errors.amount.message}</ErrorForm>}
             </div>
 
-            <input
+            <button
                 type="submit"
-                value={activeEditingId ? "Actualizar" : "Registrar"}
-                className="
-                    bg-yellow text-black w-full p-3 rounded-md 
-                    uppercase font-bold hover:bg-amber-500 mt-4 
-                    transition-colors cursor-pointer
-                "
-            />
+                disabled={isSubmitting}
+                className={`w-full p-3 rounded-md uppercase font-bold mt-4 transition-colors flex items-center justify-center gap-2 ${
+                    isSubmitting
+                        ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+                        : 'bg-yellow text-black hover:bg-amber-500 cursor-pointer'
+                }`}
+            >
+                {isSubmitting ? (
+                    <>
+                        <FaSpinner className="animate-spin" />
+                        {activeEditingId ? "Actualizando..." : "Registrando..."}
+                    </>
+                ) : (
+                    activeEditingId ? "Actualizar" : "Registrar"
+                )}
+            </button>
         </form>
     );
 }

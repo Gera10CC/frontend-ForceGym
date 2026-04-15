@@ -1,5 +1,5 @@
 import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaSpinner } from "react-icons/fa";
 import { formatAmountToCRC, formatDateFromString } from "../shared/utils/format";
 import { IoIosMore } from "react-icons/io";
 import { mapEconomicIncomeToDataForm } from "../shared/types/mapper";
@@ -28,6 +28,8 @@ interface IncomeTableProps {
   handleRestore: (income: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
+  deletingId?: number | null;
+  restoringId?: number | null;
 }
 
 function IncomeTable({
@@ -48,6 +50,8 @@ function IncomeTable({
   handleRestore,
   changePage,
   changeSize,
+  deletingId,
+  restoringId
 }: IncomeTableProps) {
   return (
     <div className="w-full mt-4">
@@ -193,18 +197,28 @@ function IncomeTable({
                             onClick={() =>
                               handleRestore(mapEconomicIncomeToDataForm(income))
                             }
-                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
                             title="Restaurar"
+                            disabled={restoringId === income.idEconomicIncome}
                           >
-                            <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                            {restoringId === income.idEconomicIncome ? (
+                              <FaSpinner className="text-white text-sm sm:text-base animate-spin" />
+                            ) : (
+                              <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                            )}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDelete(income)}
-                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
                             title="Eliminar"
+                            disabled={deletingId === income.idEconomicIncome}
                           >
-                            <MdOutlineDelete className="text-white text-sm sm:text-base" />
+                            {deletingId === income.idEconomicIncome ? (
+                              <FaSpinner className="text-white text-sm sm:text-base animate-spin" />
+                            ) : (
+                              <MdOutlineDelete className="text-white text-sm sm:text-base" />
+                            )}
                           </button>
                         )}
                       </div>

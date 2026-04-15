@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaSpinner } from "react-icons/fa";
 import { MdOutlineDelete, MdModeEdit, MdOutlineSettingsBackupRestore } from "react-icons/md";
 
 import useCategoryStore from "./Store";
@@ -50,7 +50,9 @@ function CategoryManagement() {
         handleDelete,
         handleSearch,
         handleOrderByChange,
-        handleRestore
+        handleRestore,
+        deletingId,
+        restoringId
     } = useCategory();
 
     useEffect(() => {
@@ -230,18 +232,36 @@ function CategoryManagement() {
                                                                     onClick={() =>
                                                                         handleRestore(mapCategoryToDataForm(category))
                                                                     }
-                                                                    className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                    disabled={restoringId === category.idCategory}
+                                                                    className={`p-2 rounded transition-colors ${
+                                                                        restoringId === category.idCategory
+                                                                            ? 'bg-gray-400 cursor-not-allowed'
+                                                                            : 'bg-black hover:bg-gray-800'
+                                                                    }`}
                                                                     title="Restaurar"
                                                                 >
-                                                                    <MdOutlineSettingsBackupRestore className="text-white" />
+                                                                    {restoringId === category.idCategory ? (
+                                                                        <FaSpinner className="text-white animate-spin" />
+                                                                    ) : (
+                                                                        <MdOutlineSettingsBackupRestore className="text-white" />
+                                                                    )}
                                                                 </button>
                                                             ) : (
                                                                 <button
                                                                     onClick={() => handleDelete(category)}
-                                                                    className="p-2 bg-black rounded hover:bg-gray-800"
+                                                                    disabled={deletingId === category.idCategory}
+                                                                    className={`p-2 rounded transition-colors ${
+                                                                        deletingId === category.idCategory
+                                                                            ? 'bg-gray-400 cursor-not-allowed'
+                                                                            : 'bg-black hover:bg-gray-800'
+                                                                    }`}
                                                                     title="Eliminar"
                                                                 >
-                                                                    <MdOutlineDelete className="text-white" />
+                                                                    {deletingId === category.idCategory ? (
+                                                                        <FaSpinner className="text-white animate-spin" />
+                                                                    ) : (
+                                                                        <MdOutlineDelete className="text-white" />
+                                                                    )}
                                                                 </button>
                                                             )}
                                                         </div>

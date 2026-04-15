@@ -14,6 +14,8 @@ type RoutineStore = {
     isLoading: boolean;
     error: string | null;
     currentRoutine: RoutineWithExercisesDTO  | null;
+    deletingId: number | null;
+    restoringId: number | null;
 
     fetchRoutines: () => Promise<any>;
     getRoutineById: (id: number) => Promise<void>;
@@ -40,6 +42,8 @@ export const useRoutineStore = create<RoutineStore>()(
         routineToEdit: null,
         isLoading: false,
         error: null,
+        deletingId: null,
+        restoringId: null,
 
         fetchRoutines: async () => {
             set({ isLoading: true, error: null });
@@ -148,7 +152,7 @@ export const useRoutineStore = create<RoutineStore>()(
         },
 
         deleteRoutine: async (id) => {
-            set({ isLoading: true });
+            set({ deletingId: id });
             try {
                 const loggedUser = getAuthUser();
                 if (!loggedUser?.idUser) throw new Error('Usuario no autenticado');
@@ -167,15 +171,15 @@ export const useRoutineStore = create<RoutineStore>()(
                 
                 return result;
             } catch (error) {
-                set({ error: 'Error al eliminar rutina', isLoading: false });
+                set({ error: 'Error al eliminar rutina' });
                 return { ok: false };
             } finally {
-                set({ isLoading: false });
+                set({ deletingId: null });
             }
         },
         
         restoreRoutine: async (id) => {
-            set({ isLoading: true });
+            set({ restoringId: id });
             try {
                 const loggedUser = getAuthUser();
                 if (!loggedUser?.idUser) throw new Error('Usuario no autenticado');
@@ -193,10 +197,10 @@ export const useRoutineStore = create<RoutineStore>()(
                 
                 return result;
             } catch (error) {
-                set({ error: 'Error al restaurar rutina', isLoading: false });
+                set({ error: 'Error al restaurar rutina' });
                 return { ok: false };
             } finally {
-                set({ isLoading: false });
+                set({ restoringId: null });
             }
         },
 

@@ -18,7 +18,9 @@ export const useEconomicExpense = () => {
         changeOrderBy,
         changeDirectionOrderBy,
         directionOrderBy,
-        fetchEconomicExpenseByActiveFilters
+        fetchEconomicExpenseByActiveFilters,
+        deletingId,
+        restoringId
     } = useEconomicExpenseStore();
 
     // --------------------------
@@ -110,27 +112,32 @@ export const useEconomicExpense = () => {
             reverseButtons: true
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await updateEconomicExpense(reqEconomicExpense);
+                useEconomicExpenseStore.setState({ restoringId: economicExpense.idEconomicExpense });
+                try {
+                    const response = await updateEconomicExpense(reqEconomicExpense);
 
-                if (response.ok) {
-                    Swal.fire({
-                        title: 'Gasto restaurado',
-                        text: `Se ha restaurado el gasto con comprobante N° ${economicExpense.voucherNumber}`,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        width: 500,
-                        confirmButtonColor: '#CFAD04'
-                    });
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Gasto restaurado',
+                            text: `Se ha restaurado el gasto con comprobante N° ${economicExpense.voucherNumber}`,
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            width: 500,
+                            confirmButtonColor: '#CFAD04'
+                        });
 
-                    fetchEconomicExpenses();
-                }
+                        fetchEconomicExpenses();
+                    }
 
-                if (response.logout) {
-                    setAuthHeader(null);
-                    setAuthUser(null);
-                    navigate('/login', { replace: true });
+                    if (response.logout) {
+                        setAuthHeader(null);
+                        setAuthUser(null);
+                        navigate('/login', { replace: true });
+                    }
+                } finally {
+                    useEconomicExpenseStore.setState({ restoringId: null });
                 }
             }
         });
@@ -181,6 +188,8 @@ export const useEconomicExpense = () => {
         pdfTableHeaders,
         pdfTableRows,
         mapExpenseToRow,
-        fetchEconomicExpenseByActiveFilters
+        fetchEconomicExpenseByActiveFilters,
+        deletingId,
+        restoringId
     };
 };

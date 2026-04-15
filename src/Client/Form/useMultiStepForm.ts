@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2';
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { ClientDataForm } from "../../shared/types";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../../shared/utils/authentication";
@@ -13,6 +13,7 @@ export const useMultiStepForm = () => {
   const { genders, clientTypes } = useCommonDataStore();
   const { clients, activeEditingId, fetchClients, addClient, updateClient, closeModalForm } = useClientStore();
   const { step, nextStep, prevStep, setCustomStep, resetForm } = useClientForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getDefaultValues = (): ClientDataForm => ({
     idClient: 0,
@@ -108,11 +109,13 @@ export const useMultiStepForm = () => {
   });
 
   const submitForm = async (data: ClientDataForm) => {
-    let action = '', result;
-    const loggedUser = getAuthUser();
+    setIsSubmitting(true);
+    try {
+      let action = '', result;
+      const loggedUser = getAuthUser();
 
-    // Función para convertir fecha a formato ISO con hora al mediodía
-    const dateToISO = (dateValue: string | Date | null): string => {
+      // Función para convertir fecha a formato ISO con hora al mediodía
+      const dateToISO = (dateValue: string | Date | null): string => {
       if (!dateValue) return '';
       
       if (typeof dateValue === 'string') {
@@ -199,7 +202,10 @@ export const useMultiStepForm = () => {
           }
         }
       });
-  }
+    }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -262,6 +268,7 @@ export const useMultiStepForm = () => {
     prevStep,
     nextStep,
     handleStepChangeByMenu,
-    handleStepChangeByButton
+    handleStepChangeByButton,
+    isSubmitting
   };
 };

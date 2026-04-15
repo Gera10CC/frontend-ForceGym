@@ -1,4 +1,5 @@
 import { FormProvider } from "react-hook-form";
+import { FaSpinner } from "react-icons/fa";
 import { StepContactInfo } from "./StepContactInfo";
 import { StepHealthInfo } from "./StepHealthInfo";
 import { useMultiStepForm } from "./useMultiStepForm";
@@ -17,7 +18,8 @@ const MultiStepForm = () => {
     prevStep,
     nextStep,
     handleStepChangeByMenu,
-    handleStepChangeByButton
+    handleStepChangeByButton,
+    isSubmitting
   } = useMultiStepForm();
 
   const renderStep = () => {
@@ -69,11 +71,15 @@ const MultiStepForm = () => {
     );
   };
 
+  const handleSubmitStep4 = () => {
+    methods.handleSubmit(submitForm)();
+  };
+
   return (
     <FormProvider {...methods}>
       <form
         noValidate
-        onSubmit={methods.handleSubmit(submitForm)}
+        onSubmit={e => e.preventDefault()}
         className="
           bg-white rounded-lg
           max-h-[80vh] overflow-y-auto
@@ -135,17 +141,23 @@ const MultiStepForm = () => {
               Siguiente
             </button>
           ) : (
-            <input
-              type="submit"
+            <button
+              type="button"
+              onClick={handleSubmitStep4}
+              disabled={isSubmitting}
               className="
                 bg-yellow text-black
                 py-2 px-4 rounded-md
                 uppercase font-bold
                 hover:bg-amber-500 cursor-pointer
                 transition-colors ml-auto
+                disabled:opacity-50 disabled:cursor-not-allowed
+                flex items-center gap-2
               "
-              value={activeEditingId ? "Actualizar" : "Registrar"}
-            />
+            >
+              {isSubmitting && <FaSpinner className="animate-spin" />}
+              {activeEditingId ? "Actualizar" : "Registrar"}
+            </button>
           )}
         </div>
       </form>

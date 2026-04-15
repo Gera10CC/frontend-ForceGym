@@ -26,7 +26,7 @@ function RoutineManagement() {
     resetEditing,
   } = useRoutineStore();
 
-  const { handleDelete, handleRestore, handleDuplicate, handleExportRoutine } = useRoutine();
+  const { handleDelete, handleRestore, handleDuplicate, handleExportRoutine, deletingId, restoringId } = useRoutine();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -104,6 +104,9 @@ function RoutineManagement() {
             handleExportRoutine={handleExportRoutine}
 
             showModalForm={showModalForm}
+            
+            deletingId={deletingId}
+            restoringId={restoringId}
           />
         </div>
       </main>

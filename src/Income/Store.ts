@@ -13,6 +13,8 @@ type EconomicIncomeStore = {
     modalInfo: boolean;
     modalFileTypeDecision: boolean;
     activeEditingId: EconomicIncome['idEconomicIncome'];
+    deletingId: number | null;
+    restoringId: number | null;
     size: number;
     page: number;
     totalRecords: number;
@@ -70,6 +72,8 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
         modalInfo: false,
         modalFileTypeDecision: false,
         activeEditingId: 0,
+        deletingId: null,
+        restoringId: null,
         size: 5,
         page: 1,
         totalRecords: 0,
@@ -252,11 +256,16 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
         },
 
         deleteEconomicIncome: async (id, loggedIdUser) => {
-            const result = await deleteData(`${import.meta.env.VITE_URL_API}economicIncome/delete/${id}`, loggedIdUser);
-            if (result?.ok) {
-                await useCommonDataStore.getState().refreshAllCommonData();
+            set({ deletingId: id });
+            try {
+                const result = await deleteData(`${import.meta.env.VITE_URL_API}economicIncome/delete/${id}`, loggedIdUser);
+                if (result?.ok) {
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
+                return result;
+            } finally {
+                set({ deletingId: null });
             }
-            return result;
         },
 
         resetEditing: () => set(() => ({ activeEditingId: 0 })),

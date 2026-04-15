@@ -20,6 +20,8 @@ type CategoryStore = {
     searchTerm: string;
     filterByStatus: string;
     isLoading: boolean;
+    deletingId: number | null;
+    restoringId: number | null;
 
     fetchCategories: () => Promise<any>;
     getCategoryById: (id: number) => void;
@@ -64,6 +66,9 @@ export const useCategoryStore = create<CategoryStore>()(
         searchType: 1,
         searchTerm: "",
         filterByStatus: "",
+        isLoading: false,
+        deletingId: null,
+        restoringId: null,
         fetchCategories: async () => {
             set({ isLoading: true });
             try {
@@ -163,18 +168,23 @@ export const useCategoryStore = create<CategoryStore>()(
         },
 
         deleteCategory: async (id, loggedIdUser) => {
-            const result = await deleteData(`${import.meta.env.VITE_URL_API}category/delete/${id}`, loggedIdUser);
-            if (result.ok) {
-                const state = get();
-                await state.fetchCategories();
-                
-                if (state.categories.length === 0 && state.page > 1) {
-                    set({ page: state.page - 1 });
-                    get().fetchCategories(); 
+            set({ deletingId: id });
+            try {
+                const result = await deleteData(`${import.meta.env.VITE_URL_API}category/delete/${id}`, loggedIdUser);
+                if (result.ok) {
+                    const state = get();
+                    await state.fetchCategories();
+                    
+                    if (state.categories.length === 0 && state.page > 1) {
+                        set({ page: state.page - 1 });
+                        get().fetchCategories(); 
+                    }
+                    await useCommonDataStore.getState().refreshAllCommonData();
                 }
-                await useCommonDataStore.getState().refreshAllCommonData();
+                return result;
+            } finally {
+                set({ deletingId: null });
             }
-            return result;
         },
 
         changeSize: (newSize) => {
