@@ -14,6 +14,7 @@ const MAXLENGTH_VOUCHER = 100;
 const MAXLENGTH_DETAIL = 100;
 const MINLENGTH_DETAIL = 5;
 const CASH_PAYMENT_ID = 2;
+const MIXED_PAYMENT_ID = 3;
 const MAXDATE = new Date().toUTCString();
 
 function Form() {
@@ -43,6 +44,27 @@ function Form() {
     const voucherNumber = watch("voucherNumber");
     const amount = watch("amount");
     const isCashPayment = idMeanOfPayment === CASH_PAYMENT_ID;
+    const isMixedPayment = idMeanOfPayment === MIXED_PAYMENT_ID;
+
+    // Estados para pago mixto
+    const [sinpeAmount, setSinpeAmount] = useState<number>(0);
+    const [cashAmount, setCashAmount] = useState<number>(0);
+
+    // Calcular el monto total cuando es pago mixto
+    useEffect(() => {
+        if (isMixedPayment) {
+            const total = (sinpeAmount || 0) + (cashAmount || 0);
+            setValue("amount", total);
+        }
+    }, [sinpeAmount, cashAmount, isMixedPayment, setValue]);
+
+    // Resetear montos cuando cambia el medio de pago
+    useEffect(() => {
+        if (!isMixedPayment) {
+            setSinpeAmount(0);
+            setCashAmount(0);
+        }
+    }, [isMixedPayment]);
 
     const submitForm = async (data: EconomicExpenseDataForm) => {
         
@@ -52,6 +74,23 @@ function Form() {
                 text: 'No se puede ingresar número de comprobante cuando el medio de pago es Efectivo',
                 icon: 'error'
             });
+        }
+
+        if (isMixedPayment) {
+            if (sinpeAmount <= 0 || cashAmount <= 0) {
+                return Swal.fire({
+                    title: "Error",
+                    text: "Para pago mixto, ambos montos (Sinpe y Efectivo) deben ser mayores a cero",
+                    icon: "error",
+                });
+            }
+            if (!data.voucherNumber || data.voucherNumber.trim() === "") {
+                return Swal.fire({
+                    title: "Error",
+                    text: "El voucher de Sinpe es obligatorio para pago mixto",
+                    icon: "error",
+                });
+            }
         }
 
         const selectedDate = new Date(data.registrationDate);
@@ -240,14 +279,20 @@ useEffect(() => {
                 <label className="text-sm uppercase font-bold">Voucher</label>
                 <input
                     type="text"
-                    placeholder={isCashPayment ? "No aplica para efectivo" : "Ingrese voucher"}
+                    placeholder={
+                        isCashPayment 
+                            ? "No aplica para efectivo" 
+                            : isMixedPayment
+                            ? "Ingrese el voucher de Sinpe"
+                            : "Ingrese voucher"
+                    }
                     disabled={isCashPayment}
                     className={`
                         w-full p-3 border rounded-md mt-1 
                         ${isCashPayment ? "bg-gray-100 border-gray-300" : "border-gray-200"}
                     `}
                     {...register("voucherNumber", {
-                        required: isCashPayment ? false : 'El voucher es obligatorio',
+                        required: (isCashPayment ? false : isMixedPayment ? 'El voucher de Sinpe es obligatorio' : 'El voucher es obligatorio'),
                         maxLength: {
                             value: MAXLENGTH_VOUCHER,
                             message: `Máximo ${MAXLENGTH_VOUCHER} caracteres`
@@ -280,14 +325,72 @@ useEffect(() => {
                 {errors.detail && <ErrorForm>{errors.detail.message}</ErrorForm>}
             </div>
 
+            {/* Campos para Pago Mixto */}
+            {isMixedPayment && (
+                <>
+                    <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+                        <h3 className="text-sm uppercase font-bold text-blue-800 mb-3">
+                            Desglose de Pago Mixto
+                        </h3>
+                        
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-sm font-semibold text-gray-700">
+                                    Monto Sinpe Móvil
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="₡0.00"
+                                    value={sinpeAmount || ""}
+                                    onChange={(e) => setSinpeAmount(parseFloat(e.target.value) || 0)}
+                                    className="w-full p-3 border border-blue-300 rounded-md mt-1 focus:ring-2 focus:ring-blue-500"
+                                    onWheel={(e) => e.currentTarget.blur()}
+                                    onKeyDown={(e) => {
+                                        if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+                                    }}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-semibold text-gray-700">
+                                    Monto Efectivo
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="₡0.00"
+                                    value={cashAmount || ""}
+                                    onChange={(e) => setCashAmount(parseFloat(e.target.value) || 0)}
+                                    className="w-full p-3 border border-blue-300 rounded-md mt-1 focus:ring-2 focus:ring-blue-500"
+                                    onWheel={(e) => e.currentTarget.blur()}
+                                    onKeyDown={(e) => {
+                                        if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
             <div>
-                <label className="text-sm uppercase font-bold">Monto</label>
+                <label className="text-sm uppercase font-bold">
+                    Monto {isMixedPayment && "Total"}
+                </label>
                 <input
                     type="number"
                     min="0"
                     step="1"
                     placeholder="Ingrese el monto"
-                    className="w-full p-3 border border-gray-200 rounded-md mt-1"
+                    readOnly={isMixedPayment}
+                    className={`w-full p-3 border rounded-md mt-1 ${
+                        isMixedPayment 
+                            ? "bg-gray-100 border-gray-300 font-bold text-lg" 
+                            : "border-gray-200"
+                    }`}
                     onWheel={(e) => e.currentTarget.blur()}
                     onKeyDown={(e) => {
                         if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
@@ -299,6 +402,11 @@ useEffect(() => {
                     })}
                 />
                 {errors.amount && <ErrorForm>{errors.amount.message}</ErrorForm>}
+                {isMixedPayment && (
+                    <p className="text-xs text-gray-600 mt-1">
+                        Calculado automáticamente: ₡{sinpeAmount.toLocaleString("es-CR")} (Sinpe) + ₡{cashAmount.toLocaleString("es-CR")} (Efectivo)
+                    </p>
+                )}
             </div>
 
             <button

@@ -21,6 +21,7 @@ const MINLENGTH_VOUCHER = 5;
 const MAXLENGTH_DETAIL = 100;
 const MINLENGTH_DETAIL = 5;
 const CASH_PAYMENT_ID = 2;
+const MIXED_PAYMENT_ID = 3;
 const MAXDATE = new Date().toUTCString();
 
 function Form() {
@@ -53,9 +54,30 @@ function Form() {
   const voucherNumber = watch("voucherNumber");
   const amount = watch("amount");
   const isCashPayment = idMeanOfPayment === CASH_PAYMENT_ID;
+  const isMixedPayment = idMeanOfPayment === MIXED_PAYMENT_ID;
   const hasDelay = watch("hasDelay");
   const idClient = watch("idClient");
   const idActivityType = watch("idActivityType");
+
+  // Estados para pago mixto
+  const [sinpeAmount, setSinpeAmount] = useState<number>(0);
+  const [cashAmount, setCashAmount] = useState<number>(0);
+
+  // Calcular el monto total cuando es pago mixto
+  useEffect(() => {
+    if (isMixedPayment) {
+      const total = (sinpeAmount || 0) + (cashAmount || 0);
+      setValue("amount", total);
+    }
+  }, [sinpeAmount, cashAmount, isMixedPayment, setValue]);
+
+  // Resetear montos cuando cambia el medio de pago
+  useEffect(() => {
+    if (!isMixedPayment) {
+      setSinpeAmount(0);
+      setCashAmount(0);
+    }
+  }, [isMixedPayment]);
 
   const submitForm = async (data: EconomicIncomeDataForm) => {
     if (!data.idClient) {
@@ -72,6 +94,23 @@ function Form() {
         text: "No se puede ingresar número de comprobante cuando el medio de pago es efectivo",
         icon: "error",
       });
+    }
+
+    if (isMixedPayment) {
+      if (sinpeAmount <= 0 || cashAmount <= 0) {
+        return Swal.fire({
+          title: "Error",
+          text: "Para pago mixto, ambos montos (Sinpe y Efectivo) deben ser mayores a cero",
+          icon: "error",
+        });
+      }
+      if (!data.voucherNumber || data.voucherNumber.trim() === "") {
+        return Swal.fire({
+          title: "Error",
+          text: "El voucher de Sinpe es obligatorio para pago mixto",
+          icon: "error",
+        });
+      }
     }
 
     if (data.amount <= 0) {
@@ -325,7 +364,11 @@ function Form() {
         <input
           type="text"
           placeholder={
-            isCashPayment ? "No aplica para efectivo" : "Ingrese el voucher"
+            isCashPayment 
+              ? "No aplica para efectivo" 
+              : isMixedPayment
+              ? "Ingrese el voucher de Sinpe"
+              : "Ingrese el voucher"
           }
           disabled={isCashPayment}
           className={`
@@ -334,7 +377,7 @@ function Form() {
           `}
           {...register("voucherNumber", {
             required:
-              idMeanOfPayment === 1 ? "El voucher es obligatorio" : false,
+              idMeanOfPayment === 1 || isMixedPayment ? "El voucher es obligatorio" : false,
             minLength: {
               value: MINLENGTH_VOUCHER,
               message: `Mínimo ${MINLENGTH_VOUCHER} caracteres`,
@@ -375,13 +418,71 @@ function Form() {
         {errors.detail && <ErrorForm>{errors.detail.message}</ErrorForm>}
       </div>
 
+      {/* Campos para Pago Mixto */}
+      {isMixedPayment && (
+        <>
+          <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+            <h3 className="text-sm uppercase font-bold text-blue-800 mb-3">
+              Desglose de Pago Mixto
+            </h3>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Monto Sinpe Móvil
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="₡0.00"
+                  value={sinpeAmount || ""}
+                  onChange={(e) => setSinpeAmount(parseFloat(e.target.value) || 0)}
+                  className="w-full p-3 border border-blue-300 rounded-md mt-1 focus:ring-2 focus:ring-blue-500"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  onKeyDown={(e) => {
+                    if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Monto Efectivo
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="₡0.00"
+                  value={cashAmount || ""}
+                  onChange={(e) => setCashAmount(parseFloat(e.target.value) || 0)}
+                  className="w-full p-3 border border-blue-300 rounded-md mt-1 focus:ring-2 focus:ring-blue-500"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  onKeyDown={(e) => {
+                    if (["-", "e", "E"].includes(e.key)) e.preventDefault();
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       <div>
-        <label className="text-sm uppercase font-bold">Monto</label>
+        <label className="text-sm uppercase font-bold">
+          Monto {isMixedPayment && "Total"}
+        </label>
         <input
           type="number"
           min="0"
           placeholder="Ingrese el monto"
-          className="w-full p-3 border border-gray-200 rounded-md mt-1"
+          readOnly={isMixedPayment}
+          className={`w-full p-3 border rounded-md mt-1 ${
+            isMixedPayment 
+              ? "bg-gray-100 border-gray-300 font-bold text-lg" 
+              : "border-gray-200"
+          }`}
           onWheel={(e) => e.currentTarget.blur()}
           onKeyDown={(e) => {
             if (["-", "e", "E"].includes(e.key)) e.preventDefault();
@@ -393,6 +494,11 @@ function Form() {
           })}
         />
         {errors.amount && <ErrorForm>{errors.amount.message}</ErrorForm>}
+        {isMixedPayment && (
+          <p className="text-xs text-gray-600 mt-1">
+            Calculado automáticamente: ₡{sinpeAmount.toLocaleString("es-CR")} (Sinpe) + ₡{cashAmount.toLocaleString("es-CR")} (Efectivo)
+          </p>
+        )}
       </div>
 
       <button
