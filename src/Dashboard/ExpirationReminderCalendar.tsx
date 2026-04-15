@@ -29,7 +29,7 @@ const MONTHS = [
 const DAYS_OF_WEEK = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
-function MembershipCalendar() {
+function ExpirationReminderCalendar() {
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
@@ -44,41 +44,15 @@ function MembershipCalendar() {
   const fetchExpirations = async () => {
     setLoading(true);
     try {
-      const result = await getData(`${import.meta.env.VITE_URL_API}client/membership-expirations?year=${currentYear}&month=${currentMonth}`);
+      const result = await getData(`${import.meta.env.VITE_URL_API}client/expiration-reminders?year=${currentYear}&month=${currentMonth}`);
       if (result.ok && result.data) {
         setExpirationData(result.data);
       }
     } catch (error) {
-      console.error('Error fetching expirations:', error);
+      console.error('Error fetching expiration reminders:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatExpirationDate = (expirationDateStr: string) => {
-    const [year, month, day] = expirationDateStr.split('-').map(Number);
-    const expirationDate = new Date(year, month - 1, day);
-    const dayName = DAY_NAMES[expirationDate.getDay()];
-    const monthName = MONTHS[month - 1].toLowerCase();
-    
-    return `${dayName} ${day.toString().padStart(2, '0')} de ${monthName}`;
-  };
-
-  const sendWhatsAppReminder = (client: ClientExpiration) => {
-    if (!client.phone) {
-      alert('Este cliente no tiene número de teléfono registrado');
-      return;
-    }
-
-    const formattedDate = formatExpirationDate(client.expirationDate);
-    const message = `RECORDATORIO : Buen día. Force Gym Full Fitness le recuerda que su mensualidad vence hoy ${formattedDate}. Muchas gracias. ¡FORCE GYM FULL FITNESS, TU MEJOR ELECCIÓN!`;
-    
-    // Limpiar el número de teléfono (remover espacios, guiones, etc)
-    const phoneNumber = client.phone.replace(/\D/g, '');
-    
-    // Abrir WhatsApp con el mensaje
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
   };
 
   const goToPreviousMonth = () => {
@@ -109,6 +83,32 @@ function MembershipCalendar() {
     return new Date(year, month - 1, 1).getDay();
   };
 
+  const formatExpirationDate = (expirationDateStr: string) => {
+    const [year, month, day] = expirationDateStr.split('-').map(Number);
+    const expirationDate = new Date(year, month - 1, day);
+    const dayName = DAY_NAMES[expirationDate.getDay()];
+    const monthName = MONTHS[month - 1].toLowerCase();
+    
+    return `${dayName} ${day.toString().padStart(2, '0')} de ${monthName}`;
+  };
+
+  const sendWhatsAppReminder = (client: ClientExpiration) => {
+    if (!client.phone) {
+      alert('Este cliente no tiene número de teléfono registrado');
+      return;
+    }
+
+    const formattedDate = formatExpirationDate(client.expirationDate);
+    const message = `RECORDATORIO : Buen día. Force Gym Full Fitness le recuerda que su mensualidad vence el día de mañana ${formattedDate}. Muchas gracias. ¡FORCE GYM FULL FITNESS, TU MEJOR ELECCIÓN!`;
+    
+    // Limpiar el número de teléfono (remover espacios, guiones, etc)
+    const phoneNumber = client.phone.replace(/\D/g, '');
+    
+    // Abrir WhatsApp con el mensaje
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
     const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
@@ -122,7 +122,7 @@ function MembershipCalendar() {
     // Días del mes
     for (let day = 1; day <= daysInMonth; day++) {
       const clientsForDay = expirationData?.clientsByDay[day] || [];
-      const hasExpirations = clientsForDay.length > 0;
+      const hasReminders = clientsForDay.length > 0;
       const isToday = day === today.getDate() && 
                       currentMonth === today.getMonth() + 1 && 
                       currentYear === today.getFullYear();
@@ -131,21 +131,21 @@ function MembershipCalendar() {
       days.push(
         <div
           key={day}
-          onClick={() => hasExpirations && setSelectedDay(day)}
+          onClick={() => hasReminders && setSelectedDay(day)}
           className={`
             h-10 sm:h-12 flex flex-col items-center justify-center rounded-lg text-sm
             transition-all duration-200 relative
-            ${hasExpirations ? 'cursor-pointer hover:bg-yellow-100' : ''}
-            ${isSelected ? 'bg-yellow-400 text-black font-bold' : ''}
-            ${isToday && !isSelected ? 'border-2 border-yellow-500' : ''}
-            ${hasExpirations && !isSelected ? 'bg-red-100 text-red-800 font-semibold' : ''}
+            ${hasReminders ? 'cursor-pointer hover:bg-orange-100' : ''}
+            ${isSelected ? 'bg-orange-400 text-white font-bold' : ''}
+            ${isToday && !isSelected ? 'border-2 border-orange-500' : ''}
+            ${hasReminders && !isSelected ? 'bg-orange-100 text-orange-800 font-semibold' : ''}
           `}
         >
           <span>{day}</span>
-          {hasExpirations && (
+          {hasReminders && (
             <span className={`
               text-xs px-1.5 py-0.5 rounded-full mt-0.5
-              ${isSelected ? 'bg-black text-yellow-400' : 'bg-red-500 text-white'}
+              ${isSelected ? 'bg-white text-orange-400' : 'bg-orange-500 text-white'}
             `}>
               {clientsForDay.length}
             </span>
@@ -162,7 +162,7 @@ function MembershipCalendar() {
   return (
     <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
       <h2 className="text-lg sm:text-xl font-semibold text-center mb-4">
-        Vencimientos de Membresía
+        Recordatorios de Vencimiento
       </h2>
 
       {/* Navegación del mes */}
@@ -187,13 +187,13 @@ function MembershipCalendar() {
       {/* Resumen */}
       {expirationData && (
         <div className="text-center text-sm text-gray-600 mb-3">
-          Total de vencimientos este mes: <span className="font-bold text-red-600">{expirationData.totalClients}</span>
+          Clientes a recordar este mes: <span className="font-bold text-orange-600">{expirationData.totalClients}</span>
         </div>
       )}
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
         </div>
       ) : (
         <>
@@ -214,13 +214,17 @@ function MembershipCalendar() {
           {/* Leyenda */}
           <div className="flex justify-center gap-4 mt-4 text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-4 h-4 bg-red-100 rounded"></div>
-              <span>Con vencimientos</span>
+              <div className="w-4 h-4 bg-orange-100 rounded"></div>
+              <span>Vencen mañana</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-4 h-4 border-2 border-yellow-500 rounded"></div>
+              <div className="w-4 h-4 border-2 border-orange-500 rounded"></div>
               <span>Hoy</span>
             </div>
+          </div>
+          
+          <div className="text-center text-xs text-gray-500 mt-2">
+            * Muestra clientes cuya membresía vence al día siguiente
           </div>
         </>
       )}
@@ -255,19 +259,19 @@ function MembershipCalendar() {
                   {/* Botón cerrar */}
                   <button
                     onClick={() => setSelectedDay(null)}
-                    className="absolute top-3 right-3 text-3xl text-gray-600 hover:text-white transition z-10"
+                    className="absolute top-3 right-3 text-3xl text-gray-600 hover:text-orange-600 transition z-10"
                     aria-label="Cerrar"
                   >
                     <MdOutlineCancel />
                   </button>
 
                   {/* Header */}
-                  <div className="bg-yellow text-black px-6 py-4 pr-12">
+                  <div className="bg-orange-400 text-white px-6 py-4 pr-12">
                     <h3 className="font-bold text-lg">
-                      Vencimientos del {selectedDay} de {MONTHS[currentMonth - 1]}
+                      Recordatorios del {selectedDay} de {MONTHS[currentMonth - 1]}
                     </h3>
-                    <p className="text-sm opacity-80 mt-1">
-                      {selectedClients.length} cliente{selectedClients.length !== 1 ? 's' : ''}
+                    <p className="text-sm opacity-90 mt-1">
+                      {selectedClients.length} cliente{selectedClients.length !== 1 ? 's' : ''} - Vencen mañana
                     </p>
                   </div>
                   
@@ -292,8 +296,8 @@ function MembershipCalendar() {
                                 <span>{client.clientType}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-red-600 font-semibold">
-                                  Vence: {formatExpirationDate(client.expirationDate)}
+                                <span className="text-orange-600 font-semibold">
+                                  Vence el {formatExpirationDate(client.expirationDate)}
                                 </span>
                               </div>
                             </div>
@@ -322,4 +326,4 @@ function MembershipCalendar() {
   );
 }
 
-export default MembershipCalendar;
+export default ExpirationReminderCalendar;

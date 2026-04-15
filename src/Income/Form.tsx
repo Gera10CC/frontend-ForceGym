@@ -4,7 +4,7 @@ import Select from "react-select";
 import { EconomicIncomeDataForm } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import useEconomicIncomeStore from "./Store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { formatDate } from "../shared/utils/format";
 import {
@@ -14,6 +14,7 @@ import {
 } from "../shared/utils/authentication";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import SearchSelect from "../shared/components/SearchSelect";
+import { FaSpinner } from 'react-icons/fa';
 
 const MAXLENGTH_VOUCHER = 100;
 const MINLENGTH_VOUCHER = 5;
@@ -24,6 +25,7 @@ const MAXDATE = new Date().toUTCString();
 
 function Form() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
@@ -80,23 +82,25 @@ function Form() {
       });
     }
 
-    let action = "";
-    let result;
+    setIsSubmitting(true);
+    try {
+      let action = "";
+      let result;
 
-    const loggedUser = getAuthUser();
-    const reqUser = {
-      ...data,
-      delayDays: data.hasDelay ? data.delayDays : null,
-      paramLoggedIdUser: loggedUser?.idUser,
-    };
+      const loggedUser = getAuthUser();
+      const reqUser = {
+        ...data,
+        delayDays: data.hasDelay ? data.delayDays : null,
+        paramLoggedIdUser: loggedUser?.idUser,
+      };
 
-    if (activeEditingId === 0) {
-      result = await addEconomicIncome(reqUser);
-      action = "agregado";
-    } else {
-      result = await updateEconomicIncome(reqUser);
-      action = "editado";
-    }
+      if (activeEditingId === 0) {
+        result = await addEconomicIncome(reqUser);
+        action = "agregado";
+      } else {
+        result = await updateEconomicIncome(reqUser);
+        action = "editado";
+      }
 
     if (result.ok) {
       const result2 = await fetchEconomicIncomes();
@@ -121,6 +125,9 @@ function Form() {
       setAuthHeader(null);
       setAuthUser(null);
       navigate("/login");
+    }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -388,14 +395,24 @@ function Form() {
         {errors.amount && <ErrorForm>{errors.amount.message}</ErrorForm>}
       </div>
 
-      <input
+      <button
         type="submit"
-        value={activeEditingId ? "Actualizar" : "Registrar"}
-        className="
-          bg-yellow text-black w-full p-3 rounded-md uppercase 
-          font-bold hover:bg-amber-500 mt-4 cursor-pointer transition-colors
-        "
-      />
+        disabled={isSubmitting}
+        className={`w-full p-3 rounded-md uppercase font-bold mt-4 transition-colors flex items-center justify-center gap-2 ${
+          isSubmitting
+            ? 'bg-gray-400 cursor-not-allowed text-gray-700'
+            : 'bg-yellow text-black hover:bg-amber-500 cursor-pointer'
+        }`}
+      >
+        {isSubmitting ? (
+          <>
+            <FaSpinner className="animate-spin" />
+            {activeEditingId ? "Actualizando..." : "Registrando..."}
+          </>
+        ) : (
+          activeEditingId ? "Actualizar" : "Registrar"
+        )}
+      </button>
     </form>
   );
 }

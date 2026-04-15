@@ -60,6 +60,8 @@ export default function MeasurementManagement() {
     tableColumn,
     tableRows,
     clientData,
+    deletingId,
+    restoringId,
   } = useMeasurement();
 
   // Estado para modal de importación
@@ -240,6 +242,8 @@ export default function MeasurementManagement() {
             handleRestore={handleRestore}
             changePage={changePage}
             changeSize={changeSize}
+            deletingId={deletingId}
+            restoringId={restoringId}
           />
         </div>
       </main>

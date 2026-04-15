@@ -66,7 +66,9 @@ export default function EconomicIncomeManagement() {
     pdfTableHeaders,
     pdfTableRows,
     mapIncomeToRow,
-    fetchEconomicIncomeByActiveFilters
+    fetchEconomicIncomeByActiveFilters,
+    deletingId,
+    restoringId
   } = useEconomicIncome();
 
   const navigate = useNavigate();
@@ -257,6 +259,8 @@ export default function EconomicIncomeManagement() {
               handleRestore={handleRestore}
               changePage={changePage}
               changeSize={changeSize}
+              deletingId={deletingId}
+              restoringId={restoringId}
             />
           )}
         </div>

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import Select from 'react-select';
-import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown, FaSpinner } from 'react-icons/fa';
 import { ExerciseCategory, RoutineDataForm, RoutineWithExercisesDTO } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
@@ -60,6 +60,7 @@ function Form() {
   const [selectedExercises, setSelectedExercises] = useState<SelectedExercise[]>([]);
   const [selectedClients, setSelectedClients] = useState<ClientOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderedCategories, setOrderedCategories] = useState<ExerciseCategory[]>([]);
   const [numberOfDays, setNumberOfDays] = useState<number>(1);
   const [activeDay, setActiveDay] = useState<number>(1);
@@ -324,6 +325,8 @@ function Form() {
       return;
     }
 
+    setIsSubmitting(true);
+    try {
     const reqRoutine: RoutineWithExercisesDTO = {
       name: data.name,
       date: new Date().toISOString(),
@@ -353,7 +356,6 @@ function Form() {
       paramLoggedIdUser: loggedUser?.idUser
     };
 
-    try {
       let result;
       let action = '';
 
@@ -386,6 +388,14 @@ function Form() {
         resetForm();
       } else if (result?.logout) {
         handleLogout();
+      } else {
+        Swal.fire({
+          title: 'Error al guardar',
+          text: result?.error || result?.message || 'Ocurrió un error inesperado al guardar la rutina.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#CFAD04'
+        });
       }
     } catch (error) {
       console.error("Error al guardar la rutina:", error);
@@ -396,6 +406,8 @@ function Form() {
         confirmButtonText: 'OK',
         confirmButtonColor: '#CFAD04'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -988,16 +1000,29 @@ function Form() {
         )}
       </div>
 
-      <input
+      <button
         type="submit"
-        className="bg-yellow w-full p-3 text-white uppercase font-bold hover:bg-amber-600 cursor-pointer transition-colors disabled:opacity-50"
-        value={activeEditingId ? 'Actualizar' : 'Crear'}
         disabled={
           loading ||
+          isSubmitting ||
           selectedClients.length === 0 ||
           selectedExercises.filter(ex => ex.idExercise > 0).length === 0
         }
-      />
+        className={`w-full p-3 uppercase font-bold transition-colors flex items-center justify-center gap-2 ${
+          loading || isSubmitting || selectedClients.length === 0 || selectedExercises.filter(ex => ex.idExercise > 0).length === 0
+            ? 'bg-gray-400 cursor-not-allowed text-gray-700 opacity-50'
+            : 'bg-yellow text-white hover:bg-amber-600 cursor-pointer'
+        }`}
+      >
+        {isSubmitting ? (
+          <>
+            <FaSpinner className="animate-spin" />
+            {activeEditingId ? "Actualizando..." : "Creando..."}
+          </>
+        ) : (
+          activeEditingId ? 'Actualizar' : 'Crear'
+        )}
+      </button>
     </form>
   );
 }

@@ -14,7 +14,9 @@ export const useRoutine = () => {
         deleteRoutine, 
         updateRoutine,
         getRoutineById,
-        duplicateRoutine
+        duplicateRoutine,
+        deletingId,
+        restoringId
     } = useRoutineStore();
 
     const handleDelete = async ({ idRoutine, name }: Routine) => {
@@ -199,6 +201,8 @@ export const useRoutine = () => {
         handleDelete,
         handleRestore,
         handleDuplicate,
-        handleExportRoutine
+        handleExportRoutine,
+        deletingId,
+        restoringId
     };
 };

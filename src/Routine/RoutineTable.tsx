@@ -1,5 +1,6 @@
 import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore, MdOutlineFileDownload, MdContentCopy } from "react-icons/md";
 import { IoIosMore } from "react-icons/io";
+import { FaSpinner } from "react-icons/fa";
 import Modal from "../shared/components/Modal";
 import NoData from "../shared/components/NoData";
 import DataInfo from "./DataInfo";
@@ -19,6 +20,8 @@ interface RoutineTableProps {
   handleExportRoutine: (idRoutine: number, routineName: string) => Promise<void>;
 
   showModalForm: () => void;
+  deletingId?: number | null;
+  restoringId?: number | null;
 }
 
 function RoutineTable({
@@ -34,7 +37,9 @@ function RoutineTable({
   handleRestore,
   handleExportRoutine,
 
-  showModalForm
+  showModalForm,
+  deletingId,
+  restoringId
 }: RoutineTableProps) {
 
   return (
@@ -103,18 +108,28 @@ function RoutineTable({
                         {routine.isDeleted ? (
                           <button
                             onClick={() => handleRestore(routine)}
-                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
                             title="Restaurar"
+                            disabled={restoringId === routine.idRoutine}
                           >
-                            <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                            {restoringId === routine.idRoutine ? (
+                              <FaSpinner className="text-white text-sm sm:text-base animate-spin" />
+                            ) : (
+                              <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                            )}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDelete(routine)}
-                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
                             title="Eliminar"
+                            disabled={deletingId === routine.idRoutine}
                           >
-                            <MdOutlineDelete className="text-white text-sm sm:text-base" />
+                            {deletingId === routine.idRoutine ? (
+                              <FaSpinner className="text-white text-sm sm:text-base animate-spin" />
+                            ) : (
+                              <MdOutlineDelete className="text-white text-sm sm:text-base" />
+                            )}
                           </button>
                         )}
 

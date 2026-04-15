@@ -4,9 +4,10 @@ import { MeasurementDataForm } from "../shared/types";
 import { mapMeasurementToDataForm } from "../shared/types/mapper";
 import ErrorForm from "../shared/components/ErrorForm";
 import useMeasurementStore from "./Store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
+import { FaSpinner } from 'react-icons/fa';
 
 const MAXDATE = new Date().toUTCString()
 
@@ -14,6 +15,7 @@ function Form() {
   const navigate = useNavigate();
   const location = useLocation();
   const idClient = location.state?.idClient;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -38,28 +40,30 @@ function Form() {
   } = useMeasurementStore();
 
   const submitForm = async (data: MeasurementDataForm) => {
-    const loggedUser = getAuthUser();
+    setIsSubmitting(true);
+    try {
+      const loggedUser = getAuthUser();
 
-    const reqUser = {
-      ...data,
-      idClient: data.idClient || idClient,
-      idUser: loggedUser?.idUser,
-      paramLoggedIdUser: loggedUser?.idUser,
-    };
+      const reqUser = {
+        ...data,
+        idClient: data.idClient || idClient,
+        idUser: loggedUser?.idUser,
+        paramLoggedIdUser: loggedUser?.idUser,
+      };
 
-    let action = "";
-    let result;
+      let action = "";
+      let result;
 
-    if (activeEditingId === 0) {
-      result = await addMeasurement(reqUser);
-      action = "agregada";
-    } else {
-      result = await updateMeasurement(reqUser);
-      action = "editada";
-    }
+      if (activeEditingId === 0) {
+        result = await addMeasurement(reqUser);
+        action = "agregada";
+      } else {
+        result = await updateMeasurement(reqUser);
+        action = "editada";
+      }
 
-    closeModalForm();
-    reset();
+      closeModalForm();
+      reset();
 
     if (result.ok) {
       const result2 = await fetchMeasurements();
@@ -80,6 +84,9 @@ function Form() {
         });
       }
     }
+  } finally {
+    setIsSubmitting(false);
+  }
   };
 
   // Función para calcular edad
@@ -414,15 +421,24 @@ function Form() {
         </div>
       </div>
 
-      <input
+      <button
         type="submit"
-        value={activeEditingId ? "Actualizar" : "Registrar"}
-        className="
-          bg-yellow text-black w-full p-3 rounded-md 
-          uppercase font-bold hover:bg-amber-500 mt-6 
-          transition-colors cursor-pointer
-        "
-      />
+        disabled={isSubmitting}
+        className={`w-full p-3 uppercase font-bold transition-colors flex items-center justify-center gap-2 rounded-md mt-6 ${
+          isSubmitting
+            ? 'bg-gray-400 cursor-not-allowed text-gray-700 opacity-50'
+            : 'bg-yellow text-black hover:bg-amber-500 cursor-pointer'
+        }`}
+      >
+        {isSubmitting ? (
+          <>
+            <FaSpinner className="animate-spin" />
+            {activeEditingId ? "Actualizando..." : "Registrando..."}
+          </>
+        ) : (
+          activeEditingId ? 'Actualizar' : 'Registrar'
+        )}
+      </button>
     </form>
   );
 }

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { setAuthHeader, setAuthUser } from "../shared/utils/authentication";
 import MembershipCalendar from "./MembershipCalendar";
 import BirthdayCalendar from "./BirthdayCalendar";
+import ExpirationReminderCalendar from "./ExpirationReminderCalendar";
 
 function DashboardManagement() {
   const {
@@ -205,6 +206,9 @@ function DashboardManagement() {
           {/* Calendario de Cumpleaños */}
           <BirthdayCalendar />
         </div>
+
+        {/* Calendario de Recordatorios */}
+        <ExpirationReminderCalendar />
       </main>
 
       {/* Notificaciones Modal */}

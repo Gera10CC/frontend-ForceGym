@@ -17,7 +17,9 @@ export const useEconomicIncome = () => {
         changeOrderBy, 
         changeDirectionOrderBy, 
         directionOrderBy, 
-        fetchEconomicIncomeByActiveFilters 
+        fetchEconomicIncomeByActiveFilters,
+        deletingId,
+        restoringId
     } = useEconomicIncomeStore()
 
     // --------------------------
@@ -106,27 +108,32 @@ export const useEconomicIncome = () => {
             reverseButtons: true
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await updateEconomicIncome(reqEconomicIncome)
+                useEconomicIncomeStore.setState({ restoringId: economicIncome.idEconomicIncome });
+                try {
+                    const response = await updateEconomicIncome(reqEconomicIncome)
 
-                if (response.ok) {
-                    Swal.fire({
-                        title: 'Ingreso restaurado',
-                        text: `Se ha restaurado el ingreso con comprobante N° ${economicIncome.voucherNumber}`,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        width: 500,
-                        confirmButtonColor: '#CFAD04'
-                    })
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Ingreso restaurado',
+                            text: `Se ha restaurado el ingreso con comprobante N° ${economicIncome.voucherNumber}`,
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            width: 500,
+                            confirmButtonColor: '#CFAD04'
+                        })
 
-                    fetchEconomicIncomes()
-                }
+                        fetchEconomicIncomes()
+                    }
 
-                if (response.logout) {
-                    setAuthHeader(null)
-                    setAuthUser(null)
-                    navigate('/login', { replace: true })
+                    if (response.logout) {
+                        setAuthHeader(null)
+                        setAuthUser(null)
+                        navigate('/login', { replace: true })
+                    }
+                } finally {
+                    useEconomicIncomeStore.setState({ restoringId: null });
                 }
             }
         })
@@ -180,6 +187,8 @@ export const useEconomicIncome = () => {
         pdfTableHeaders,
         pdfTableRows,
         mapIncomeToRow,
-        fetchEconomicIncomeByActiveFilters
+        fetchEconomicIncomeByActiveFilters,
+        deletingId,
+        restoringId
     }
 }

@@ -64,7 +64,9 @@ export default function EconomicExpenseManagement() {
     pdfTableHeaders,
     pdfTableRows,
     mapExpenseToRow,
-    fetchEconomicExpenseByActiveFilters
+    fetchEconomicExpenseByActiveFilters,
+    deletingId,
+    restoringId
   } = useEconomicExpense();
 
   const navigate = useNavigate();
@@ -242,6 +244,8 @@ export default function EconomicExpenseManagement() {
               handleRestore={handleRestore}
               changePage={changePage}
               changeSize={changeSize}
+              deletingId={deletingId}
+              restoringId={restoringId}
             />
           )}
         </div>

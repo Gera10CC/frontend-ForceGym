@@ -3,14 +3,16 @@ import Swal from 'sweetalert2';
 import { CategoryDataForm } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import useCategoryStore from "./Store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
+import { FaSpinner } from 'react-icons/fa';
 
 const MAXLENGTH_NAME = 100;
 
 function FormCategory() {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<CategoryDataForm>();
   const {
     categories,
@@ -22,14 +24,16 @@ function FormCategory() {
   } = useCategoryStore();
 
   const submitForm = async (data: CategoryDataForm) => {
-    const loggedUser = getAuthUser();
+    setIsSubmitting(true);
+    try {
+      const loggedUser = getAuthUser();
 
-    if (!loggedUser) {
-      setAuthHeader(null);
-      setAuthUser(null);
-      navigate("/login");
-      return;
-    }
+      if (!loggedUser) {
+        setAuthHeader(null);
+        setAuthUser(null);
+        navigate("/login");
+        return;
+      }
 
     const reqData = {
       ...data,
@@ -72,6 +76,9 @@ function FormCategory() {
       setAuthHeader(null);
       setAuthUser(null);
       navigate("/login");
+    }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,11 +128,24 @@ function FormCategory() {
         {errors.name && <ErrorForm>{errors.name.message}</ErrorForm>}
       </div>
 
-      <input
+      <button
         type="submit"
-        className="bg-yellow w-full p-3 text-white uppercase font-bold hover:bg-amber-600 cursor-pointer transition-colors"
-        value={activeEditingId ? "Actualizar" : "Registrar"}
-      />
+        disabled={isSubmitting}
+        className={`w-full p-3 text-white uppercase font-bold transition-colors flex items-center justify-center gap-2 ${
+          isSubmitting 
+            ? 'bg-gray-400 cursor-not-allowed' 
+            : 'bg-yellow hover:bg-amber-600 cursor-pointer'
+        }`}
+      >
+        {isSubmitting ? (
+          <>
+            <FaSpinner className="animate-spin" />
+            {activeEditingId ? "Actualizando..." : "Registrando..."}
+          </>
+        ) : (
+          activeEditingId ? "Actualizar" : "Registrar"
+        )}
+      </button>
     </form>
   );
 }

@@ -77,6 +77,8 @@ export default function ClientManagement() {
     handleRestore,
     pdfTableHeaders,
     pdfTableRows,
+    deletingId,
+    restoringId
   } = useClient();
 
   const navigate = useNavigate();
@@ -230,6 +232,8 @@ export default function ClientManagement() {
             handleRestore={handleRestore}
             changePage={changePage}
             changeSize={changeSize}
+            deletingId={deletingId}
+            restoringId={restoringId}
           />
         </div>
       </main>

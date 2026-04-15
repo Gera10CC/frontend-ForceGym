@@ -4,7 +4,7 @@ import {
   MdOutlineSettingsBackupRestore,
   MdDeleteForever,
 } from "react-icons/md";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaSpinner } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
 import { LuPencilRuler } from "react-icons/lu";
 import { Dumbbell } from "lucide-react";
@@ -38,6 +38,8 @@ interface ClientTableProps {
   handleRestore: (client: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
+  deletingId?: number | null;
+  restoringId?: number | null;
 }
 
 function ClientTable({
@@ -59,6 +61,8 @@ function ClientTable({
   handleRestore,
   changePage,
   changeSize,
+  deletingId,
+  restoringId,
 }: ClientTableProps) {
   return (
     <div className="w-full mt-4">
@@ -223,10 +227,15 @@ function ClientTable({
                               onClick={() =>
                                 handleRestore(mapClientToDataForm(client))
                               }
-                              className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                              className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
                               title="Restaurar"
+                              disabled={restoringId === client.idClient}
                             >
-                              <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                              {restoringId === client.idClient ? (
+                                <FaSpinner className="text-white text-sm sm:text-base animate-spin" />
+                              ) : (
+                                <MdOutlineSettingsBackupRestore className="text-white text-sm sm:text-base" />
+                              )}
                             </button>
                             <button
                               onClick={() => handleDeletePermanently(client)}
@@ -239,10 +248,15 @@ function ClientTable({
                         ) : (
                           <button
                             onClick={() => handleDelete(client)}
-                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-1.5 sm:p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
                             title="Eliminar"
+                            disabled={deletingId === client.idClient}
                           >
-                            <MdOutlineDelete className="text-white text-sm sm:text-base" />
+                            {deletingId === client.idClient ? (
+                              <FaSpinner className="text-white text-sm sm:text-base animate-spin" />
+                            ) : (
+                              <MdOutlineDelete className="text-white text-sm sm:text-base" />
+                            )}
                           </button>
                         )}
                       </div>

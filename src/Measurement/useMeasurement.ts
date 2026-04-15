@@ -22,6 +22,8 @@ export const useMeasurement = () => {
     changeOrderBy,
     changeDirectionOrderBy,
     directionOrderBy,
+    deletingId,
+    restoringId,
   } = useMeasurementStore();
 
   const handleDelete = async (measurement: Measurement) => {
@@ -110,29 +112,34 @@ export const useMeasurement = () => {
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const response = await updateMeasurement(reqMeasurement);
+        useMeasurementStore.setState({ restoringId: measurement.idMeasurement });
+        try {
+          const response = await updateMeasurement(reqMeasurement);
 
-        if (response.ok) {
-          Swal.fire({
-            title: "Medición restaurada",
-            text: `Se ha restaurado la medición del ${formatDateFromString(
-              measurement.measurementDate
-            )}`,
+          if (response.ok) {
+            Swal.fire({
+              title: "Medición restaurada",
+              text: `Se ha restaurado la medición del ${formatDateFromString(
+                measurement.measurementDate
+              )}`,
 
-            icon: "success",
-            confirmButtonText: "OK",
-            timer: 3000,
-            timerProgressBar: true,
-            width: 500,
-            confirmButtonColor: "#CFAD04",
-          });
-          fetchMeasurements();
-        }
+              icon: "success",
+              confirmButtonText: "OK",
+              timer: 3000,
+              timerProgressBar: true,
+              width: 500,
+              confirmButtonColor: "#CFAD04",
+            });
+            fetchMeasurements();
+          }
 
-        if (response.logout) {
-          setAuthHeader(null);
-          setAuthUser(null);
-          navigate("/login", { replace: true });
+          if (response.logout) {
+            setAuthHeader(null);
+            setAuthUser(null);
+            navigate("/login", { replace: true });
+          }
+        } finally {
+          useMeasurementStore.setState({ restoringId: null });
         }
       }
     });
@@ -238,5 +245,7 @@ export const useMeasurement = () => {
     tableColumn,
     tableRows,
     clientData,
+    deletingId,
+    restoringId,
   };
 };

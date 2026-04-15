@@ -14,7 +14,9 @@ export const useCategory = () => {
         changeDirectionOrderBy, 
         setOrder,
         directionOrderBy,
-        orderBy
+        orderBy,
+        deletingId,
+        restoringId
     } = useCategoryStore()
 
     const handleDelete = async ({ idCategory, name } : Category) => {
@@ -92,25 +94,30 @@ export const useCategory = () => {
             reverseButtons: true
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await updateCategory(reqCategory)
+                useCategoryStore.setState({ restoringId: category.idCategory });
+                try {
+                    const response = await updateCategory(reqCategory)
 
-                if(response.ok){
-                    Swal.fire({
-                        title: 'Categoría restaurada',
-                        text: `Se ha restaurado la categoría ${category.name}`,
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        timer: 3000,
-                        timerProgressBar: true,
-                        width: 500,
-                        confirmButtonColor: '#CFAD04'
-                    })
-                }
+                    if(response.ok){
+                        Swal.fire({
+                            title: 'Categoría restaurada',
+                            text: `Se ha restaurado la categoría ${category.name}`,
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            width: 500,
+                            confirmButtonColor: '#CFAD04'
+                        })
+                    }
 
-                if(response.logout){
-                    setAuthHeader(null)
-                    setAuthUser(null)
-                    navigate('/login', {replace: true})
+                    if(response.logout){
+                        setAuthHeader(null)
+                        setAuthUser(null)
+                        navigate('/login', {replace: true})
+                    }
+                } finally {
+                    useCategoryStore.setState({ restoringId: null });
                 }
             } 
         })
@@ -120,6 +127,8 @@ export const useCategory = () => {
         handleDelete,
         handleSearch,
         handleOrderByChange, 
-        handleRestore
+        handleRestore,
+        deletingId,
+        restoringId
     }
 }

@@ -1,5 +1,5 @@
 import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaSpinner } from "react-icons/fa";
 import { IoIosMore } from "react-icons/io";
 import Modal from "../shared/components/Modal";
 import NoData from "../shared/components/NoData";
@@ -28,6 +28,8 @@ interface MeasurementTableProps {
   handleRestore: (measurement: any) => void;
   changePage: (page: number) => void;
   changeSize: (size: number) => void;
+  deletingId?: number | null;
+  restoringId?: number | null;
 }
 
 function MeasurementTable({
@@ -48,6 +50,8 @@ function MeasurementTable({
   handleRestore,
   changePage,
   changeSize,
+  deletingId,
+  restoringId,
 }: MeasurementTableProps) {
 
   return (
@@ -148,16 +152,26 @@ function MeasurementTable({
                             onClick={() =>
                               handleRestore(mapMeasurementToDataForm(measurement))
                             }
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
+                            disabled={restoringId === measurement.idMeasurement}
                           >
-                            <MdOutlineSettingsBackupRestore className="text-white" />
+                            {restoringId === measurement.idMeasurement ? (
+                              <FaSpinner className="text-white animate-spin" />
+                            ) : (
+                              <MdOutlineSettingsBackupRestore className="text-white" />
+                            )}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDelete(measurement)}
-                            className="p-2 bg-black rounded hover:bg-gray-800"
+                            className="p-2 bg-black rounded hover:bg-gray-800 disabled:opacity-50"
+                            disabled={deletingId === measurement.idMeasurement}
                           >
-                            <MdOutlineDelete className="text-white" />
+                            {deletingId === measurement.idMeasurement ? (
+                              <FaSpinner className="text-white animate-spin" />
+                            ) : (
+                              <MdOutlineDelete className="text-white" />
+                            )}
                           </button>
                         )}
                       </div>
