@@ -158,7 +158,6 @@ export const useMultiStepForm = () => {
       
       return await methods.trigger(matchingItem.fields);
     } catch (error) {
-      console.error('Validation failed:', error);
       return false;
     }
   };

@@ -202,7 +202,6 @@ export default function AssignedRoutines() {
         confirmButtonColor: "#CFAD04",
       });
     } catch (error) {
-      console.error("Error al exportar rutina:", error);
       await Swal.fire({
         title: "Error",
         text: "No se pudo exportar la rutina",

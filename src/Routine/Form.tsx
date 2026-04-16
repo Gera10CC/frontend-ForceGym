@@ -144,7 +144,7 @@ function Form() {
           fetchRoutines()
         ]);
       } catch (error) {
-        console.error("Error loading data:", error);
+        // Error loading data
       } finally {
         setLoading(false);
       }
@@ -362,14 +362,12 @@ function Form() {
       const isEditing = activeEditingId !== null && activeEditingId !== 0;
 
       if (isEditing) {
-        console.log('Actualizando rutina con ID:', activeEditingId);
         result = await updateRoutine({
           ...reqRoutine,
           idRoutine: activeEditingId
         });
         action = 'actualizada';
       } else {
-        console.log('Creando nueva rutina');
         result = await addRoutine(reqRoutine);
         action = 'creada';
       }
@@ -398,7 +396,6 @@ function Form() {
         });
       }
     } catch (error) {
-      console.error("Error al guardar la rutina:", error);
       Swal.fire({
         title: 'Error',
         text: 'Ocurrió un error al guardar la rutina',

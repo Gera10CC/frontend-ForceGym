@@ -91,7 +91,7 @@ function ClientDashboard() {
             }
         } catch (error: any) {
             if (error?.response?.status !== 401 && error?.response?.status !== 403) {
-                console.log('Error al actualizar perfil, usando datos locales');
+                // Error al actualizar perfil, usando datos locales
             }
         }
     }, []);
@@ -120,7 +120,7 @@ function ClientDashboard() {
             }
         } catch (error: any) {
             if (error?.response?.status !== 401 && error?.response?.status !== 403) {
-                console.log('Error al verificar contraseña provisional');
+                // Error al verificar contraseña provisional
             }
         }
     }, []);

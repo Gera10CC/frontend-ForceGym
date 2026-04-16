@@ -6,9 +6,6 @@ let isSessionExpiredAlertShown = false;
 
 export const getData = async (url: string) => {
   const createdHeaders = createHeaders();
-  
-  console.log('📡 GET Request:', url);
-  console.log('🔑 Headers:', createdHeaders.Authorization ? 'Token presente' : '⚠️ Sin token');
 
   try {
     const res = await fetch(url, {
@@ -18,15 +15,12 @@ export const getData = async (url: string) => {
 
     return manageResponse(res, url);
   } catch (error: any) {
-    console.error('❌ Error en GET:', url, error);
     return { ok: false, error: error.message };
   }
 };
 
 export const postData = async (url: string, dataReq: any) => {
   const createdHeaders = createHeaders();
-  
-  console.log('📡 POST Request:', url);
 
   try {
     const res = await fetch(url, {
@@ -37,15 +31,12 @@ export const postData = async (url: string, dataReq: any) => {
 
     return manageResponse(res, url);
   } catch (error: any) {
-    console.error('❌ Error en POST:', url, error);
     return { ok: false, error: error.message };
   }
 };
 
 export const putData = async (url: string, dataReq: any) => {
   const createdHeaders = createHeaders();
-  
-  console.log('📡 PUT Request:', url);
 
   try {
     const res = await fetch(url, {
@@ -56,15 +47,12 @@ export const putData = async (url: string, dataReq: any) => {
 
     return manageResponse(res, url);
   } catch (error: any) {
-    console.error('❌ Error en PUT:', url, error);
     return { ok: false, error: error.message };
   }
 };
 
 export const deleteData = async (url: string, dataReq: any) => {
   const createdHeaders = createHeaders();
-  
-  console.log('📡 DELETE Request:', url);
 
   try {
     const res = await fetch(url, {
@@ -75,15 +63,12 @@ export const deleteData = async (url: string, dataReq: any) => {
 
     return manageResponse(res, url);
   } catch (error: any) {
-    console.error('❌ Error en DELETE:', url, error);
     return { ok: false, error: error.message };
   }
 };
 
 const manageResponse = async (res: Response, url: string = '') => {
   const code = res.status;
-
-  console.log(`📊 Response [${code}] de:`, url);
 
   let result: any = {
     data: "",
@@ -102,18 +87,14 @@ const manageResponse = async (res: Response, url: string = '') => {
       };
     }
   } catch (error) {
-    console.warn("Error al parsear JSON:", error);
+    // Error al parsear JSON
   }
 
   if ([200, 201, 202].includes(code)) {
-    console.log('✅ Respuesta exitosa');
     return { ...result, ok: true };
   }
 
   if ([401, 403].includes(code)) {
-    console.error('🚫 Error 401/403: Token inválido o expirado');
-    console.error('🔍 Token actual:', localStorage.getItem("token")?.substring(0, 30) + '...');
-    
     // Evitar múltiples alertas
     if (!isSessionExpiredAlertShown) {
       isSessionExpiredAlertShown = true;
@@ -133,7 +114,6 @@ const manageResponse = async (res: Response, url: string = '') => {
       localStorage.removeItem("authUser");
       localStorage.removeItem("user");
       
-      console.log('🔄 Redirigiendo al login...');
       window.location.href = "/login";
     }
 

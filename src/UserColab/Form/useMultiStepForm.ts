@@ -34,7 +34,6 @@ export const useMultiStepForm = ({ initialData, onSubmit, isUpdate }: UseMultiSt
 
         await onSubmit(data);
     } catch (error) {
-      console.error('Submission error:', error);
       Swal.fire({
         title: 'Error',
         text: 'Ocurrió un error al guardar los datos',

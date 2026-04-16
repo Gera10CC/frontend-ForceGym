@@ -19,7 +19,6 @@ export const useLogin = () => {
     useEffect(() => {
         // Solo limpiar si estamos realmente en la página de login
         if (location.pathname === '/login' || location.pathname === '/') {
-            console.log('🔄 Limpiando sesión anterior en página de login');
             setAuthHeader(null);
             setAuthUser(null);
         }
@@ -52,13 +51,8 @@ export const useLogin = () => {
             });
 
             if (response.data?.loggedUser) {
-                console.log('✅ Login exitoso, guardando token...');
                 setAuthHeader(response.data.loggedUser.token);
                 setAuthUser(response.data.loggedUser);
-                
-                // Verificar que se guardó correctamente
-                const savedToken = localStorage.getItem("token");
-                console.log('✔️ Token verificado en localStorage:', savedToken ? 'Guardado correctamente' : '❌ ERROR: No se guardó');
                 
                 navigate('/gestion/dashboard', { replace: true });
             } else {

@@ -191,12 +191,10 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
             const responseCount = await getData(urlCount);
 
             if (!responseCount || !responseCount.ok) {
-                console.warn("⚠️ Backend no respondió correctamente en el conteo.");
                 return [];
             }
 
             const total = responseCount.data?.totalRecords ?? 0;
-            console.log("📊 Expense totalRecords:", total);
 
             if (total === 0) return [];
 
@@ -205,12 +203,9 @@ export const useEconomicExpenseStore = create<EconomicExpenseStore>()(
                 `${import.meta.env.VITE_URL_API}economicExpense/list?page=1&size=${total}` +
                 (qs ? `&${qs}` : "");
 
-            console.log("🔗 Expense URL (all):", urlAll);
-
             const responseAll = await getData(urlAll);
 
             if (!responseAll || !responseAll.ok) {
-                console.warn("⚠️ Backend no respondió correctamente al traer todos los datos.");
                 return [];
             }
 
