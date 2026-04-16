@@ -169,6 +169,9 @@ function Form() {
     } finally {
       setIsSubmitting(false);
     }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
