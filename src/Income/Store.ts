@@ -208,7 +208,6 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
             const responseCount = await getData(urlCount);
 
             if (!responseCount || !responseCount.ok) {
-                console.warn('fetchEconomicIncomeByActiveFilters: backend returned not ok (count)');
                 return [];
             }
 
@@ -225,7 +224,6 @@ export const useEconomicIncomeStore = create<EconomicIncomeStore>()(
             const responseAll = await getData(urlAll);
 
             if (!responseAll || !responseAll.ok) {
-                console.warn('fetchEconomicIncomeByActiveFilters: backend returned not ok (all)');
                 return [];
             }
 

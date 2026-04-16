@@ -187,7 +187,6 @@ export const useRoutine = () => {
                 confirmButtonColor: '#CFAD04'
             });
         } catch (error) {
-            console.error("Error al exportar PDF:", error);
             Swal.fire({
                 title: 'Error',
                 text: 'Error al generar el PDF: ' + (error instanceof Error ? error.message : String(error)),

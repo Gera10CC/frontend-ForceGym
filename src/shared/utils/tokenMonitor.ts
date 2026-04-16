@@ -7,15 +7,6 @@ export const startTokenMonitoring = () => {
         const currentToken = localStorage.getItem("token");
         
         if (lastToken !== currentToken) {
-            if (lastToken && !currentToken) {
-                console.error('🚨 ALERTA: Token fue eliminado inesperadamente!');
-                console.trace('Stack trace del momento de la detección:');
-            } else if (!lastToken && currentToken) {
-                console.log('✅ Token guardado correctamente');
-            } else if (lastToken && currentToken && lastToken !== currentToken) {
-                console.log('🔄 Token actualizado');
-            }
-            
             lastToken = currentToken;
         }
     }, 1000);
@@ -23,12 +14,7 @@ export const startTokenMonitoring = () => {
     // También monitorear eventos de storage
     window.addEventListener('storage', (e) => {
         if (e.key === 'token') {
-            console.log('📦 Evento storage detectado para token:');
-            console.log('  - Valor anterior:', e.oldValue?.substring(0, 30) + '...');
-            console.log('  - Valor nuevo:', e.newValue?.substring(0, 30) + '...');
-            console.log('  - URL:', e.url);
+            // Token modificado desde otra pestaña
         }
     });
-    
-    console.log('👁️ Monitoreo de token iniciado');
 };

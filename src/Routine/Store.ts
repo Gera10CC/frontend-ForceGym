@@ -95,7 +95,6 @@ export const useRoutineStore = create<RoutineStore>()(
                     isLoading: false
                 });
             } catch (error) {
-                console.error("Error al obtener rutina:", error);
                 set({ 
                     error: 'Error al cargar rutina',
                     isLoading: false,
@@ -253,7 +252,6 @@ export const useRoutineStore = create<RoutineStore>()(
                 
                 return addResult;
             } catch (error) {
-                console.error('Error al duplicar rutina:', error);
                 set({ error: 'Error al duplicar rutina', isLoading: false });
                 return { ok: false };
             } finally {

@@ -139,7 +139,6 @@ export const useCategoryStore = create<CategoryStore>()(
 
                 return result;
             } catch (error) {
-                console.error('Error fetching categories:', error);
                 set({ isLoading: false });
                 return { ok: false, logout: false };
             }
