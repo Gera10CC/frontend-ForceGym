@@ -104,13 +104,6 @@ function Form() {
           icon: "error",
         });
       }
-      if (!data.voucherNumber || data.voucherNumber.trim() === "") {
-        return Swal.fire({
-          title: "Error",
-          text: "El voucher de Sinpe es obligatorio para pago mixto",
-          icon: "error",
-        });
-      }
     }
 
     if (data.amount <= 0) {
@@ -164,6 +157,14 @@ function Form() {
       setAuthHeader(null);
       setAuthUser(null);
       navigate("/login");
+    } else {
+      // Mostrar mensaje de error
+      await Swal.fire({
+        title: "Error",
+        text: result.error || result.message || "Ocurrió un error al procesar la solicitud",
+        icon: "error",
+        confirmButtonColor: "#CFAD04",
+      });
     }
     } finally {
       setIsSubmitting(false);
@@ -360,15 +361,15 @@ function Form() {
       </div>
 
       <div>
-        <label className="text-sm uppercase font-bold">Voucher</label>
+        <label className="text-sm uppercase font-bold">Voucher (Opcional)</label>
         <input
           type="text"
           placeholder={
             isCashPayment 
               ? "No aplica para efectivo" 
               : isMixedPayment
-              ? "Ingrese el voucher de Sinpe"
-              : "Ingrese el voucher"
+              ? "Voucher de Sinpe (opcional)"
+              : "Voucher (opcional)"
           }
           disabled={isCashPayment}
           className={`
@@ -376,8 +377,7 @@ function Form() {
             ${isCashPayment ? "bg-gray-100 border-gray-300" : "border-gray-200"}
           `}
           {...register("voucherNumber", {
-            required:
-              idMeanOfPayment === 1 || isMixedPayment ? "El voucher es obligatorio" : false,
+            required: false,
             minLength: {
               value: MINLENGTH_VOUCHER,
               message: `Mínimo ${MINLENGTH_VOUCHER} caracteres`,
@@ -398,13 +398,13 @@ function Form() {
       </div>
 
       <div>
-        <label className="text-sm uppercase font-bold">Detalle</label>
+        <label className="text-sm uppercase font-bold">Detalle (Opcional)</label>
         <input
           type="text"
-          placeholder="Ingrese el detalle"
+          placeholder="Ingrese el detalle (opcional)"
           className="w-full p-3 border border-gray-200 rounded-md mt-1"
           {...register("detail", {
-            required: "El detalle es obligatorio",
+            required: false,
             minLength: {
               value: MINLENGTH_DETAIL,
               message: `Mínimo ${MINLENGTH_DETAIL} caracteres`,

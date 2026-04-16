@@ -84,13 +84,6 @@ function Form() {
                     icon: "error",
                 });
             }
-            if (!data.voucherNumber || data.voucherNumber.trim() === "") {
-                return Swal.fire({
-                    title: "Error",
-                    text: "El voucher de Sinpe es obligatorio para pago mixto",
-                    icon: "error",
-                });
-            }
         }
 
         const selectedDate = new Date(data.registrationDate);
@@ -169,6 +162,14 @@ function Form() {
             setAuthHeader(null);
             setAuthUser(null);
             navigate('/login');
+        } else {
+            // Mostrar mensaje de error
+            await Swal.fire({
+                title: "Error",
+                text: result.error || result.message || "Ocurrió un error al procesar la solicitud",
+                icon: "error",
+                confirmButtonColor: "#CFAD04",
+            });
         }
         } finally {
             setIsSubmitting(false);
@@ -276,15 +277,15 @@ useEffect(() => {
             </div>
 
             <div>
-                <label className="text-sm uppercase font-bold">Voucher</label>
+                <label className="text-sm uppercase font-bold">Voucher (Opcional)</label>
                 <input
                     type="text"
                     placeholder={
                         isCashPayment 
                             ? "No aplica para efectivo" 
                             : isMixedPayment
-                            ? "Ingrese el voucher de Sinpe"
-                            : "Ingrese voucher"
+                            ? "Voucher de Sinpe (opcional)"
+                            : "Voucher (opcional)"
                     }
                     disabled={isCashPayment}
                     className={`
@@ -292,7 +293,7 @@ useEffect(() => {
                         ${isCashPayment ? "bg-gray-100 border-gray-300" : "border-gray-200"}
                     `}
                     {...register("voucherNumber", {
-                        required: (isCashPayment ? false : isMixedPayment ? 'El voucher de Sinpe es obligatorio' : 'El voucher es obligatorio'),
+                        required: false,
                         maxLength: {
                             value: MAXLENGTH_VOUCHER,
                             message: `Máximo ${MAXLENGTH_VOUCHER} caracteres`
@@ -305,13 +306,13 @@ useEffect(() => {
             </div>
 
             <div>
-                <label className="text-sm uppercase font-bold">Detalle</label>
+                <label className="text-sm uppercase font-bold">Detalle (Opcional)</label>
                 <input
                     type="text"
-                    placeholder="Ingrese el detalle"
+                    placeholder="Ingrese el detalle (opcional)"
                     className="w-full p-3 border border-gray-200 rounded-md mt-1"
                     {...register("detail", {
-                        required: 'El detalle es obligatorio',
+                        required: false,
                         minLength: {
                             value: MINLENGTH_DETAIL,
                             message: `Mínimo ${MINLENGTH_DETAIL} caracteres`
