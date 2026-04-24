@@ -953,7 +953,7 @@ function Form() {
                             handleExerciseChange(index, exerciseId);
                           }}
                           placeholder="Buscar ejercicio..."
-                          isDisabled={loading || (activeEditingId && ex.isExisting)}
+                          isDisabled={loading || !!(activeEditingId && ex.isExisting)}
                           isClearable={false}
                         />
                         {activeEditingId && ex.isExisting && (
@@ -1024,17 +1024,17 @@ function Form() {
                           <button
                             type="button"
                             className={
-                              loading || (activeEditingId && ex.isExisting)
+                              loading || !!(activeEditingId && ex.isExisting)
                                 ? "h-[38px] w-[38px] flex items-center justify-center rounded-full -mt-2 cursor-not-allowed"
                                 : "h-[38px] w-[38px] flex items-center justify-center rounded-full -mt-2 hover:bg-gray-200 transition-colors duration-150"
                             }
                             onClick={() => removeExercise(index)}
-                            disabled={loading || (activeEditingId && ex.isExisting)}
+                            disabled={loading || !!(activeEditingId && ex.isExisting)}
                             title={activeEditingId && ex.isExisting ? "No se puede eliminar (protege notas de clientes)" : "Eliminar ejercicio"}
                           >
                             <span
                               className={
-                                loading || (activeEditingId && ex.isExisting)
+                                loading || !!(activeEditingId && ex.isExisting)
                                   ? "text-gray-400 text-xl"
                                   : "text-yellow-500 hover:text-yellow-700 text-xl font-bold"
                               }
