@@ -9,7 +9,9 @@ type RoutineStore = {
     routines: Routine[];
     modalForm: boolean;
     modalInfo: boolean;
+    modalAssignClients: boolean;
     activeEditingId: number | null;
+    activeAssigningId: number | null;
     routineToEdit: RoutineWithExercisesDTO | null;
     isLoading: boolean;
     error: string | null;
@@ -24,11 +26,15 @@ type RoutineStore = {
     deleteRoutine: (id: number) => Promise<any>;
     restoreRoutine: (id: number) => Promise<any>;
     duplicateRoutine: (id: number) => Promise<any>;
+    assignClientsToRoutine: (routineId: number, clientIds: number[]) => Promise<any>;
+    getAssignedClients: (routineId: number) => Promise<number[]>;
 
     showModalForm: (id?: number) => void;
     closeModalForm: () => void;
     showModalInfo: () => void;
     closeModalInfo: () => void;
+    showModalAssignClients: (id: number) => void;
+    closeModalAssignClients: () => void;
     resetEditing: () => void;
 };
 
@@ -38,7 +44,9 @@ export const useRoutineStore = create<RoutineStore>()(
         currentRoutine: null,
         modalForm: false,
         modalInfo: false,
+        modalAssignClients: false,
         activeEditingId: null,
+        activeAssigningId: null,
         routineToEdit: null,
         isLoading: false,
         error: null,
@@ -280,6 +288,67 @@ export const useRoutineStore = create<RoutineStore>()(
 
         closeModalInfo: () => {
             set({ modalInfo: false });
+        },
+
+        showModalAssignClients: (id) => {
+            set({ 
+                modalAssignClients: true,
+                activeAssigningId: id
+            });
+        },
+
+        closeModalAssignClients: () => {
+            set({ 
+                modalAssignClients: false,
+                activeAssigningId: null
+            });
+        },
+
+        assignClientsToRoutine: async (routineId, clientIds) => {
+            set({ isLoading: true });
+            try {
+                const loggedUser = getAuthUser();
+                if (!loggedUser?.idUser) throw new Error('Usuario no autenticado');
+
+                const result = await postData(
+                    `${import.meta.env.VITE_URL_API}routine/${routineId}/assign-clients`,
+                    {
+                        clientIds: clientIds,
+                        paramLoggedIdUser: loggedUser.idUser
+                    }
+                );
+                
+                if (result?.logout) return { logout: true };
+                if (result?.ok) {
+                    await get().fetchRoutines();
+                    await useCommonDataStore.getState().refreshAllCommonData();
+                }
+                
+                return result;
+            } catch (error) {
+                set({ error: 'Error al asignar clientes', isLoading: false });
+                return { ok: false };
+            } finally {
+                set({ isLoading: false });
+            }
+        },
+
+        getAssignedClients: async (routineId) => {
+            try {
+                const result = await getData(
+                    `${import.meta.env.VITE_URL_API}routine/${routineId}/assigned-clients`
+                );
+                
+                if (result?.logout) return [];
+                if (result?.ok && result?.data) {
+                    return result.data;
+                }
+                
+                return [];
+            } catch (error) {
+                console.error('Error al obtener clientes asignados:', error);
+                return [];
+            }
         }
     }))
 );
