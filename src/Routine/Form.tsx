@@ -7,6 +7,7 @@ import { FaChevronUp, FaChevronDown, FaSpinner } from 'react-icons/fa';
 import { ExerciseCategory, RoutineDataForm, RoutineWithExercisesDTO } from "../shared/types";
 import ErrorForm from "../shared/components/ErrorForm";
 import { getAuthUser, setAuthHeader, setAuthUser } from "../shared/utils/authentication";
+import { formatDateForParam } from "../shared/utils/format";
 import useRoutineStore from "./Store";
 import { useCommonDataStore } from "../shared/CommonDataStore";
 import clsx from "clsx";
@@ -22,6 +23,7 @@ type SelectedExercise = {
   categoryId: number;
   dayNumber: number;
   categoryOrder?: number;
+  isExisting?: boolean; // Indica si el ejercicio ya existía antes de editar (protege notas)
 };
 
 type ClientOption = {
@@ -110,6 +112,23 @@ function Form() {
 
   // Remover categoría de un día específico
   const removeCategoryFromDay = (dayNumber: number, categoryId: number) => {
+    // Verificar si hay ejercicios existentes en esta categoría (modo edición)
+    if (activeEditingId) {
+      const hasExistingExercises = selectedExercises.some(
+        ex => ex.categoryId === categoryId && ex.dayNumber === dayNumber && ex.isExisting
+      );
+      
+      if (hasExistingExercises) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No se puede eliminar',
+          html: 'Esta categoría contiene ejercicios existentes que tienen <strong>notas personales de clientes</strong>.<br><br>No puedes eliminar categorías con ejercicios existentes al editar una rutina.',
+          confirmButtonColor: '#CFAD04'
+        });
+        return;
+      }
+    }
+    
     Swal.fire({
       title: '¿Eliminar categoría?',
       text: 'Se eliminarán todos los ejercicios de esta categoría en este día',
@@ -223,7 +242,8 @@ function Form() {
             category: category?.name || "Sin categoría",
             categoryId: category?.idExerciseCategory || 0,
             dayNumber: ex.dayNumber || 1,
-            categoryOrder: ex.categoryOrder
+            categoryOrder: ex.categoryOrder,
+            isExisting: true // Marcar como existente para proteger en edición
           };
         });
 
@@ -270,8 +290,10 @@ function Form() {
 
   const submitForm = async (data: RoutineDataForm) => {
     const loggedUser = getAuthUser();
+    const isEditing = activeEditingId !== null && activeEditingId !== 0;
 
-    if (selectedClients.length === 0) {
+    // Solo validar clientes al crear, no al editar
+    if (!isEditing && selectedClients.length === 0) {
       Swal.fire({
         title: 'Error',
         text: 'Debe seleccionar al menos un cliente',
@@ -348,9 +370,10 @@ function Form() {
             }));
         });
       }),
-      assignments: selectedClients.map(client => ({
+      // Solo enviar assignments al crear, no al editar
+      assignments: isEditing ? [] : selectedClients.map(client => ({
         idClient: client.value,
-        assignmentDate: new Date().toISOString()
+        assignmentDate: formatDateForParam(new Date()) // Solo fecha local YYYY-MM-DD, sin hora UTC
       })),
       isDeleted: 0,
       paramLoggedIdUser: loggedUser?.idUser
@@ -358,8 +381,6 @@ function Form() {
 
       let result;
       let action = '';
-
-      const isEditing = activeEditingId !== null && activeEditingId !== 0;
 
       if (isEditing) {
         result = await updateRoutine({
@@ -438,6 +459,18 @@ function Form() {
   };
 
   const handleExerciseChange = (index: number, exerciseId: number) => {
+    // Prevenir cambio de ejercicio si es existente en modo edición
+    const currentExercise = selectedExercises[index];
+    if (activeEditingId && currentExercise.isExisting) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No se puede cambiar',
+        html: 'No puedes cambiar un ejercicio existente porque esto <strong>eliminaría las notas personales</strong> de los clientes.<br><br>Solo puedes modificar series, repeticiones o agregar nuevos ejercicios.',
+        confirmButtonColor: '#CFAD04'
+      });
+      return;
+    }
+    
     setSelectedExercises(prev => {
       const newExercises = [...prev];
       const categoryId = newExercises[index].categoryId;
@@ -532,6 +565,19 @@ function Form() {
   };
 
   const removeExercise = (index: number) => {
+    const exercise = selectedExercises[index];
+    
+    // Prevenir eliminación de ejercicios existentes en modo edición
+    if (activeEditingId && exercise.isExisting) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No se puede eliminar',
+        html: 'No puedes eliminar ejercicios existentes al editar una rutina porque esto <strong>eliminaría las notas personales</strong> que los clientes hayan agregado.<br><br>Solo puedes agregar nuevos ejercicios o modificar series/repeticiones.',
+        confirmButtonColor: '#CFAD04'
+      });
+      return;
+    }
+    
     setSelectedExercises(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -592,24 +638,48 @@ function Form() {
       <input id="idUser" type="hidden" {...register('idUser')} />
       <input id="isDeleted" type="hidden" {...register('isDeleted')} />
       
-      <div className="my-5">
-        <SearchSelect
-          id="clients"
-          label="Clientes"
-          options={allClients}
-          value={selectedClients}
-          onChange={(selectedOptions) =>
-            setSelectedClients(selectedOptions as ClientOption[])
-          }
-          isMulti
-          placeholder="Seleccione los clientes..."
-          isDisabled={loading}
-        />
+      {/* Solo mostrar selector de clientes al crear, no al editar */}
+      {!activeEditingId && (
+        <div className="my-5">
+          <SearchSelect
+            id="clients"
+            label="Clientes"
+            options={allClients}
+            value={selectedClients}
+            onChange={(selectedOptions) =>
+              setSelectedClients(selectedOptions as ClientOption[])
+            }
+            isMulti
+            placeholder="Seleccione los clientes..."
+            isDisabled={loading}
+          />
 
-        {selectedClients.length === 0 && (
-          <ErrorForm>Debe seleccionar al menos un cliente</ErrorForm>
-        )}
-      </div>
+          {selectedClients.length === 0 && (
+            <ErrorForm>Debe seleccionar al menos un cliente</ErrorForm>
+          )}
+        </div>
+      )}
+
+      {/* Mensajes informativos al editar */}
+      {activeEditingId && (
+        <>
+          <div className="my-5 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>ℹ️ Asignar Clientes:</strong> Para asignar o modificar los clientes de esta rutina, 
+              use el botón <strong>"Asignar Clientes"</strong> en la tabla de rutinas.
+            </p>
+          </div>
+          <div className="my-5 p-4 bg-amber-50 rounded-lg border border-amber-300">
+            <p className="text-sm text-amber-900 font-semibold mb-2">🔒 Protección de Notas de Clientes</p>
+            <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
+              <li>Los ejercicios existentes <strong>no se pueden eliminar ni cambiar</strong></li>
+              <li>Solo puedes <strong>modificar series, repeticiones y notas generales</strong></li>
+              <li>Puedes <strong>agregar nuevos ejercicios</strong> sin problema</li>
+              <li>Esto protege las <strong>notas personales</strong> que los clientes han agregado</li>
+            </ul>
+          </div>
+        </>
+      )}
 
       <div className="my-5">
         <label htmlFor="idDifficultyRoutine" className="text-sm uppercase font-bold">
@@ -870,11 +940,12 @@ function Form() {
                     <div className="flex flex-wrap items-end gap-4">
                       <div className={clsx(
                         "flex-1 min-w-[200px]",
-                        ex.idExercise > 0 && "rounded border-2 border-yellow-400 bg-yellow-50 p-1"
+                        ex.idExercise > 0 && "rounded border-2 border-yellow-400 bg-yellow-50 p-1",
+                        activeEditingId && ex.isExisting && "opacity-75"
                       )}>
                         <SearchSelect
                           id={`exercise-${index}`}
-                          label="Ejercicio *"
+                          label={activeEditingId && ex.isExisting ? "Ejercicio (Protegido)" : "Ejercicio *"}
                           options={exerciseOptions}
                           value={selectedExerciseOption}
                           onChange={(selectedOption) => {
@@ -882,9 +953,14 @@ function Form() {
                             handleExerciseChange(index, exerciseId);
                           }}
                           placeholder="Buscar ejercicio..."
-                          isDisabled={loading}
+                          isDisabled={loading || (activeEditingId && ex.isExisting)}
                           isClearable={false}
                         />
+                        {activeEditingId && ex.isExisting && (
+                          <span className="text-xs text-blue-600 mt-1 block">
+                            🔒 No se puede cambiar (protege notas de clientes)
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex items-end gap-3">
@@ -948,16 +1024,17 @@ function Form() {
                           <button
                             type="button"
                             className={
-                              loading
+                              loading || (activeEditingId && ex.isExisting)
                                 ? "h-[38px] w-[38px] flex items-center justify-center rounded-full -mt-2 cursor-not-allowed"
                                 : "h-[38px] w-[38px] flex items-center justify-center rounded-full -mt-2 hover:bg-gray-200 transition-colors duration-150"
                             }
                             onClick={() => removeExercise(index)}
-                            disabled={loading}
+                            disabled={loading || (activeEditingId && ex.isExisting)}
+                            title={activeEditingId && ex.isExisting ? "No se puede eliminar (protege notas de clientes)" : "Eliminar ejercicio"}
                           >
                             <span
                               className={
-                                loading
+                                loading || (activeEditingId && ex.isExisting)
                                   ? "text-gray-400 text-xl"
                                   : "text-yellow-500 hover:text-yellow-700 text-xl font-bold"
                               }
@@ -1002,11 +1079,11 @@ function Form() {
         disabled={
           loading ||
           isSubmitting ||
-          selectedClients.length === 0 ||
+          (!activeEditingId && selectedClients.length === 0) ||
           selectedExercises.filter(ex => ex.idExercise > 0).length === 0
         }
         className={`w-full p-3 uppercase font-bold transition-colors flex items-center justify-center gap-2 ${
-          loading || isSubmitting || selectedClients.length === 0 || selectedExercises.filter(ex => ex.idExercise > 0).length === 0
+          loading || isSubmitting || (!activeEditingId && selectedClients.length === 0) || selectedExercises.filter(ex => ex.idExercise > 0).length === 0
             ? 'bg-gray-400 cursor-not-allowed text-gray-700 opacity-50'
             : 'bg-yellow text-white hover:bg-amber-600 cursor-pointer'
         }`}

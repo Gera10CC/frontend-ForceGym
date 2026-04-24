@@ -8,6 +8,7 @@ import { useRoutineStore } from "./Store";
 import { useRoutine } from "./useRoutine";
 import Form from "./Form";
 import RoutineTable from "./RoutineTable";
+import AssignClientsModal from "./AssignClientsModal";
 
 function RoutineManagement() {
   const {
@@ -22,6 +23,7 @@ function RoutineManagement() {
     showModalInfo,
     closeModalForm,
     closeModalInfo,
+    showModalAssignClients,
 
     resetEditing,
   } = useRoutineStore();
@@ -104,12 +106,16 @@ function RoutineManagement() {
             handleExportRoutine={handleExportRoutine}
 
             showModalForm={showModalForm}
+            showModalAssignClients={showModalAssignClients}
             
             deletingId={deletingId}
             restoringId={restoringId}
           />
         </div>
       </main>
+
+      {/* Modal para asignar clientes */}
+      <AssignClientsModal />
     </>
   );
 }

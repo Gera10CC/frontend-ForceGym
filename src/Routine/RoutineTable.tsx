@@ -1,6 +1,6 @@
 import { MdModeEdit, MdOutlineDelete, MdOutlineSettingsBackupRestore, MdOutlineFileDownload, MdContentCopy } from "react-icons/md";
 import { IoIosMore } from "react-icons/io";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaUsers } from "react-icons/fa";
 import Modal from "../shared/components/Modal";
 import NoData from "../shared/components/NoData";
 import DataInfo from "./DataInfo";
@@ -20,6 +20,7 @@ interface RoutineTableProps {
   handleExportRoutine: (idRoutine: number, routineName: string) => Promise<void>;
 
   showModalForm: () => void;
+  showModalAssignClients: (id: number) => void;
   deletingId?: number | null;
   restoringId?: number | null;
 }
@@ -38,6 +39,7 @@ function RoutineTable({
   handleExportRoutine,
 
   showModalForm,
+  showModalAssignClients,
   deletingId,
   restoringId
 }: RoutineTableProps) {
@@ -95,6 +97,14 @@ function RoutineTable({
                           title="Editar"
                         >
                           <MdModeEdit className="text-white text-sm sm:text-base" />
+                        </button>
+
+                        <button
+                          onClick={() => showModalAssignClients(routine.idRoutine)}
+                          className="p-1.5 sm:p-2 bg-amber-500 rounded hover:bg-amber-600"
+                          title="Asignar Clientes"
+                        >
+                          <FaUsers className="text-white text-sm sm:text-base" />
                         </button>
 
                         <button
